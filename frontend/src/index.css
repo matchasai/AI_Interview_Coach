@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply m-0 bg-gradient-to-b from-slate-50 via-white to-indigo-50 text-slate-900;
+  }
+
+  h1 {
+    @apply text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl;
+  }
+
+  h2 {
+    @apply text-xl font-semibold tracking-tight text-slate-900;
+  }
+}
