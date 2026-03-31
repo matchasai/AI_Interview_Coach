@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --brand-1: 37 99 235;
+    --brand-2: 124 58 237;
+    --surface-soft: 248 250 252;
+  }
+
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply m-0 text-slate-900;
+    background:
+      radial-gradient(900px 520px at 5% -10%, rgb(59 130 246 / 0.16), transparent 58%),
+      radial-gradient(760px 500px at 90% -12%, rgb(139 92 246 / 0.14), transparent 52%),
+      linear-gradient(180deg, rgb(var(--surface-soft)) 0%, rgb(255 255 255) 44%, rgb(238 242 255) 100%);
+    min-height: 100vh;
+  }
+
+  h1 {
+    @apply text-4xl font-bold tracking-tight text-slate-950 md:text-5xl;
+  }
+
+  h2 {
+    @apply text-xl font-semibold tracking-tight text-slate-900 md:text-2xl;
+  }
+}
+
+@layer components {
+  .brand-gradient {
+    @apply bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent;
+  }
+
+  .surface-card {
+    @apply border border-white/60 bg-white/75 backdrop-blur;
+  }
+
+  .surface-glow {
+    box-shadow:
+      0 14px 40px rgb(15 23 42 / 0.11),
+      0 2px 8px rgb(37 99 235 / 0.11);
+  }
+}
