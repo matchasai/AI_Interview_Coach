@@ -49,6 +49,7 @@ export function Session() {
   const [nextDifficultyHint, setNextDifficultyHint] = useState('')
   const [elapsed, setElapsed] = useState(0)
   const [pauseLoading, setPauseLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const [showAdvancedFeedback, setShowAdvancedFeedback] = useState(true)
 
   useEffect(() => {
@@ -147,6 +148,30 @@ export function Session() {
     }
   }
 
+  async function deleteSession() {
+    if (!session) return
+
+    const isRunning = session.status === 'active' || session.status === 'paused'
+    if (!isRunning) {
+      toastError('Only active or paused sessions can be deleted.')
+      return
+    }
+
+    const confirmed = window.confirm('Delete this running session? This action cannot be undone.')
+    if (!confirmed) return
+
+    setDeleteLoading(true)
+    try {
+      await api.delete(`/api/session/${id}`)
+      toastSuccess('Session deleted')
+      navigate('/dashboard', { replace: true })
+    } catch (e) {
+      toastError(e)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -228,9 +253,17 @@ export function Session() {
             <Button
               variant="secondary"
               onClick={togglePause}
-              disabled={pauseLoading}
+              disabled={pauseLoading || deleteLoading}
             >
               {pauseLoading ? 'Loading…' : session.status === 'paused' ? 'Resume' : 'Pause'}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={deleteSession}
+              disabled={deleteLoading || pauseLoading || submitting}
+              className="text-red-700 hover:text-red-800"
+            >
+              {deleteLoading ? 'Deleting…' : 'Delete Session'}
             </Button>
             <Link to="/dashboard">
               <Button variant="secondary">Back</Button>
