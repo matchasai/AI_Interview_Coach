@@ -32,6 +32,7 @@ export function Dashboard() {
   const [filterDifficulty, setFilterDifficulty] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
   const [exporting, setExporting] = useState('')
+  const [deletingSessionId, setDeletingSessionId] = useState('')
 
   useEffect(() => {
     if (error) toastError(error)
@@ -113,6 +114,28 @@ export function Dashboard() {
       toastError(getErrorMessage(e))
     } finally {
       setExporting('')
+    }
+  }
+
+  async function deleteSession(session) {
+    const isRunning = session?.status === 'active' || session?.status === 'paused'
+    if (!isRunning) {
+      toastError('Only active or paused sessions can be deleted.')
+      return
+    }
+
+    const confirmed = window.confirm(`Delete this ${session.role} session? This action cannot be undone.`)
+    if (!confirmed) return
+
+    setDeletingSessionId(session._id)
+    try {
+      await api.delete(`/api/session/${session._id}`)
+      setSessions((prev) => (prev || []).filter((item) => item._id !== session._id))
+      toastSuccess('Running session deleted')
+    } catch (e) {
+      toastError(getErrorMessage(e))
+    } finally {
+      setDeletingSessionId('')
     }
   }
 
@@ -256,6 +279,7 @@ export function Dashboard() {
                 >
                   <option value="all">All Statuses</option>
                   <option value="active">Active</option>
+                  <option value="paused">Paused</option>
                   <option value="completed">Completed</option>
                   <option value="abandoned">Abandoned</option>
                 </select>
@@ -336,6 +360,16 @@ export function Dashboard() {
                             >
                               {exporting === `${s._id}:pdf` ? '…' : 'PDF'}
                             </Button>
+                            {(s.status === 'active' || s.status === 'paused') ? (
+                              <Button
+                                variant="ghost"
+                                className="px-2 py-1 text-xs text-red-700 hover:text-red-800"
+                                disabled={Boolean(deletingSessionId) || Boolean(exporting)}
+                                onClick={() => deleteSession(s)}
+                              >
+                                {deletingSessionId === s._id ? 'Deleting…' : 'Delete'}
+                              </Button>
+                            ) : null}
                           </div>
                         </td>
                       </tr>
