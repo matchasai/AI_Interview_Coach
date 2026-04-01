@@ -18,25 +18,13 @@ export function FeedbackPanel({ evaluation, showAdvanced = true }) {
     return value.short || value.long || '—'
   }, [evaluation, answerFormat])
 
-  const sourceLabel = useMemo(() => {
-    if (!evaluation) return '—'
-
-    if (evaluation.source === 'live-ai') {
-      if (evaluation.provider === 'groq') return 'Live AI (Groq)'
-      if (evaluation.provider === 'gemini') return 'Live AI (Gemini)'
-      return `Live AI (${evaluation.provider || 'Provider'})`
-    }
-
-    return 'Fallback Heuristic'
-  }, [evaluation])
-
   if (!evaluation) return null
 
   return (
     <Card>
       <CardHeader
         title="Feedback"
-        subtitle={`Source: ${sourceLabel}`}
+        subtitle={`Source: ${evaluation.source === 'live-ai' ? 'Live AI (Gemini)' : 'Fallback Heuristic'}`}
         right={<ScoreCard score={evaluation.score} />}
       />
       <div className="space-y-3">
