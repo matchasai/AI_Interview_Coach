@@ -72,6 +72,41 @@ const EvaluationSchema = z
     missingKeywords: z.array(z.string().min(1)).optional().default([]),
     feedback: z.string().optional().default(""),
     improvementTip: z.string().optional().default(""),
+    correctAnswer: z
+      .object({
+        short: z.string().optional().default(""),
+        long: z.string().optional().default(""),
+        bulletPoints: z.array(z.string().min(1)).optional().default([]),
+      })
+      .optional()
+      .default({ short: "", long: "", bulletPoints: [] }),
+    rubric: z
+      .object({
+        conceptAccuracy: z.preprocess((v) => Number(v), z.number().min(0).max(10)),
+        depth: z.preprocess((v) => Number(v), z.number().min(0).max(10)),
+        exampleQuality: z.preprocess((v) => Number(v), z.number().min(0).max(10)),
+        tradeoffAwareness: z.preprocess((v) => Number(v), z.number().min(0).max(10)),
+        communication: z.preprocess((v) => Number(v), z.number().min(0).max(10)),
+      })
+      .optional()
+      .default({
+        conceptAccuracy: 0,
+        depth: 0,
+        exampleQuality: 0,
+        tradeoffAwareness: 0,
+        communication: 0,
+      }),
+    evidence: z
+      .array(
+        z.object({
+          quote: z.string().optional().default(""),
+          strength: z.string().optional().default(""),
+          gap: z.string().optional().default(""),
+          action: z.string().optional().default(""),
+        })
+      )
+      .optional()
+      .default([]),
   })
   .strict();
 
@@ -90,6 +125,33 @@ function parseEvaluation(payload) {
     missingKeywords: ensureArrayOfStrings(payload?.missingKeywords),
     feedback: typeof payload?.feedback === "string" ? payload.feedback : "",
     improvementTip: typeof payload?.improvementTip === "string" ? payload.improvementTip : "",
+    correctAnswer: {
+      short:
+        typeof payload?.correctAnswer?.short === "string"
+          ? payload.correctAnswer.short
+          : typeof payload?.correctAnswer === "string"
+            ? payload.correctAnswer
+            : "",
+      long: typeof payload?.correctAnswer?.long === "string" ? payload.correctAnswer.long : "",
+      bulletPoints: ensureArrayOfStrings(payload?.correctAnswer?.bulletPoints),
+    },
+    rubric: {
+      conceptAccuracy: Number(payload?.rubric?.conceptAccuracy) || 0,
+      depth: Number(payload?.rubric?.depth) || 0,
+      exampleQuality: Number(payload?.rubric?.exampleQuality) || 0,
+      tradeoffAwareness: Number(payload?.rubric?.tradeoffAwareness) || 0,
+      communication: Number(payload?.rubric?.communication) || 0,
+    },
+    evidence: Array.isArray(payload?.evidence)
+      ? payload.evidence
+          .map((item) => ({
+            quote: typeof item?.quote === "string" ? item.quote : "",
+            strength: typeof item?.strength === "string" ? item.strength : "",
+            gap: typeof item?.gap === "string" ? item.gap : "",
+            action: typeof item?.action === "string" ? item.action : "",
+          }))
+          .filter((item) => item.quote || item.strength || item.gap || item.action)
+      : [],
   };
 }
 

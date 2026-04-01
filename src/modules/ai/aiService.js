@@ -51,6 +51,80 @@ function pickBank(role) {
   return ROLE_BANK[role] || ROLE_BANK.SDE;
 }
 
+function inferExpectedKeywords(role, questionText) {
+  const text = `${role || ""} ${questionText || ""}`.toLowerCase();
+
+  if (text.includes("process") && text.includes("thread")) {
+    return ["memory", "isolation", "context switch", "communication", "example"];
+  }
+  if (text.includes("rest") || text.includes("api")) {
+    return ["http", "stateless", "endpoint", "idempotent", "example"];
+  }
+  if (text.includes("binary search") || text.includes("time complexity")) {
+    return ["sorted", "log", "divide", "compare", "example"];
+  }
+
+  return ["definition", "approach", "tradeoff", "example", "edge case"];
+}
+
+function buildCorrectAnswer({ role, questionText }) {
+  const expected = inferExpectedKeywords(role, questionText);
+  const [k1, k2, k3, k4] = expected;
+
+  return {
+    short: [
+      "Start with a clear definition and explain the core mechanism in simple terms.",
+      `Include ${k1 || "the key concept"}, ${k2 || "implementation detail"}, and one practical example.`,
+    ].join(" "),
+    long: [
+      "A strong answer should first define the concept and why it matters in interviews and real projects.",
+      `Then explain how it works with focus on ${k1 || "core flow"} and ${k2 || "important details"}.`,
+      `Discuss tradeoffs around ${k3 || "performance"} and ${k4 || "maintainability"}.`,
+      "Close with one project example and mention edge cases or limitations.",
+    ].join(" "),
+    bulletPoints: [
+      "Definition in one sentence",
+      "How it works step-by-step",
+      "One real-world/project example",
+      "Tradeoff and edge case",
+    ],
+  };
+}
+
+function splitEvidenceSnippets(answerText) {
+  return String(answerText || "")
+    .split(/[\.\n]/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
+function buildRubricAndEvidence({ role, questionText, answerText, missingKeywords }) {
+  const text = String(answerText || "").trim();
+  const hasExample = /example|for instance|for example|in my project/i.test(text);
+  const hasTradeoff = /tradeoff|pros|cons|however|but|limitation/i.test(text);
+  const expected = inferExpectedKeywords(role, questionText);
+  const normalized = text.toLowerCase();
+  const coveredCount = expected.filter((k) => normalized.includes(k.toLowerCase())).length;
+
+  const rubric = {
+    conceptAccuracy: Math.min(10, Math.max(1, 4 + coveredCount)),
+    depth: Math.min(10, Math.max(1, text.length > 220 ? 8 : text.length > 120 ? 6 : 4)),
+    exampleQuality: hasExample ? 7 : 3,
+    tradeoffAwareness: hasTradeoff ? 7 : 3,
+    communication: text.length > 120 ? 7 : 5,
+  };
+
+  const evidence = splitEvidenceSnippets(text).map((quote) => ({
+    quote,
+    strength: "Relevant point from your answer.",
+    gap: missingKeywords.length ? `Could include: ${missingKeywords.slice(0, 2).join(", ")}` : "Could be more concise.",
+    action: "Add one concrete project impact or metric.",
+  }));
+
+  return { rubric, evidence };
+}
+
 function hasGroqKey() {
   return typeof env.GROQ_API_KEY === "string" && env.GROQ_API_KEY.trim().length > 0;
 }
@@ -159,7 +233,7 @@ async function evaluateAnswer({ role, difficulty, questionText, answerText }) {
   const text = typeof answerText === "string" ? answerText : "";
   const normalized = text.toLowerCase();
 
-  const expected = ["tradeoff", "example", "complexity", "edge case"].filter(Boolean);
+  const expected = inferExpectedKeywords(role, questionText);
   const missingKeywords = expected.filter((k) => !normalized.includes(k));
 
   let score = 5;
@@ -180,6 +254,13 @@ async function evaluateAnswer({ role, difficulty, questionText, answerText }) {
         ? "Strong answer with clear structure. Add one real-world example to make it more convincing."
         : "Decent start, but your answer is missing important specifics. Add structure: define, explain, then give an example.",
     improvementTip: "Use the pattern: definition → approach → example → edge cases.",
+    correctAnswer: buildCorrectAnswer({ role, questionText }),
+    ...buildRubricAndEvidence({
+      role,
+      questionText,
+      answerText,
+      missingKeywords,
+    }),
   };
 
   return parseEvaluation(payload);

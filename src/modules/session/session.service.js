@@ -62,6 +62,9 @@ async function startSession({ userId, role, difficulty, questionCount }) {
     feedback: null,
     missingKeywords: null,
     improvementTip: null,
+    correctAnswer: null,
+    rubric: null,
+    evidence: null,
     answeredAt: null,
   }));
 
@@ -111,6 +114,9 @@ async function submitAnswer({ userId, sessionId, questionId, answerText }) {
   question.missingKeywords = evaluation.missingKeywords;
   question.feedback = evaluation.feedback;
   question.improvementTip = evaluation.improvementTip;
+  question.correctAnswer = evaluation.correctAnswer || null;
+  question.rubric = evaluation.rubric || null;
+  question.evidence = Array.isArray(evaluation.evidence) ? evaluation.evidence : null;
   question.answeredAt = new Date();
 
   await session.save();
