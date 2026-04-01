@@ -63,6 +63,15 @@ const getHistory = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, sessions });
 });
 
+const deleteOwnSession = asyncHandler(async (req, res) => {
+  const sessionId = req.params.id;
+  const session = await sessionService.deleteOwnSession({
+    userId: req.user.userId,
+    sessionId,
+  });
+  res.status(200).json({ success: true, session });
+});
+
 const adminSoftDelete = asyncHandler(async (req, res) => {
   const sessionId = req.params.id;
   const session = await sessionService.softDeleteSession({ sessionId });
@@ -113,6 +122,7 @@ module.exports = {
   completeSession,
   getSessionById,
   getHistory,
+  deleteOwnSession,
   adminSoftDelete,
   pauseSession,
   getDifficultyRecommendation,

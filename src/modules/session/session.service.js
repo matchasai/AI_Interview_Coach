@@ -216,6 +216,31 @@ async function getHistory({ userId, limit = 20, offset = 0 }) {
   return sessions;
 }
 
+async function deleteOwnSession({ userId, sessionId }) {
+  const session = await Session.findById(sessionId);
+  if (!session) throw new AppError("Session not found", 404, "SESSION_NOT_FOUND");
+
+  if (session.userId.toString() !== userId.toString()) {
+    throw new AppError("Not allowed", 403, "FORBIDDEN");
+  }
+
+  if (!["active", "paused"].includes(session.status)) {
+    throw new AppError(
+      "Only active or paused sessions can be deleted",
+      400,
+      "INVALID_SESSION_STATE"
+    );
+  }
+
+  session.status = "abandoned";
+  if (!session.deletedAt) {
+    session.deletedAt = new Date();
+  }
+
+  await session.save();
+  return session;
+}
+
 async function softDeleteSession({ sessionId }) {
   const session = await Session.findById(sessionId);
   if (!session) throw new AppError("Session not found", 404, "SESSION_NOT_FOUND");
@@ -439,6 +464,7 @@ module.exports = {
   completeSession,
   getSessionById,
   getHistory,
+  deleteOwnSession,
   softDeleteSession,
   pauseSession,
   computeTotalScore,

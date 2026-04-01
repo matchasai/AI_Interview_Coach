@@ -14,6 +14,7 @@ router.put("/:id/complete", authMiddleware, sessionController.completeSession);
 router.put("/:id/pause", authMiddleware, sessionController.pauseSession);
 router.get("/history", authMiddleware, sessionController.getHistory);
 router.get("/:id", authMiddleware, sessionController.getSessionById);
-router.delete("/:id", authMiddleware, adminMiddleware, sessionController.adminSoftDelete);
+router.delete("/:id", authMiddleware, sessionController.deleteOwnSession);
+router.delete("/admin/:id", authMiddleware, adminMiddleware, sessionController.adminSoftDelete);
 
 module.exports = router;
