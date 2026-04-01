@@ -6,10 +6,19 @@ const { randomUUID } = require("crypto");
 
 const ALLOWED_ROLES = [
   "SDE",
+  "Frontend Developer",
+  "Backend Developer",
+  "Machine Learning Engineer",
+  "Data Scientist",
   "Data Analyst",
   "DevOps Engineer",
   "Product Manager",
   "Full Stack Developer",
+  "System Design",
+  "Database Engineering",
+  "Cloud Architecture",
+  "Cyber Security",
+  "Mobile Development",
 ];
 
 const DIFFICULTY_LEVEL = {
@@ -27,9 +36,10 @@ const LEVEL_TO_DIFFICULTY = {
 const FEEDBACK_EVENTS = ["shown", "applied", "overridden", "ignored"];
 
 function assertRole(role) {
-  if (!ALLOWED_ROLES.includes(role)) {
+  // Allow predefined roles or custom roles (any non-empty string with at least 2 characters)
+  if (!ALLOWED_ROLES.includes(role) && (!role || role.trim().length < 2)) {
     throw new AppError(
-      `Invalid role. Allowed roles: ${ALLOWED_ROLES.join(", ")}`,
+      `Invalid role. Must be a predefined role or custom role with at least 2 characters.`,
       400,
       "VALIDATION_ERROR"
     );
