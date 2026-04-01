@@ -2,7 +2,7 @@
   "name": "ai-interview-coach-backend",
   "version": "1.0.0",
   "private": true,
-  "description": "AI Interview Coach backend (Express + MongoDB) with mocked AI layer",
+  "description": "AI Interview Coach backend (Express + MongoDB) with Groq AI and fallback heuristics",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {

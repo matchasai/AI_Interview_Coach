@@ -233,8 +233,7 @@ async function groqGenerateText(prompt) {
 }
 
 /**
- * Returns dummy questions.
- * Output shape mirrors the future LLM JSON contract.
+ * Generates interview questions via provider and falls back to local role bank.
  */
 async function generateQuestions({ role, difficulty, questionCount }) {
   // Try Groq first.
@@ -276,8 +275,7 @@ async function generateQuestions({ role, difficulty, questionCount }) {
 }
 
 /**
- * Returns mock evaluation.
- * Score uses simple heuristics on answer length and keyword hints.
+ * Evaluates answers via provider and falls back to heuristic scoring.
  */
 async function evaluateAnswer({ role, difficulty, questionText, answerText }) {
   // Try Groq first.
@@ -305,7 +303,7 @@ async function evaluateAnswer({ role, difficulty, questionText, answerText }) {
     }
   }
 
-  // Fallback mock evaluation.
+  // Fallback heuristic evaluation.
   const text = typeof answerText === "string" ? answerText : "";
   const normalized = text.toLowerCase();
 

@@ -90,8 +90,8 @@ async function forgotPassword({ email }) {
   user.resetTokenExpiry = resetTokenExpiry;
   await user.save();
 
-  // In production, send email here. For now, just log it.
-  console.log(`[MOCK EMAIL] Password reset link: ${resetToken}`);
+  // In production, replace this with a real email provider integration.
+  console.log(`[DEV EMAIL LOG] Password reset token: ${resetToken}`);
 }
 
 async function resetPassword({ token, password }) {
