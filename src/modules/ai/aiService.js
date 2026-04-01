@@ -111,7 +111,20 @@ const ROLE_BANK = {
 };
 
 function pickBank(role) {
-  return ROLE_BANK[role] || ROLE_BANK.SDE;
+  if (ROLE_BANK[role]) return ROLE_BANK[role];
+
+  const normalizedRole = String(role || "").trim();
+  if (!normalizedRole) return ROLE_BANK.SDE;
+
+  // For custom roles, generate a domain-aware fallback question set
+  // so users do not get unrelated default SDE questions.
+  return [
+    `Explain the core responsibilities of a ${normalizedRole} and how success is measured.`,
+    `Describe a common workflow you would follow as a ${normalizedRole} for a real-world task.`,
+    `What tools, standards, or frameworks are most important for a ${normalizedRole}, and why?`,
+    `Walk through a challenging scenario in ${normalizedRole} and how you would solve it step by step.`,
+    `What are the key tradeoffs and risks a ${normalizedRole} should consider in day-to-day decisions?`,
+  ];
 }
 
 function inferExpectedKeywords(role, questionText) {
