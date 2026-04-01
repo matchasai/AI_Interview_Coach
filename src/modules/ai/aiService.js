@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 const { env } = require("../../config/env");
 const { AppError } = require("../../utils/AppError");
 const { buildEvaluationPrompt, buildQuestionGenerationPrompt } = require("./promptBuilder");
@@ -51,35 +51,35 @@ function pickBank(role) {
   return ROLE_BANK[role] || ROLE_BANK.SDE;
 }
 
-function hasGeminiKey() {
-  return typeof env.GEMINI_API_KEY === "string" && env.GEMINI_API_KEY.trim().length > 0;
+function hasGroqKey() {
+  return typeof env.GROQ_API_KEY === "string" && env.GROQ_API_KEY.trim().length > 0;
 }
 
-let geminiClient = null;
-function getGeminiModel() {
-  if (!hasGeminiKey()) return null;
-  if (!geminiClient) geminiClient = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+let groqClient = null;
+function getGroqClient() {
+  if (!hasGroqKey()) return null;
+  if (!groqClient) groqClient = new Groq({ apiKey: env.GROQ_API_KEY });
+  return groqClient;
+}
 
-  const temperature = Number.isFinite(env.GEMINI_TEMPERATURE) ? env.GEMINI_TEMPERATURE : 0.7;
-  return geminiClient.getGenerativeModel({
-    model: env.GEMINI_MODEL || "gemini-1.5-flash",
-    generationConfig: {
-      temperature,
-      // Hint to return JSON; parser still guards if model returns extra text.
-      responseMimeType: "application/json",
-    },
+async function groqGenerateText(prompt) {
+  const client = getGroqClient();
+  if (!client) return null;
+
+  const temperature = Number.isFinite(env.GROQ_TEMPERATURE) ? env.GROQ_TEMPERATURE : 0.7;
+  const result = await client.chat.completions.create({
+    model: env.GROQ_MODEL || "llama-3.1-70b-versatile",
+    temperature,
+    messages: [
+      {
+        role: "system",
+        content: "You are a strict interview assistant. Return only valid JSON and no extra text.",
+      },
+      { role: "user", content: prompt },
+    ],
   });
-}
 
-async function geminiGenerateText(prompt) {
-  const model = getGeminiModel();
-  if (!model) return null;
-
-  const result = await model.generateContent(prompt);
-  const response = result?.response;
-  if (!response) return null;
-  if (typeof response.text === "function") return response.text();
-  return String(response);
+  return result?.choices?.[0]?.message?.content || null;
 }
 
 /**
@@ -87,27 +87,29 @@ async function geminiGenerateText(prompt) {
  * Output shape mirrors the future LLM JSON contract.
  */
 async function generateQuestions({ role, difficulty, questionCount }) {
-  // Try Gemini first.
-  if (hasGeminiKey()) {
+  // Try Groq first.
+  if (hasGroqKey()) {
     const prompt = buildQuestionGenerationPrompt({ role, difficulty, questionCount });
     let lastErr = null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const text = await geminiGenerateText(prompt);
-        if (!text) throw new Error("Empty Gemini response");
+        const text = await groqGenerateText(prompt);
+        if (!text) throw new Error("Empty Groq response");
         const questions = parseQuestionsFromText(text, { expectedCount: questionCount });
         if (questions.length === questionCount) return questions;
-        lastErr = new Error("Gemini returned invalid question JSON");
+        lastErr = new Error("Groq returned invalid question JSON");
       } catch (e) {
         lastErr = e;
       }
     }
 
-    throw new AppError(
-      `AI question generation failed${lastErr?.message ? `: ${lastErr.message}` : ""}`,
-      502,
-      "AI_PROVIDER_ERROR"
-    );
+    if (env.AI_STRICT_MODE) {
+      throw new AppError(
+        `AI question generation failed${lastErr?.message ? `: ${lastErr.message}` : ""}`,
+        502,
+        "AI_PROVIDER_ERROR"
+      );
+    }
   }
 
   // Fallback to local question bank.
@@ -128,27 +130,29 @@ async function generateQuestions({ role, difficulty, questionCount }) {
  * Score uses simple heuristics on answer length and keyword hints.
  */
 async function evaluateAnswer({ role, difficulty, questionText, answerText }) {
-  // Try Gemini first.
-  if (hasGeminiKey()) {
+  // Try Groq first.
+  if (hasGroqKey()) {
     const prompt = buildEvaluationPrompt({ role, difficulty, questionText, answerText });
     let lastErr = null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const text = await geminiGenerateText(prompt);
-        if (!text) throw new Error("Empty Gemini response");
+        const text = await groqGenerateText(prompt);
+        if (!text) throw new Error("Empty Groq response");
         const evaln = parseEvaluationFromText(text);
         if (evaln) return evaln;
-        lastErr = new Error("Gemini returned invalid evaluation JSON");
+        lastErr = new Error("Groq returned invalid evaluation JSON");
       } catch (e) {
         lastErr = e;
       }
     }
 
-    throw new AppError(
-      `AI evaluation failed${lastErr?.message ? `: ${lastErr.message}` : ""}`,
-      502,
-      "AI_PROVIDER_ERROR"
-    );
+    if (env.AI_STRICT_MODE) {
+      throw new AppError(
+        `AI evaluation failed${lastErr?.message ? `: ${lastErr.message}` : ""}`,
+        502,
+        "AI_PROVIDER_ERROR"
+      );
+    }
   }
 
   // Fallback mock evaluation.

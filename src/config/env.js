@@ -20,9 +20,11 @@ const env = {
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5174",
 
   // AI (optional)
-  GEMINI_API_KEY: process.env.GEMINI_API_KEY || "",
-  GEMINI_MODEL: process.env.GEMINI_MODEL || "gemini-1.5-flash",
-  GEMINI_TEMPERATURE: Number(process.env.GEMINI_TEMPERATURE || 0.7),
+  AI_PROVIDER: process.env.AI_PROVIDER || "groq",
+  GROQ_API_KEY: process.env.GROQ_API_KEY || "",
+  GROQ_MODEL: process.env.GROQ_MODEL || "llama-3.1-70b-versatile",
+  GROQ_TEMPERATURE: Number(process.env.GROQ_TEMPERATURE || 0.7),
+  AI_STRICT_MODE: String(process.env.AI_STRICT_MODE || "false").toLowerCase() === "true",
 };
 
 module.exports = { env };
