@@ -40,7 +40,7 @@ export function Session() {
   const { id } = useParams()
   const navigate = useNavigate()
 
-  const { loading, session, error, submitAnswer, complete, answeredCount } = useSession(id)
+  const { loading, session, error, submitAnswer, complete, pauseOrResume, answeredCount } = useSession(id)
 
   const [activeIndex, setActiveIndex] = useState(0)
   const [answerText, setAnswerText] = useState('')
@@ -138,9 +138,8 @@ export function Session() {
     setPauseLoading(true)
 
     try {
-      const res = await api.put(`/api/session/${id}/pause`)
-      toastSuccess(res.data.session.status === 'paused' ? 'Session paused' : 'Session resumed')
-      window.location.reload()
+      const nextSession = await pauseOrResume()
+      toastSuccess(nextSession.status === 'paused' ? 'Session paused' : 'Session resumed')
     } catch (e) {
       toastError(e)
     } finally {

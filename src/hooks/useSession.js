@@ -57,6 +57,12 @@ export function useSession(sessionId) {
     return res.data.session
   }, [sessionId])
 
+  const pauseOrResume = useCallback(async () => {
+    const res = await api.put(`/api/session/${sessionId}/pause`)
+    setSession(res.data.session)
+    return res.data.session
+  }, [sessionId])
+
   const answeredCount = useMemo(() => {
     const qs = session?.questions || []
     return qs.filter((q) => Boolean(q.userAnswer)).length
@@ -69,6 +75,7 @@ export function useSession(sessionId) {
     refresh,
     submitAnswer,
     complete,
+    pauseOrResume,
     answeredCount,
   }
 }
