@@ -3,6 +3,7 @@ import { AppShell } from './components/AppShell'
 import { RequireAdmin } from './components/RequireAdmin'
 import { RequireAuth } from './components/RequireAuth'
 import { Admin } from './pages/Admin'
+import Analytics from './pages/Analytics'
 import { Dashboard } from './pages/Dashboard'
 import { DoubtSession } from './pages/DoubtSession'
 import { ForgotPassword } from './pages/ForgotPassword'
@@ -70,6 +71,14 @@ export default function App() {
           element={
             <RequireAuth>
               <Profile />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <RequireAuth>
+              <Analytics />
             </RequireAuth>
           }
         />
