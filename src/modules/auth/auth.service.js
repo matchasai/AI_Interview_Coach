@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const { env } = require("../../config/env");
 const { AppError } = require("../../utils/AppError");
 const { User } = require("./user.model");
+const { sendPasswordResetEmail } = require("./email.service");
 
 function signToken(user) {
   return jwt.sign(
@@ -90,8 +91,18 @@ async function forgotPassword({ email }) {
   user.resetTokenExpiry = resetTokenExpiry;
   await user.save();
 
-  // In production, replace this with a real email provider integration.
-  console.log(`[DEV EMAIL LOG] Password reset token: ${resetToken}`);
+  try {
+    await sendPasswordResetEmail({
+      to: user.email,
+      resetToken,
+    });
+  } catch (error) {
+    // Clear token on email failure so stale tokens are not left behind.
+    user.resetToken = null;
+    user.resetTokenExpiry = null;
+    await user.save();
+    throw new AppError("Failed to send password reset email", 502, "EMAIL_SEND_FAILED");
+  }
 }
 
 async function resetPassword({ token, password }) {

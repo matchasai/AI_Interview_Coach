@@ -72,6 +72,8 @@ async function startSession({ userId, role, difficulty, questionCount }) {
     feedback: null,
     missingKeywords: null,
     improvementTip: null,
+    evaluationSource: null,
+    evaluationProvider: null,
     correctAnswer: null,
     rubric: null,
     evidence: null,
@@ -124,6 +126,8 @@ async function submitAnswer({ userId, sessionId, questionId, answerText }) {
   question.missingKeywords = evaluation.missingKeywords;
   question.feedback = evaluation.feedback;
   question.improvementTip = evaluation.improvementTip;
+  question.evaluationSource = evaluation.source || null;
+  question.evaluationProvider = evaluation.provider || null;
   question.correctAnswer = evaluation.correctAnswer || null;
   question.rubric = evaluation.rubric || null;
   question.evidence = Array.isArray(evaluation.evidence) ? evaluation.evidence : null;

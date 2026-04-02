@@ -9,6 +9,45 @@ const {
   parseQuestionsFromText,
 } = require("./responseParser");
 
+function pickRandom(items) {
+  if (!Array.isArray(items) || items.length === 0) return "";
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function shuffle(items) {
+  const copy = Array.isArray(items) ? [...items] : [];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function normalizeQuestionText(text) {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/\(easy\)|\(medium\)|\(hard\)/g, "")
+    .replace(/[^a-z0-9\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function uniqueQuestions(questions) {
+  const seen = new Set();
+  const result = [];
+
+  for (const q of questions || []) {
+    const text = String(q?.questionText || "").trim();
+    if (!text) continue;
+    const key = normalizeQuestionText(text);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push({ questionText: text });
+  }
+
+  return result;
+}
+
 const ROLE_BANK = {
   SDE: [
     "Explain time complexity of binary search.",
@@ -116,15 +155,48 @@ function pickBank(role) {
   const normalizedRole = String(role || "").trim();
   if (!normalizedRole) return ROLE_BANK.SDE;
 
-  // For custom roles, generate a domain-aware fallback question set
-  // so users do not get unrelated default SDE questions.
+  const verbs = ["design", "optimize", "debug", "evaluate", "improve", "validate"];
+  const artifacts = ["workflow", "process", "protocol", "checklist", "decision framework"];
+  const outcomes = ["safety", "accuracy", "scalability", "compliance", "efficiency", "quality"];
+
   return [
-    `Explain the core responsibilities of a ${normalizedRole} and how success is measured.`,
-    `Describe a common workflow you would follow as a ${normalizedRole} for a real-world task.`,
-    `What tools, standards, or frameworks are most important for a ${normalizedRole}, and why?`,
-    `Walk through a challenging scenario in ${normalizedRole} and how you would solve it step by step.`,
-    `What are the key tradeoffs and risks a ${normalizedRole} should consider in day-to-day decisions?`,
+    `In ${normalizedRole}, how would you ${pickRandom(verbs)} a real-world ${pickRandom(artifacts)} and measure success?`,
+    `Describe a challenging scenario in ${normalizedRole} and walk through your approach step by step.`,
+    `Which tools, standards, or best practices are critical in ${normalizedRole}, and when would you choose each?`,
+    `How would you balance speed vs ${pickRandom(outcomes)} in a ${normalizedRole} project with tight deadlines?`,
+    `Give an example of a decision a ${normalizedRole} professional must make under uncertainty and explain tradeoffs.`,
+    `If results are below target in a ${normalizedRole} task, how would you diagnose root causes and recover?`,
+    `How would you communicate complex ${normalizedRole} decisions to non-technical stakeholders?`,
+    `What failure modes are common in ${normalizedRole}, and how do you prevent them proactively?`,
   ];
+}
+
+function difficultyPrefix(difficulty) {
+  if (difficulty === "hard") return "(Hard) ";
+  if (difficulty === "medium") return "(Medium) ";
+  return "(Easy) ";
+}
+
+function buildFallbackQuestions({ role, difficulty, questionCount }) {
+  const bank = pickBank(role);
+  const shuffled = shuffle(bank);
+  const prefix = difficultyPrefix(difficulty);
+  const extensions = [
+    "Include one practical example.",
+    "Discuss key tradeoffs.",
+    "Mention common mistakes and mitigations.",
+    "Explain how you would measure outcomes.",
+    "Describe edge cases and constraints.",
+  ];
+  const questions = [];
+
+  for (let i = 0; i < questionCount; i += 1) {
+    const base = shuffled[i % shuffled.length] || bank[i % bank.length] || "Explain this topic clearly.";
+    const ext = i >= shuffled.length ? ` ${extensions[i % extensions.length]}` : "";
+    questions.push({ questionText: `${prefix}${base}${ext}`.trim() });
+  }
+
+  return uniqueQuestions(parseQuestions(questions)).slice(0, questionCount);
 }
 
 function inferExpectedKeywords(role, questionText) {
@@ -147,9 +219,12 @@ function buildCorrectAnswer({ role, questionText }) {
   const expected = inferExpectedKeywords(role, questionText);
   const [k1, k2, k3, k4] = expected;
 
+  const domain = String(role || "this role");
+  const question = String(questionText || "this question");
+
   return {
     short: [
-      "Start with a clear definition and explain the core mechanism in simple terms.",
+      `For ${domain}, start with a clear definition for: ${question}.`,
       `Include ${k1 || "the key concept"}, ${k2 || "implementation detail"}, and one practical example.`,
     ].join(" "),
     long: [
@@ -173,6 +248,45 @@ function splitEvidenceSnippets(answerText) {
     .map((s) => s.trim())
     .filter(Boolean)
     .slice(0, 3);
+}
+
+function enrichEvaluation({ evaluation, role, questionText, answerText, difficulty, source, provider }) {
+  const normalized = parseEvaluation(evaluation || {});
+  const missingKeywords = Array.isArray(normalized.missingKeywords) ? normalized.missingKeywords : [];
+  const hasCorrectAnswer = Boolean(
+    normalized.correctAnswer?.short ||
+      normalized.correctAnswer?.long ||
+      (Array.isArray(normalized.correctAnswer?.bulletPoints) && normalized.correctAnswer.bulletPoints.length)
+  );
+
+  if (!hasCorrectAnswer) {
+    normalized.correctAnswer = buildCorrectAnswer({ role, questionText });
+  }
+
+  const hasRubric = Object.values(normalized.rubric || {}).some((value) => Number(value) > 0);
+  const hasEvidence = Array.isArray(normalized.evidence) && normalized.evidence.length > 0;
+  if (!hasRubric || !hasEvidence) {
+    const fallback = buildRubricAndEvidence({ role, questionText, answerText, missingKeywords });
+    normalized.rubric = hasRubric ? normalized.rubric : fallback.rubric;
+    normalized.evidence = hasEvidence ? normalized.evidence : fallback.evidence;
+  }
+
+  if (!normalized.improvementTip) {
+    normalized.improvementTip = "Use the pattern: definition -> approach -> example -> edge cases.";
+  }
+
+  if (!normalized.feedback) {
+    normalized.feedback =
+      difficulty === "hard"
+        ? "Good attempt. Add more technical depth, tradeoffs, and one concrete real-world example."
+        : "Good start. Add clearer structure and one practical example to strengthen your answer.";
+  }
+
+  return {
+    ...normalized,
+    source,
+    provider,
+  };
 }
 
 function buildRubricAndEvidence({ role, questionText, answerText, missingKeywords }) {
@@ -244,8 +358,13 @@ async function generateQuestions({ role, difficulty, questionCount }) {
       try {
         const text = await groqGenerateText(prompt);
         if (!text) throw new Error("Empty Groq response");
-        const questions = parseQuestionsFromText(text, { expectedCount: questionCount });
+        const questions = uniqueQuestions(parseQuestionsFromText(text, { expectedCount: questionCount }));
         if (questions.length === questionCount) return questions;
+        if (questions.length > 0) {
+          const fallback = buildFallbackQuestions({ role, difficulty, questionCount });
+          const merged = uniqueQuestions([...questions, ...fallback]).slice(0, questionCount);
+          if (merged.length === questionCount) return merged;
+        }
         lastErr = new Error("Groq returned invalid question JSON");
       } catch (e) {
         lastErr = e;
@@ -261,17 +380,8 @@ async function generateQuestions({ role, difficulty, questionCount }) {
     }
   }
 
-  // Fallback to local question bank.
-  const bank = pickBank(role);
-  const diffPrefix =
-    difficulty === "hard" ? "(Hard) " : difficulty === "medium" ? "(Medium) " : "(Easy) ";
-
-  const questions = [];
-  for (let i = 0; i < questionCount; i += 1) {
-    questions.push({ questionText: `${diffPrefix}${bank[i % bank.length]}` });
-  }
-
-  return parseQuestions(questions);
+  // Fallback to local role-aware question generation.
+  return buildFallbackQuestions({ role, difficulty, questionCount });
 }
 
 /**
@@ -287,7 +397,17 @@ async function evaluateAnswer({ role, difficulty, questionText, answerText }) {
         const text = await groqGenerateText(prompt);
         if (!text) throw new Error("Empty Groq response");
         const evaln = parseEvaluationFromText(text);
-        if (evaln) return evaln;
+        if (evaln) {
+          return enrichEvaluation({
+            evaluation: evaln,
+            role,
+            questionText,
+            answerText,
+            difficulty,
+            source: "live-ai",
+            provider: "groq",
+          });
+        }
         lastErr = new Error("Groq returned invalid evaluation JSON");
       } catch (e) {
         lastErr = e;
@@ -337,7 +457,15 @@ async function evaluateAnswer({ role, difficulty, questionText, answerText }) {
     }),
   };
 
-  return parseEvaluation(payload);
+  return enrichEvaluation({
+    evaluation: payload,
+    role,
+    questionText,
+    answerText,
+    difficulty,
+    source: "fallback-heuristic",
+    provider: "local",
+  });
 }
 
 module.exports = {

@@ -2,7 +2,7 @@ const { z } = require("zod");
 
 /**
  * Production-ish parsing helpers.
- * We expect Gemini to return JSON, but we still guard against:
+ * We expect the AI provider to return JSON, but we still guard against:
  * - code fences
  * - leading/trailing commentary
  * - minor type issues
@@ -108,7 +108,7 @@ const EvaluationSchema = z
       .optional()
       .default([]),
   })
-  .strict();
+  .passthrough();
 
 function parseQuestions(payload) {
   // Expect: [{ questionText: string }]

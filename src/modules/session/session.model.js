@@ -9,6 +9,8 @@ const questionSchema = new mongoose.Schema(
     feedback: { type: String, default: null },
     missingKeywords: { type: [String], default: null },
     improvementTip: { type: String, default: null },
+    evaluationSource: { type: String, default: null },
+    evaluationProvider: { type: String, default: null },
     correctAnswer: {
       short: { type: String, default: null },
       long: { type: String, default: null },
