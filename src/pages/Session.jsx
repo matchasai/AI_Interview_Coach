@@ -9,9 +9,9 @@ import { ProgressBar } from '../components/ui/ProgressBar'
 import { Skeleton } from '../components/ui/Skeleton'
 import { VoiceInput } from '../components/VoiceInput'
 import { useSession } from '../hooks/useSession'
-import { api } from '../services/api'
+import { api, getErrorMessage } from '../services/api'
 import { fadeUp } from '../utils/motion'
-import { toastError, toastSuccess } from '../utils/toast'
+import { toastError, toastSuccess, toastPromise } from '../utils/toast'
 
 function formatElapsed(totalSeconds) {
   const s = Math.max(0, Number(totalSeconds) || 0)
@@ -156,17 +156,24 @@ export function Session() {
       return
     }
 
-    const confirmed = window.confirm('Delete this running session? This action cannot be undone.')
-    if (!confirmed) return
-
     setDeleteLoading(true)
-    try {
-      await api.delete(`/api/session/${id}`)
-      toastSuccess('Session deleted')
+    
+    const deletePromise = api.delete(`/api/session/${id}`).then(() => {
       navigate('/dashboard', { replace: true })
+    })
+
+    toastPromise(
+      deletePromise,
+      {
+        loading: 'Deleting session...',
+        success: 'Session deleted successfully',
+        error: (err) => `Failed to delete: ${getErrorMessage(err)}`,
+      }
+    )
+
+    try {
+      await deletePromise
     } catch (e) {
-      toastError(e)
-    } finally {
       setDeleteLoading(false)
     }
   }

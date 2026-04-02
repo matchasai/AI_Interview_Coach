@@ -15,7 +15,7 @@ import {
     downloadSessionPdf,
     formatDuration,
 } from '../utils/sessionExport'
-import { toastError, toastSuccess } from '../utils/toast'
+import { toastError, toastSuccess, toastPromise } from '../utils/toast'
 
 function formatDateTime(iso) {
   const d = new Date(iso)
@@ -124,17 +124,24 @@ export function Dashboard() {
       return
     }
 
-    const confirmed = window.confirm(`Delete this ${session.role} session? This action cannot be undone.`)
-    if (!confirmed) return
-
     setDeletingSessionId(session._id)
-    try {
-      await api.delete(`/api/session/${session._id}`)
+    
+    const deletePromise = api.delete(`/api/session/${session._id}`).then(() => {
       setSessions((prev) => (prev || []).filter((item) => item._id !== session._id))
-      toastSuccess('Running session deleted')
+    })
+
+    toastPromise(
+      deletePromise,
+      {
+        loading: `Deleting ${session.role} session...`,
+        success: 'Session deleted successfully',
+        error: (err) => `Failed to delete: ${getErrorMessage(err)}`,
+      }
+    )
+
+    try {
+      await deletePromise
     } catch (e) {
-      toastError(getErrorMessage(e))
-    } finally {
       setDeletingSessionId('')
     }
   }

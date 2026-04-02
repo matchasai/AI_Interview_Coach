@@ -14,3 +14,9 @@ export function toastError(errorOrMessage) {
 
   toast.error(msg)
 }
+
+export function toastPromise(promise, messages) {
+  return toast.promise(promise, messages)
+}
+
+export { default as toast } from 'react-hot-toast'
