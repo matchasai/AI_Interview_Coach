@@ -109,6 +109,7 @@ async function forgotPassword({ email }) {
 
   user.resetToken = resetToken;
   user.resetTokenExpiry = resetTokenExpiry;
+  await user.save();
   // Attempt email send; if it fails, queue for retry in background.
   // User still gets success response since reset token is persisted.
   const emailResult = await enqueueEmail("password-reset", {
@@ -123,7 +124,6 @@ async function forgotPassword({ email }) {
       `[AUTH] Password reset email send failed for ${user.email}, but token persisted.`
     );
     // Still return success to user since token is valid; they can retry request.
-    await user.save();
     throw new AppError("Failed to send password reset email", 502, "EMAIL_SEND_FAILED");
   }
 }
