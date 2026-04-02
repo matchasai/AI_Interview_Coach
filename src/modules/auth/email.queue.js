@@ -10,6 +10,14 @@ const emailQueue = [];
 const MAX_RETRIES = 3;
 const INITIAL_DELAY_MS = 2000; // 2 seconds
 
+let queueStats = {
+  pending: 0,
+  failed: 0,
+  retrying: 0,
+  processed: 0,
+  lastProcessed: null,
+};
+
 class EmailJob {
   constructor(type, payload) {
     this.id = `${type}-${Date.now()}-${Math.random()}`;
@@ -59,13 +67,26 @@ function startWorker() {
         const result = await job.execute();
         if (result === true) {
           emailQueue.splice(i, 1); // Remove from queue on success
+          queueStats.processed += 1;
+          queueStats.lastProcessed = new Date();
         } else if (result === false) {
           emailQueue.splice(i, 1); // Remove from queue on permanent failure
+          queueStats.failed += 1;
         }
         // If result is null, keep job in queue for next retry
       }
     }
+    updateQueueStats();
   }, 5000); // Check every 5 seconds
+}
+
+function updateQueueStats() {
+  queueStats.pending = emailQueue.filter(job => job.retries === 0).length;
+  queueStats.retrying = emailQueue.filter(job => job.retries > 0).length;
+}
+
+function getQueueStatus() {
+  return { ...queueStats };
 }
 
 // Start worker on module load
@@ -79,17 +100,22 @@ async function enqueueEmail(type, payload) {
   const result = await job.execute();
   if (result === true) {
     emailQueue.pop(); // Remove if succeeded
+    queueStats.processed += 1;
+    queueStats.lastProcessed = new Date();
     return { queued: false, sent: true };
   }
   if (result === false) {
     emailQueue.pop(); // Remove if failed permanently
+    queueStats.failed += 1;
     console.error(`[EMAIL QUEUE] Email job failed permanently: ${type}`);
     return { queued: false, sent: false };
   }
   // result === null: will retry in background
+  updateQueueStats();
   return { queued: true, sent: false };
 }
 
 module.exports = {
   enqueueEmail,
+  getQueueStatus,
 };

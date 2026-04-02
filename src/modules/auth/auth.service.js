@@ -39,22 +39,42 @@ async function register({ name, email, password }) {
   }
 
   const hashed = await bcrypt.hash(password, 12);
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+  const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
   const user = await User.create({
     name,
     email,
     password: hashed,
     role: "user",
+    isEmailVerified: false,
+    emailVerificationToken: verificationToken,
+    emailVerificationExpiry: verificationExpiry,
   });
 
-  const token = signToken(user);
-  return { token, user: toSafeUser(user) };
+  // Send verification email
+  const emailService = require("./email.service");
+  await emailService.sendVerificationEmail({
+    to: user.email,
+    name: user.name,
+    verificationToken,
+  }).catch(() => {
+    // Don't fail registration if email fails; user can resend
+    console.log("[EMAIL] Verification email failed for " + user.email);
+  });
+
+  // Don't return auth token yet - user must verify email first
+  return { message: "Registration successful. Please verify your email.", user: toSafeUser(user) };
 }
 
 async function login({ email, password }) {
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
     throw new AppError("Invalid email or password", 401, "INVALID_CREDENTIALS");
+  }
+
+  if (!user.isEmailVerified) {
+    throw new AppError("Please verify your email before logging in", 403, "EMAIL_NOT_VERIFIED");
   }
 
   const ok = await bcrypt.compare(password, user.password);
@@ -130,11 +150,62 @@ async function resetPassword({ token, password }) {
   return { token: newToken, user: toSafeUser(user) };
 }
 
+async function verifyEmail({ token }) {
+  const user = await User.findOne({ emailVerificationToken: token }).select("+emailVerificationToken +emailVerificationExpiry");
+  if (!user) {
+    throw new AppError("Invalid or expired verification token", 400, "INVALID_TOKEN");
+  }
+
+  if (user.emailVerificationExpiry < new Date()) {
+    throw new AppError("Verification token has expired", 400, "TOKEN_EXPIRED");
+  }
+
+  user.isEmailVerified = true;
+  user.emailVerificationToken = null;
+  user.emailVerificationExpiry = null;
+  await user.save();
+
+  return { message: "Email verified successfully" };
+}
+
+async function resendVerificationEmail({ email }) {
+  const user = await User.findOne({ email });
+  if (!user) {
+    // Don't reveal whether email exists (security)
+    return { message: "If email exists, verification link sent" };
+  }
+
+  if (user.isEmailVerified) {
+    throw new AppError("Email already verified", 400, "ALREADY_VERIFIED");
+  }
+
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+  const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  user.emailVerificationToken = verificationToken;
+  user.emailVerificationExpiry = verificationExpiry;
+  await user.save();
+
+  // Send verification email
+  const emailService = require("./email.service");
+  await emailService.sendVerificationEmail({
+    to: user.email,
+    name: user.name,
+    verificationToken,
+  }).catch(() => {
+    console.log("[EMAIL] Verification email failed for " + user.email);
+  });
+
+  return { message: "Verification link sent to your email" };
+}
+
 module.exports = {
   register,
   login,
   getCurrentUser,
   forgotPassword,
   resetPassword,
+  verifyEmail,
+  resendVerificationEmail,
   toSafeUser,
 };

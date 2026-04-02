@@ -9,6 +9,8 @@ const authRoutes = require("./modules/auth/auth.routes");
 const userRoutes = require("./modules/user/user.routes");
 const sessionRoutes = require("./modules/session/session.routes");
 const adminRoutes = require("./modules/admin/admin.routes");
+const doubtRoutes = require("./modules/doubt/doubt.routes");
+const aiRoutes = require("./modules/ai/ai.routes");
 
 const app = express();
 
@@ -38,6 +40,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/session", sessionRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/doubt", doubtRoutes);
+app.use("/api/ai", aiRoutes);
 
 // 404 + error handling
 app.use(notFoundHandler);

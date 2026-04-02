@@ -77,10 +77,34 @@ const resetPassword = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, ...result });
 });
 
+const verifyEmail = asyncHandler(async (req, res) => {
+  const token = req.body?.token;
+
+  if (!token || typeof token !== "string") {
+    throw new AppError("Verification token is required", 400, "VALIDATION_ERROR");
+  }
+
+  const result = await authService.verifyEmail({ token });
+  res.status(200).json({ success: true, ...result });
+});
+
+const resendVerificationEmail = asyncHandler(async (req, res) => {
+  const email = toLowerTrim(req.body?.email);
+
+  if (!validateEmail(email)) {
+    throw new AppError("Invalid email", 400, "VALIDATION_ERROR");
+  }
+
+  const result = await authService.resendVerificationEmail({ email });
+  res.status(200).json({ success: true, ...result });
+});
+
 module.exports = {
   register,
   login,
   me,
   forgotPassword,
   resetPassword,
+  verifyEmail,
+  resendVerificationEmail,
 };

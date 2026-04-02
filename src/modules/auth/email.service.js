@@ -48,11 +48,41 @@ async function sendPasswordResetEmail({ to, resetToken }) {
   return { delivered: true, resetLink };
 }
 
-module.exports = {
-  sendPasswordResetEmail,
-  hasSmtpConfig,
-};
+async function sendVerificationEmail({ to, name, verificationToken }) {
+  const verificationLink = `${env.FRONTEND_URL.replace(/\/$/, "")}/verify-email/${verificationToken}`;
+
+  if (!hasSmtpConfig() || env.EMAIL_PROVIDER !== "smtp") {
+    console.log(`[DEV EMAIL LOG] Email verification link for ${to}: ${verificationLink}`);
+    return { delivered: false, reason: "smtp-not-configured", verificationLink };
+  }
+
+  const transporter = createTransport();
+
+  await transporter.sendMail({
+    from: env.EMAIL_FROM,
+    to,
+    subject: "Verify your AI Interview Coach email",
+    text: [
+      `Welcome, ${name}!`,
+      "Please verify your email to complete registration.",
+      `Verification link: ${verificationLink}`,
+      "This link expires in 24 hours.",
+      "If you did not create this account, you can ignore this email.",
+    ].join("\n"),
+    html: [
+      `<p>Welcome, <strong>${name}</strong>!</p>`,
+      "<p>Please verify your email to complete registration.</p>",
+      `<p><a href="${verificationLink}">Click here to verify email</a></p>`,
+      "<p>This link expires in 24 hours.</p>",
+      "<p>If you did not create this account, you can ignore this email.</p>",
+    ].join(""),
+  });
+
+  return { delivered: true, verificationLink };
+}
 
 module.exports = {
   sendPasswordResetEmail,
+  sendVerificationEmail,
+  hasSmtpConfig,
 };
