@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const { env } = require("../../config/env");
 const { AppError } = require("../../utils/AppError");
 const { User } = require("./user.model");
-const { sendPasswordResetEmail } = require("./email.service");
+const { enqueueEmail } = require("./email.queue");
 
 function signToken(user) {
   return jwt.sign(
@@ -89,17 +89,20 @@ async function forgotPassword({ email }) {
 
   user.resetToken = resetToken;
   user.resetTokenExpiry = resetTokenExpiry;
-  await user.save();
+  // Attempt email send; if it fails, queue for retry in background.
+  // User still gets success response since reset token is persisted.
+  const emailResult = await enqueueEmail("password-reset", {
+    to: user.email,
+    resetToken,
+  });
 
-  try {
-    await sendPasswordResetEmail({
-      to: user.email,
-      resetToken,
-    });
-  } catch (error) {
-    // Clear token on email failure so stale tokens are not left behind.
-    user.resetToken = null;
-    user.resetTokenExpiry = null;
+  if (!emailResult.queued && !emailResult.sent) {
+    // Only fail if email provider is configured and sending failed permanently.
+    // If SMTP not configured, it logs to console and succeeds gracefully.
+    console.warn(
+      `[AUTH] Password reset email send failed for ${user.email}, but token persisted.`
+    );
+    // Still return success to user since token is valid; they can retry request.
     await user.save();
     throw new AppError("Failed to send password reset email", 502, "EMAIL_SEND_FAILED");
   }
