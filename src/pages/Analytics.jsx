@@ -1,117 +1,288 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import toast from "react-hot-toast";
+import React, { useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import {
-  LineChart,
-  Line,
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+} from 'recharts'
+import { useAuth } from '../hooks/useAuth'
+import { api, getErrorMessage } from '../services/api'
 
-const Analytics = () => {
-  const [analytics, setAnalytics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [roleFilter, setRoleFilter] = useState("");
-  const [difficultyFilter, setDifficultyFilter] = useState("");
+function emptyAnalytics(scope) {
+  return {
+    scope,
+    totalSessions: 0,
+    averageScore: 0,
+    weakAreas: [],
+    strongAreas: [],
+    performanceTrend: [],
+    difficultyBreakdown: {},
+    rolePerformance: {},
+    bestRole: null,
+    avgDurationSeconds: 0,
+  }
+}
+
+function buildUserAnalytics(stats, sessions, roleFilter, difficultyFilter) {
+  const filteredSessions = (sessions || []).filter((session) => {
+    const roleMatches = !roleFilter || session.role === roleFilter
+    const difficultyMatches = !difficultyFilter || session.difficulty === difficultyFilter
+    return roleMatches && difficultyMatches
+  })
+
+  const completedSessions = filteredSessions.filter((session) => session.status === 'completed')
+
+  const averageScore = completedSessions.length
+    ? completedSessions.reduce((sum, session) => sum + (Number(session.totalScore) || 0), 0) / completedSessions.length
+    : Number(stats?.avgScore) || 0
+
+  const performanceTrend = completedSessions
+    .slice(0, 10)
+    .reverse()
+    .map((session, index) => ({
+      session: `#${index + 1}`,
+      score: Number(session.totalScore) || 0,
+      role: session.role,
+      difficulty: session.difficulty,
+    }))
+
+  const difficultyBreakdown = completedSessions.reduce((acc, session) => {
+    const key = session.difficulty || 'unknown'
+    if (!acc[key]) {
+      acc[key] = { attempts: 0, totalScore: 0, average: 0 }
+    }
+    acc[key].attempts += 1
+    acc[key].totalScore += Number(session.totalScore) || 0
+    acc[key].average = acc[key].totalScore / acc[key].attempts
+    return acc
+  }, {})
+
+  const rolePerformance = (stats?.perRole || []).reduce((acc, row) => {
+    acc[row.role] = {
+      average: Number(row.avgScore) || 0,
+      attempts: Number(row.sessions) || 0,
+      bestScore: Number(row.bestScore) || 0,
+    }
+    return acc
+  }, {})
+
+  const rankedRoles = [...(stats?.perRole || [])].sort((a, b) => (a.avgScore || 0) - (b.avgScore || 0))
+  const weakAreas = rankedRoles.slice(0, 3).map((row) => ({
+    area: row.role,
+    score: Number(row.avgScore) || 0,
+    attempts: Number(row.sessions) || 0,
+  }))
+  const strongAreas = rankedRoles.slice(-3).reverse().map((row) => ({
+    area: row.role,
+    score: Number(row.avgScore) || 0,
+    attempts: Number(row.sessions) || 0,
+  }))
+
+  return {
+    scope: 'user',
+    totalSessions: completedSessions.length || Number(stats?.totalSessions) || 0,
+    averageScore,
+    weakAreas,
+    strongAreas,
+    performanceTrend,
+    difficultyBreakdown,
+    rolePerformance,
+    bestRole: stats?.bestRole || null,
+    avgDurationSeconds: Number(stats?.avgDurationSeconds) || 0,
+  }
+}
+
+function normalizeAdminAnalytics(payload) {
+  return {
+    scope: 'admin',
+    totalSessions: Number(payload?.totalSessions) || 0,
+    averageScore: Number(payload?.averageScore) || 0,
+    weakAreas: payload?.weakAreas || [],
+    strongAreas: payload?.strongAreas || [],
+    performanceTrend: payload?.performanceTrend || [],
+    difficultyBreakdown: payload?.difficultyBreakdown || {},
+    rolePerformance: payload?.rolePerformance || {},
+    bestRole: payload?.bestRole || null,
+    avgDurationSeconds: Number(payload?.avgDurationSeconds) || 0,
+  }
+}
+
+export default function Analytics() {
+  const { user } = useAuth()
+  const [analytics, setAnalytics] = useState(emptyAnalytics(user?.role === 'admin' ? 'admin' : 'user'))
+  const [sessions, setSessions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [roleFilter, setRoleFilter] = useState('')
+  const [difficultyFilter, setDifficultyFilter] = useState('')
 
   useEffect(() => {
-    fetchAnalytics();
-  }, [roleFilter, difficultyFilter]);
+    let active = true
 
-  const fetchAnalytics = async () => {
-    try {
-      setLoading(true);
-      const params = {};
-      if (roleFilter) params.roleFilter = roleFilter;
-      if (difficultyFilter) params.difficultyFilter = difficultyFilter;
+    async function fetchAnalytics() {
+      try {
+        setLoading(true)
 
-      const response = await axios.get("/api/admin/analytics", { params });
-      setAnalytics(response.data.analytics);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to load analytics");
-      console.error(err);
-    } finally {
-      setLoading(false);
+        if (user?.role === 'admin') {
+          const params = {}
+          if (roleFilter) params.roleFilter = roleFilter
+          if (difficultyFilter) params.difficultyFilter = difficultyFilter
+
+          const response = await api.get('/api/admin/analytics', { params })
+          if (!active) return
+          setAnalytics(normalizeAdminAnalytics(response.data.analytics))
+          setSessions([])
+          return
+        }
+
+        const [statsRes, historyRes] = await Promise.all([
+          api.get('/api/user/stats'),
+          api.get('/api/session/history'),
+        ])
+
+        if (!active) return
+        const history = historyRes.data.sessions || []
+        setSessions(history)
+        setAnalytics(buildUserAnalytics(statsRes.data.stats, history, roleFilter, difficultyFilter))
+      } catch (err) {
+        if (!active) return
+        toast.error(getErrorMessage(err))
+        setAnalytics(emptyAnalytics(user?.role === 'admin' ? 'admin' : 'user'))
+      } finally {
+        if (active) setLoading(false)
+      }
     }
-  };
+
+    fetchAnalytics()
+    return () => {
+      active = false
+    }
+  }, [user?.role, roleFilter, difficultyFilter, refreshKey])
+
+  const roleOptions = useMemo(() => {
+    const options = new Set()
+    sessions.forEach((session) => {
+      if (session.role) options.add(session.role)
+    })
+    Object.keys(analytics.rolePerformance || {}).forEach((role) => options.add(role))
+    return Array.from(options).sort()
+  }, [analytics.rolePerformance, sessions])
+
+  const difficultyBreakdownData = useMemo(
+    () =>
+      Object.entries(analytics.difficultyBreakdown || {}).map(([difficulty, stats]) => ({
+        difficulty,
+        ...stats,
+      })),
+    [analytics.difficultyBreakdown],
+  )
+
+  const rolePerformanceData = useMemo(
+    () =>
+      Object.entries(analytics.rolePerformance || {}).map(([role, stats]) => ({
+        role,
+        average: Number(stats.average) || 0,
+        attempts: Number(stats.attempts) || 0,
+        bestScore: Number(stats.bestScore) || 0,
+      })),
+    [analytics.rolePerformance],
+  )
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="flex h-96 items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500" />
       </div>
-    );
+    )
   }
 
-  if (!analytics) {
-    return <div className="text-center text-gray-600">No analytics data available</div>;
-  }
-
-  const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+  const scopeLabel = analytics.scope === 'admin' ? 'Platform Analytics' : 'Your Analytics'
+  const filterHint =
+    analytics.scope === 'admin'
+      ? 'Admin filters apply to the platform analytics endpoint.'
+      : 'Filters apply to your own session history.'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-slate-900 mb-8">Performance Analytics</h1>
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">Analytics</p>
+            <h1 className="text-4xl font-bold text-slate-900">{scopeLabel}</h1>
+            <p className="mt-2 text-sm text-slate-600">{filterHint}</p>
+          </div>
+          <button
+            onClick={() => setRefreshKey((value) => value + 1)}
+            className="rounded-lg bg-blue-500 px-6 py-2 text-white transition hover:bg-blue-600"
+          >
+            Refresh
+          </button>
+        </div>
 
-        {/* Filters */}
-        <div className="flex gap-4 mb-8">
+        <div className="mb-8 flex flex-wrap gap-4">
           <input
             type="text"
             placeholder="Filter by role..."
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-lg border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <select
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-lg border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Difficulties</option>
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
           </select>
-          <button
-            onClick={fetchAnalytics}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="rounded-lg border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            Refresh
-          </button>
+            <option value="">All Roles</option>
+            {roleOptions.map((role) => (
+              <option key={role} value={role}>
+                {role}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <p className="text-gray-600 text-sm font-medium">Total Sessions</p>
-            <p className="text-4xl font-bold text-blue-600 mt-2">{analytics.totalSessions || 0}</p>
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+          <div className="rounded-lg bg-white p-6 shadow-lg">
+            <p className="text-sm font-medium text-gray-600">Total Sessions</p>
+            <p className="mt-2 text-4xl font-bold text-blue-600">{analytics.totalSessions || 0}</p>
           </div>
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <p className="text-gray-600 text-sm font-medium">Average Score</p>
-            <p className="text-4xl font-bold text-green-600 mt-2">{(analytics.averageScore || 0).toFixed(1)}</p>
+          <div className="rounded-lg bg-white p-6 shadow-lg">
+            <p className="text-sm font-medium text-gray-600">Average Score</p>
+            <p className="mt-2 text-4xl font-bold text-green-600">{Number(analytics.averageScore || 0).toFixed(1)}</p>
           </div>
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <p className="text-gray-600 text-sm font-medium">Weak Areas</p>
-            <p className="text-2xl font-bold text-amber-600 mt-2">{analytics.weakAreas?.length || 0}</p>
+          <div className="rounded-lg bg-white p-6 shadow-lg">
+            <p className="text-sm font-medium text-gray-600">Best Role</p>
+            <p className="mt-2 text-2xl font-bold text-slate-900">{analytics.bestRole || '—'}</p>
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-lg">
+            <p className="text-sm font-medium text-gray-600">Avg Duration</p>
+            <p className="mt-2 text-2xl font-bold text-amber-600">
+              {Math.round(analytics.avgDurationSeconds || 0)}s
+            </p>
           </div>
         </div>
 
-        {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Performance Trend */}
-          {analytics.performanceTrend && analytics.performanceTrend.length > 0 && (
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">Performance Trend</h2>
+        <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className="rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-xl font-bold text-slate-900">Performance Trend</h2>
+            {analytics.performanceTrend.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={analytics.performanceTrend}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -119,21 +290,19 @@ const Analytics = () => {
                   <YAxis domain={[0, 100]} />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="score" stroke="#3b82f6" dot={{ r: 4 }} />
+                  <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-gray-600">Complete a few sessions to see your performance trend.</p>
+            )}
+          </div>
 
-          {/* Difficulty Breakdown */}
-          {analytics.difficultyBreakdown && Object.keys(analytics.difficultyBreakdown).length > 0 && (
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">By Difficulty</h2>
+          <div className="rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-xl font-bold text-slate-900">By Difficulty</h2>
+            {difficultyBreakdownData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={Object.entries(analytics.difficultyBreakdown).map(([diff, stats]) => ({
-                  difficulty: diff,
-                  ...stats,
-                }))}>
+                <BarChart data={difficultyBreakdownData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="difficulty" />
                   <YAxis yAxisId="left" />
@@ -144,82 +313,88 @@ const Analytics = () => {
                   <Bar yAxisId="right" dataKey="average" fill="#10b981" name="Avg Score" />
                 </BarChart>
               </ResponsiveContainer>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-gray-600">No completed sessions yet.</p>
+            )}
+          </div>
         </div>
 
-        {/* Role Performance & Weak/Strong Areas */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Weak Areas */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Weak Areas</h2>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className="rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-xl font-bold text-slate-900">Weak Areas</h2>
             <div className="space-y-4">
-              {analytics.weakAreas && analytics.weakAreas.length > 0 ? (
+              {analytics.weakAreas.length > 0 ? (
                 analytics.weakAreas.map((area, idx) => (
-                  <div key={idx} className="flex justify-between items-center pb-3 border-b">
+                  <div key={idx} className="flex items-center justify-between border-b pb-3">
                     <div>
                       <p className="font-medium text-slate-900">{area.area}</p>
                       <p className="text-sm text-gray-600">{area.attempts} attempts</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-red-600">{area.score.toFixed(1)}</p>
-                      <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-red-500" style={{ width: `${area.score}%` }}></div>
-                      </div>
+                      <p className="text-lg font-bold text-red-600">{Number(area.score || 0).toFixed(1)}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-600">No weak areas identified</p>
+                <p className="text-sm text-gray-600">No weak areas identified</p>
               )}
             </div>
           </div>
 
-          {/* Strong Areas */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Strong Areas</h2>
+          <div className="rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-xl font-bold text-slate-900">Strong Areas</h2>
             <div className="space-y-4">
-              {analytics.strongAreas && analytics.strongAreas.length > 0 ? (
+              {analytics.strongAreas.length > 0 ? (
                 analytics.strongAreas.map((area, idx) => (
-                  <div key={idx} className="flex justify-between items-center pb-3 border-b">
+                  <div key={idx} className="flex items-center justify-between border-b pb-3">
                     <div>
                       <p className="font-medium text-slate-900">{area.area}</p>
                       <p className="text-sm text-gray-600">{area.attempts} attempts</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-green-600">{area.score.toFixed(1)}</p>
-                      <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-green-500" style={{ width: `${area.score}%` }}></div>
-                      </div>
+                      <p className="text-lg font-bold text-green-600">{Number(area.score || 0).toFixed(1)}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-600">No strong areas identified</p>
+                <p className="text-sm text-gray-600">No strong areas identified</p>
               )}
             </div>
           </div>
         </div>
 
-        {/* Role Performance */}
-        {analytics.rolePerformance && Object.keys(analytics.rolePerformance).length > 0 && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mt-8">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Performance by Role</h2>
-            <div className="overflow-x-auto">
+        {rolePerformanceData.length > 0 && (
+          <div className="mt-8 rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-xl font-bold text-slate-900">Performance by Role</h2>
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={rolePerformanceData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="role" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="average" fill="#3b82f6" name="Average Score" />
+                <Bar dataKey="bestScore" fill="#10b981" name="Best Score" />
+              </BarChart>
+            </ResponsiveContainer>
+
+            <div className="mt-6 overflow-x-auto">
               <table className="min-w-full">
                 <thead>
                   <tr className="bg-gray-50">
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Role</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Average Score</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Attempts</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Best Score</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {Object.entries(analytics.rolePerformance).map(([role, stats]) => (
-                    <tr key={role} className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-sm text-gray-900">{role}</td>
-                      <td className="px-6 py-3 text-sm font-medium text-blue-600">{stats.average.toFixed(1)}</td>
-                      <td className="px-6 py-3 text-sm text-gray-600">{stats.attempts}</td>
+                  {rolePerformanceData.map((row) => (
+                    <tr key={row.role} className="hover:bg-gray-50">
+                      <td className="px-6 py-3 text-sm text-gray-900">{row.role}</td>
+                      <td className="px-6 py-3 text-sm font-medium text-blue-600">{row.average.toFixed(1)}</td>
+                      <td className="px-6 py-3 text-sm text-gray-600">{row.attempts}</td>
+                      <td className="px-6 py-3 text-sm text-gray-600">{row.bestScore}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -229,7 +404,5 @@ const Analytics = () => {
         )}
       </div>
     </div>
-  );
-};
-
-export default Analytics;
+  )
+}
