@@ -10,6 +10,11 @@
     --surface-soft: 248 250 252;
   }
 
+  html.dark {
+    color-scheme: dark;
+    --surface-soft: 2 6 23;
+  }
+
   html {
     @apply antialiased;
   }
@@ -21,6 +26,14 @@
       radial-gradient(760px 500px at 90% -12%, rgb(139 92 246 / 0.14), transparent 52%),
       linear-gradient(180deg, rgb(var(--surface-soft)) 0%, rgb(255 255 255) 44%, rgb(238 242 255) 100%);
     min-height: 100vh;
+  }
+
+  html.dark body {
+    @apply text-slate-100;
+    background:
+      radial-gradient(900px 520px at 5% -10%, rgb(37 99 235 / 0.2), transparent 58%),
+      radial-gradient(760px 500px at 90% -12%, rgb(124 58 237 / 0.18), transparent 52%),
+      linear-gradient(180deg, rgb(2 6 23) 0%, rgb(15 23 42) 44%, rgb(30 41 59) 100%);
   }
 
   h1 {
@@ -45,5 +58,61 @@
     box-shadow:
       0 14px 40px rgb(15 23 42 / 0.11),
       0 2px 8px rgb(37 99 235 / 0.11);
+  }
+
+  html.dark .surface-card {
+    @apply border-slate-700/60 bg-slate-900/80;
+  }
+
+  html.dark .surface-glow {
+    box-shadow:
+      0 18px 44px rgb(2 6 23 / 0.45),
+      0 2px 8px rgb(59 130 246 / 0.18);
+  }
+
+  html.dark .bg-white,
+  html.dark [class*='bg-white/'] {
+    background-color: rgb(15 23 42 / 0.92) !important;
+  }
+
+  html.dark [class*='bg-slate-50'],
+  html.dark [class*='bg-gray-50'] {
+    background-color: rgb(15 23 42 / 0.72) !important;
+  }
+
+  html.dark [class*='border-slate-100'],
+  html.dark [class*='border-slate-200'],
+  html.dark [class*='border-slate-300'],
+  html.dark [class*='border-white/'] {
+    border-color: rgb(71 85 105 / 0.6) !important;
+  }
+
+  html.dark [class*='text-slate-950'],
+  html.dark [class*='text-slate-900'],
+  html.dark [class*='text-slate-800'] {
+    color: rgb(248 250 252) !important;
+  }
+
+  html.dark [class*='text-slate-700'] {
+    color: rgb(226 232 240) !important;
+  }
+
+  html.dark [class*='text-slate-600'],
+  html.dark [class*='text-slate-500'] {
+    color: rgb(148 163 184) !important;
+  }
+
+  html.dark ::placeholder {
+    color: rgb(148 163 184) !important;
+  }
+
+  html.dark [class*='bg-indigo-50'],
+  html.dark [class*='bg-violet-50'],
+  html.dark [class*='bg-blue-50'],
+  html.dark [class*='bg-green-50'],
+  html.dark [class*='bg-amber-50'],
+  html.dark [class*='bg-red-50'],
+  html.dark [class*='bg-purple-50'] {
+    background-color: rgb(15 23 42 / 0.72) !important;
   }
 }

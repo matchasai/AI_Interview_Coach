@@ -28,6 +28,7 @@ export function Dashboard() {
   const [error, setError] = useState('')
   const [stats, setStats] = useState(null)
   const [sessions, setSessions] = useState([])
+  const [studyGuides, setStudyGuides] = useState([])
   const [filterRole, setFilterRole] = useState('all')
   const [filterDifficulty, setFilterDifficulty] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
@@ -45,14 +46,16 @@ export function Dashboard() {
       setLoading(true)
       setError('')
       try {
-        const [statsRes, historyRes] = await Promise.all([
+        const [statsRes, historyRes, studyGuidesRes] = await Promise.all([
           api.get('/api/user/stats'),
           api.get('/api/session/history'),
+          api.get('/api/user/study-guides').catch(() => ({ data: { studyGuides: { weakestRoles: [] } } })),
         ])
 
         if (!active) return
         setStats(statsRes.data.stats)
         setSessions(historyRes.data.sessions || [])
+        setStudyGuides(studyGuidesRes.data.studyGuides?.weakestRoles || [])
       } catch (e) {
         if (!active) return
         setError(getErrorMessage(e))
@@ -152,6 +155,47 @@ export function Dashboard() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
+          {studyGuides.length > 0 ? (
+            <Motion.div variants={fadeUp}>
+              <Card>
+                <CardHeader title="Study Guides" subtitle="Focus areas based on your weakest roles" />
+                <div className="grid gap-4 md:grid-cols-2">
+                  {studyGuides.slice(0, 4).map((guide) => (
+                    <div key={guide.role} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">{guide.role}</p>
+                          <p className="text-xs text-slate-500">Average score: {guide.averageScore}%</p>
+                        </div>
+                        <span className="rounded-full bg-indigo-100 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-indigo-700">
+                          {guide.priority}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 space-y-3 text-sm text-slate-700">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Focus Areas</p>
+                          <p className="mt-1">{(guide.focusAreas || []).join(' • ')}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Drills</p>
+                          <p className="mt-1">{(guide.drills || []).join(' • ')}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Resources</p>
+                          <p className="mt-1">{(guide.resources || []).join(' • ')}</p>
+                        </div>
+                        <div className="rounded-xl bg-white/80 px-3 py-2 text-xs text-slate-600">
+                          Next target: reach {guide.nextTargetScore}% on {guide.role}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </Motion.div>
+          ) : null}
+
             <p className="mt-1 text-sm text-slate-600">Loading your progress…</p>
           </div>
           <div className="w-44">
