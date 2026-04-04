@@ -34,19 +34,24 @@ export function Admin() {
     setError('')
 
     try {
-      const [statsRes, usersRes, sessionsRes, queueRes, analyticsRes] = await Promise.all([
+      const [statsRes, usersRes, sessionsRes, queueRes, analyticsRes] = await Promise.allSettled([
         api.get('/api/admin/stats'),
         api.get('/api/admin/users'),
         api.get('/api/admin/sessions'),
-        api.get('/api/admin/email-queue-status').catch(() => ({ data: { queueStatus: {} } })),
-        api.get('/api/admin/analytics').catch(() => ({ data: { analytics: {} } })),
+        api.get('/api/admin/email-queue-status'),
+        api.get('/api/admin/analytics'),
       ])
 
-      setStats(statsRes.data.stats)
-      setUsers(usersRes.data.users || [])
-      setSessions(sessionsRes.data.sessions || [])
-      setEmailQueueStatus(queueRes.data.queueStatus || {})
-      setAnalytics(analyticsRes.data.analytics || {})
+      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data.stats)
+      if (usersRes.status === 'fulfilled') setUsers(usersRes.value.data.users || [])
+      if (sessionsRes.status === 'fulfilled') setSessions(sessionsRes.value.data.sessions || [])
+      if (queueRes.status === 'fulfilled') setEmailQueueStatus(queueRes.value.data.queueStatus || {})
+      if (analyticsRes.status === 'fulfilled') setAnalytics(analyticsRes.value.data.analytics || {})
+
+      const criticalFailures = [statsRes, usersRes, sessionsRes].filter((result) => result.status === 'rejected')
+      if (criticalFailures.length) {
+        throw criticalFailures[0].reason
+      }
     } catch (e) {
       setError(getErrorMessage(e))
     } finally {
