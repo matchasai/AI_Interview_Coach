@@ -41,33 +41,33 @@ export function FeedbackPanel({ evaluation, showAdvanced = true }) {
       />
       <div className="space-y-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Feedback</p>
-          <p className="mt-1 text-sm text-slate-900">{evaluation.feedback || '—'}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Feedback</p>
+          <p className="mt-1 text-sm text-gray-200">{evaluation.feedback || '—'}</p>
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Missing Keywords</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Missing Keywords</p>
           <div className="mt-1">
             <KeywordChips keywords={evaluation.missingKeywords} />
           </div>
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Improvement Tip</p>
-          <p className="mt-1 text-sm text-slate-900">{evaluation.improvementTip || '—'}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Improvement Tip</p>
+          <p className="mt-1 text-sm text-gray-200">{evaluation.improvementTip || '—'}</p>
         </div>
 
         <div>
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Correct Answer</p>
-            <div className="flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Correct Answer</p>
+            <div className="flex rounded-lg border border-white/10 bg-[#1e293b] p-0.5 text-xs">
               {['short', 'long', 'bullets'].map((f) => (
                 <button
                   key={f}
                   type="button"
                   onClick={() => setAnswerFormat(f)}
                   className={`rounded-md px-2 py-1 transition ${
-                    answerFormat === f ? 'bg-indigo-600 text-white' : 'text-slate-700 hover:bg-slate-100'
+                    answerFormat === f ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-[#273549]'
                   }`}
                 >
                   {f}
@@ -75,14 +75,14 @@ export function FeedbackPanel({ evaluation, showAdvanced = true }) {
               ))}
             </div>
           </div>
-          <p className="mt-1 whitespace-pre-wrap text-sm text-slate-900">{answerText}</p>
+          <p className="mt-1 whitespace-pre-wrap text-sm text-gray-200">{answerText}</p>
         </div>
 
         {showAdvanced ? (
           <>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Rubric (0-10)</p>
-              <div className="mt-1 grid grid-cols-2 gap-2 text-sm text-slate-800">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Rubric (0-10)</p>
+              <div className="mt-1 grid grid-cols-2 gap-2 text-sm text-gray-200">
                 <p>Concept Accuracy: {evaluation.rubric?.conceptAccuracy ?? '—'}</p>
                 <p>Depth: {evaluation.rubric?.depth ?? '—'}</p>
                 <p>Example Quality: {evaluation.rubric?.exampleQuality ?? '—'}</p>
@@ -92,14 +92,14 @@ export function FeedbackPanel({ evaluation, showAdvanced = true }) {
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Evidence-Based Feedback</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Evidence-Based Feedback</p>
               {!evaluation.evidence?.length ? (
-                <p className="mt-1 text-sm text-slate-900">—</p>
+                <p className="mt-1 text-sm text-gray-200">—</p>
               ) : (
                 <div className="mt-1 space-y-2">
                   {evaluation.evidence.map((item, idx) => (
-                    <div key={idx} className="rounded-lg border border-slate-200 bg-white/80 p-2 text-sm">
-                      <p className="font-medium text-slate-900">"{item.quote || '—'}"</p>
+                    <div key={idx} className="rounded-lg border border-white/10 bg-[#1e293b] p-2 text-sm">
+                      <p className="font-medium text-white">"{item.quote || '—'}"</p>
                       <p className="text-emerald-700">Strength: {item.strength || '—'}</p>
                       <p className="text-amber-700">Gap: {item.gap || '—'}</p>
                       <p className="text-indigo-700">Action: {item.action || '—'}</p>

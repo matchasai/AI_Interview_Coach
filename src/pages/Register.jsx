@@ -50,7 +50,7 @@ export function Register() {
         <CardHeader title="Register" subtitle="Create your account" />
 
         {serverError ? (
-          <p className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
             {serverError}
           </p>
         ) : null}
@@ -89,9 +89,9 @@ export function Register() {
           </Button>
         </form>
 
-        <p className="mt-4 text-sm text-slate-600">
+        <p className="mt-4 text-sm text-gray-400">
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-slate-900 hover:underline">
+          <Link to="/login" className="font-medium text-white hover:underline">
             Login
           </Link>
         </p>

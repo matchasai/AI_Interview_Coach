@@ -5,9 +5,9 @@ export function Card({ children, className = '', accent = true }) {
   return (
     <Motion.div
       {...cardHover}
-      className={`group relative overflow-hidden rounded-3xl border border-white/30 bg-white/65 p-[1px] shadow-xl shadow-indigo-500/10 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_24px_58px_-16px_rgba(79,70,229,0.35)] ${className}`}
+      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-[#1e293b] p-[1px] shadow-lg shadow-black/30 backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:bg-[#273549] hover:shadow-[0_24px_58px_-16px_rgba(15,23,42,0.65)] ${className}`}
     >
-      <div className="relative overflow-hidden rounded-[22px] border border-white/55 bg-gradient-to-b from-white/85 to-white/60 p-5 pl-7">
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#1e293b] to-[#1b2638] p-5 pl-7 transition-all duration-300 group-hover:from-[#273549] group-hover:to-[#223247]">
         {accent ? (
           <span className="pointer-events-none absolute bottom-5 left-3 top-5 w-[3px] rounded-full bg-gradient-to-b from-blue-500 via-violet-500 to-pink-500 opacity-85" />
         ) : null}
@@ -26,8 +26,8 @@ export function CardHeader({ title, subtitle, right }) {
   return (
     <div className="mb-3 flex items-start justify-between gap-3">
       <div>
-        <h2 className="text-lg font-bold tracking-tight text-slate-900">{title}</h2>
-        {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
+        <h2 className="text-lg font-bold tracking-tight text-white">{title}</h2>
+        {subtitle ? <p className="text-sm text-gray-400">{subtitle}</p> : null}
       </div>
       {right ? <div className="shrink-0">{right}</div> : null}
     </div>

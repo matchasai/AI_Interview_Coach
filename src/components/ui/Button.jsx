@@ -10,16 +10,16 @@ export function Button({
   ...props
 }) {
   const base =
-    'relative inline-flex items-center justify-center overflow-hidden rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-200 disabled:cursor-not-allowed disabled:opacity-50'
+    'relative inline-flex items-center justify-center overflow-hidden rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50'
 
   const variants = {
     primary:
-      'text-white shadow-lg shadow-indigo-500/30 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:shadow-indigo-500/50',
+      'text-white shadow-lg shadow-indigo-900/45 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:scale-105 hover:shadow-[0_0_20px_rgba(99,102,241,0.45)]',
     secondary:
-      'surface-card text-slate-900 border border-slate-200/80 hover:border-indigo-300 hover:bg-white hover:shadow-md',
+      'bg-[#1e293b] text-white border border-white/10 hover:bg-[#273549] hover:border-indigo-400/50 hover:scale-105',
     danger:
-      'text-white shadow-lg shadow-rose-500/30 bg-gradient-to-r from-rose-600 to-red-600 hover:shadow-rose-500/45',
-    ghost: 'bg-transparent text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
+      'text-white shadow-lg shadow-rose-900/45 bg-gradient-to-r from-rose-500 to-red-500 hover:scale-105 hover:shadow-[0_0_20px_rgba(244,63,94,0.4)]',
+    ghost: 'bg-transparent text-gray-400 hover:bg-[#273549] hover:text-white hover:scale-105',
   }
 
   return (

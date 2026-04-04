@@ -72,19 +72,19 @@ export function ForgotPassword() {
         />
 
         {error ? (
-          <p className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
             {error}
           </p>
         ) : null}
 
         {submitted ? (
           <div className="space-y-3">
-            <p className="text-sm text-slate-700">
-              If an account exists for <span className="font-medium text-slate-900">{email}</span>, a password
+            <p className="text-sm text-gray-300">
+              If an account exists for <span className="font-medium text-white">{email}</span>, a password
               reset link has been sent.
             </p>
-            <p className="text-sm text-slate-600">Check your inbox (and spam folder) for a reset link.</p>
-            <p className="text-sm text-slate-600">The link expires in 1 hour.</p>
+            <p className="text-sm text-gray-400">Check your inbox (and spam folder) for a reset link.</p>
+            <p className="text-sm text-gray-400">The link expires in 1 hour.</p>
 
             <Button
               variant="secondary"
@@ -116,9 +116,9 @@ export function ForgotPassword() {
           </form>
         )}
 
-        <p className="mt-4 text-sm text-slate-600">
+        <p className="mt-4 text-sm text-gray-400">
           Remember your password?{' '}
-          <Link to="/login" className="font-medium text-slate-900 hover:underline">
+          <Link to="/login" className="font-medium text-white hover:underline">
             Login
           </Link>
         </p>

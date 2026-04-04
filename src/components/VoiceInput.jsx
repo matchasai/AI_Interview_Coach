@@ -20,12 +20,12 @@ export function VoiceInput({ onTranscript }) {
                   (speech.listening
                     ? 'bg-indigo-600 animate-pulse'
                     : speech.supported
-                      ? 'bg-slate-300'
-                      : 'bg-slate-200')
+                      ? 'bg-slate-500'
+                      : 'bg-slate-700')
                 }
                 aria-hidden="true"
               />
-              <span className="hidden text-xs font-medium text-slate-600 sm:inline">
+              <span className="hidden text-xs font-medium text-gray-400 sm:inline">
                 {speech.listening ? 'Listening…' : 'Idle'}
               </span>
             </div>
@@ -65,8 +65,8 @@ export function VoiceInput({ onTranscript }) {
 
       {speech.error ? <p className="text-sm text-red-600">{speech.error}</p> : null}
 
-      <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-        <p className="text-sm text-slate-900 whitespace-pre-wrap">
+      <div className="mt-2 rounded-lg border border-white/10 bg-[#1e293b] px-3 py-2">
+        <p className="whitespace-pre-wrap text-sm text-gray-200">
           {speech.transcript || 'Say something…'}
         </p>
       </div>

@@ -40,7 +40,7 @@ export function ResetPassword() {
       >
         <Card>
           <CardHeader title="Invalid Link" subtitle="Reset link is invalid, missing, or expired" />
-          <p className="mb-4 text-sm text-red-700">
+          <p className="mb-4 text-sm text-red-200">
             The password reset link is invalid or has expired. Request a new reset link to continue.
           </p>
           <Link to="/forgot-password">
@@ -98,15 +98,15 @@ export function ResetPassword() {
         <CardHeader title="Reset Password" subtitle="Create a new password" />
 
         {error ? (
-          <p className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
             {error}
           </p>
         ) : null}
 
         {success ? (
-          <div className="space-y-3 rounded-md border border-green-200 bg-green-50 px-3 py-2">
-            <p className="text-sm text-green-700">✓ Password reset successfully!</p>
-            <p className="text-sm text-green-600">Redirecting to dashboard…</p>
+          <div className="space-y-3 rounded-md border border-green-500/30 bg-green-500/10 px-3 py-2">
+            <p className="text-sm text-green-200">✓ Password reset successfully!</p>
+            <p className="text-sm text-green-300">Redirecting to dashboard…</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -135,9 +135,9 @@ export function ResetPassword() {
           </form>
         )}
 
-        <p className="mt-4 text-sm text-slate-600">
+        <p className="mt-4 text-sm text-gray-400">
           Know your password?{' '}
-          <Link to="/login" className="font-medium text-slate-900 hover:underline">
+          <Link to="/login" className="font-medium text-white hover:underline">
             Login
           </Link>
         </p>

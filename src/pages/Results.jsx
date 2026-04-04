@@ -60,8 +60,8 @@ export function Results() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Session Results</h1>
-            <p className="mt-1 text-sm text-slate-600">Loading…</p>
+            <h1 className="text-2xl font-semibold text-white">Session Results</h1>
+            <p className="mt-1 text-sm text-gray-400">Loading…</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Skeleton className="h-10 w-24" />
@@ -105,8 +105,8 @@ export function Results() {
     <Motion.div className="space-y-6" variants={stagger} initial="initial" animate="animate">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Session Results</h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <h1 className="text-2xl font-semibold text-white">Session Results</h1>
+          <p className="mt-1 text-sm text-gray-300">
             {session.role} · {session.difficulty} · Created {formatDateTime(session.createdAt)}
           </p>
         </div>
@@ -124,13 +124,13 @@ export function Results() {
         <Motion.div variants={fadeUp}>
           <Card>
           <CardHeader title="Status" />
-          <p className="text-lg font-semibold text-slate-900">{session.status}</p>
+          <p className="text-lg font-semibold text-white">{session.status}</p>
           </Card>
         </Motion.div>
         <Motion.div variants={fadeUp}>
           <Card>
           <CardHeader title="Answered" />
-          <p className="text-lg font-semibold text-slate-900">
+          <p className="text-lg font-semibold text-white">
             {answered}/{session.questions?.length || 0}
           </p>
           </Card>
@@ -138,7 +138,7 @@ export function Results() {
         <Motion.div variants={fadeUp}>
           <Card>
           <CardHeader title="Total Score" subtitle="Percent" />
-          <p className="text-2xl font-semibold text-slate-900">
+          <p className="text-2xl font-semibold text-white">
             <AnimatedNumber value={session.totalScore ?? 0} />%
           </p>
           </Card>
@@ -148,7 +148,7 @@ export function Results() {
       {session.status !== 'completed' ? (
         <Card>
           <CardHeader title="Session not completed" />
-          <p className="text-sm text-slate-700">
+          <p className="text-sm text-gray-300">
             This session is not marked as completed yet. You can continue answering questions.
           </p>
           <div className="mt-3">
@@ -164,41 +164,41 @@ export function Results() {
           <Motion.div key={q.questionId} variants={fadeUp}>
             <Card>
             <CardHeader title={`Question ${idx + 1}`} subtitle={`Score: ${q.score ?? '—'}/10`} />
-            <p className="text-sm font-medium text-slate-900">{q.questionText}</p>
+            <p className="text-sm font-medium text-white">{q.questionText}</p>
 
             <div className="mt-3 grid gap-3 lg:grid-cols-2">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Your Answer</p>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-slate-900">{q.userAnswer || '—'}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Your Answer</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-200">{q.userAnswer || '—'}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Feedback</p>
-                <p className="mt-1 text-sm text-slate-900">{q.feedback || '—'}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Feedback</p>
+                <p className="mt-1 text-sm text-gray-200">{q.feedback || '—'}</p>
               </div>
             </div>
 
             <div className="mt-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Missing Keywords</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Missing Keywords</p>
               <div className="mt-1">
                 <KeywordChips keywords={q.missingKeywords} />
               </div>
             </div>
 
             <div className="mt-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Improvement Tip</p>
-              <p className="mt-1 text-sm text-slate-900">{q.improvementTip || '—'}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Improvement Tip</p>
+              <p className="mt-1 text-sm text-gray-200">{q.improvementTip || '—'}</p>
             </div>
 
             <div className="mt-3 grid gap-3 lg:grid-cols-2">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Correct Answer (Short)</p>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-slate-900">
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Correct Answer (Short)</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-200">
                   {q.correctAnswer?.short || q.correctAnswer?.long || '—'}
                 </p>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Evaluation Source</p>
-                <p className="mt-1 text-sm text-slate-900">{q.evaluationSource || '—'} / {q.evaluationProvider || '—'}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Evaluation Source</p>
+                <p className="mt-1 text-sm text-gray-200">{q.evaluationSource || '—'} / {q.evaluationProvider || '—'}</p>
               </div>
             </div>
             </Card>
