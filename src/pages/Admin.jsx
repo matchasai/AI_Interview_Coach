@@ -116,8 +116,8 @@ export function Admin() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold text-white">Admin</h1>
-            <p className="mt-1 text-sm text-gray-400">Loading platform stats…</p>
+            <h1 className="text-2xl font-semibold text-slate-900">Admin</h1>
+            <p className="mt-1 text-sm text-slate-500">Loading platform stats…</p>
           </div>
           <Skeleton className="h-10 w-28" />
         </div>
@@ -137,8 +137,8 @@ export function Admin() {
     <Motion.div className="space-y-6" variants={stagger} initial="initial" animate="animate">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Admin</h1>
-          <p className="mt-1 text-sm text-gray-300">Platform overview and controls.</p>
+          <h1 className="text-2xl font-semibold text-slate-900">Admin</h1>
+          <p className="mt-1 text-sm text-slate-600">Platform overview and controls.</p>
         </div>
         <Button variant="secondary" onClick={load}>
           Refresh
@@ -146,7 +146,7 @@ export function Admin() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-3 border-b border-white/10">
+      <div className="flex gap-3 border-b border-slate-200/80">
         {[
           { id: 'overview', label: 'Overview' },
           { id: 'analytics', label: 'Analytics' },
@@ -159,7 +159,7 @@ export function Admin() {
             className={`pb-3 px-4 font-medium transition ${
               activeTab === tab.id
                 ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-400 hover:text-white'
+                : 'text-slate-500 hover:text-slate-900'
             }`}
           >
             {tab.label}
@@ -180,8 +180,8 @@ export function Admin() {
             <Motion.div variants={fadeUp}>
               <Card>
                 <CardHeader title="Totals" />
-                <p className="text-sm text-gray-300">Users: {stats?.userCount ?? 0}</p>
-                <p className="text-sm text-gray-300">Sessions: {stats?.sessionCount ?? 0}</p>
+                <p className="text-sm text-slate-600">Users: {stats?.userCount ?? 0}</p>
+                <p className="text-sm text-slate-600">Sessions: {stats?.sessionCount ?? 0}</p>
               </Card>
             </Motion.div>
 
@@ -191,7 +191,7 @@ export function Admin() {
                 {stats?.roleDistribution?.length ? (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                      <thead className="text-xs uppercase tracking-wide text-gray-400">
+                      <thead className="text-xs uppercase tracking-wide text-slate-500">
                         <tr>
                           <th className="py-2">Role</th>
                           <th className="py-2">Count</th>
@@ -200,8 +200,8 @@ export function Admin() {
                       </thead>
                       <tbody>
                         {stats.roleDistribution.map((r) => (
-                          <tr key={r.role} className="border-t border-white/10">
-                            <td className="py-2 pr-2 font-medium text-white">{r.role}</td>
+                          <tr key={r.role} className="border-t border-slate-200/80">
+                            <td className="py-2 pr-2 font-medium text-slate-900">{r.role}</td>
                             <td className="py-2 pr-2">{r.count}</td>
                             <td className="py-2 pr-2">{r.avgScore}%</td>
                           </tr>
@@ -210,7 +210,7 @@ export function Admin() {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-300">No completed sessions yet.</p>
+                  <p className="text-sm text-slate-600">No completed sessions yet.</p>
                 )}
               </Card>
             </Motion.div>
@@ -220,11 +220,11 @@ export function Admin() {
             <Card>
               <CardHeader title="Users" subtitle="Latest users" />
               {users.length === 0 ? (
-                <p className="text-sm text-gray-300">No users found.</p>
+                <p className="text-sm text-slate-600">No users found.</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
-                    <thead className="text-xs uppercase tracking-wide text-gray-400">
+                    <thead className="text-xs uppercase tracking-wide text-slate-500">
                       <tr>
                         <th className="py-2">Name</th>
                         <th className="py-2">Email</th>
@@ -237,8 +237,8 @@ export function Admin() {
                     </thead>
                     <tbody className="text-gray-200">
                       {users.slice(0, 20).map((u) => (
-                        <tr key={u._id} className="border-t border-white/10">
-                          <td className="py-2 pr-2 font-medium text-white">{u.name}</td>
+                        <tr key={u._id} className="border-t border-slate-200/80">
+                          <td className="py-2 pr-2 font-medium text-slate-900">{u.name}</td>
                           <td className="py-2 pr-2">{u.email}</td>
                           <td className="py-2 pr-2">{u.role}</td>
                           <td className="py-2 pr-2">
@@ -271,11 +271,11 @@ export function Admin() {
             <Card>
               <CardHeader title="Sessions" subtitle="Latest sessions" />
               {sessions.length === 0 ? (
-                <p className="text-sm text-gray-300">No sessions found.</p>
+                <p className="text-sm text-slate-600">No sessions found.</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
-                    <thead className="text-xs uppercase tracking-wide text-gray-400">
+                    <thead className="text-xs uppercase tracking-wide text-slate-500">
                       <tr>
                         <th className="py-2">Role</th>
                         <th className="py-2">Difficulty</th>
@@ -287,8 +287,8 @@ export function Admin() {
                     </thead>
                     <tbody className="text-gray-200">
                       {sessions.slice(0, 20).map((s) => (
-                        <tr key={s._id} className="border-t border-white/10">
-                          <td className="py-2 pr-2 font-medium text-white">{s.role}</td>
+                        <tr key={s._id} className="border-t border-slate-200/80">
+                          <td className="py-2 pr-2 font-medium text-slate-900">{s.role}</td>
                           <td className="py-2 pr-2">{s.difficulty}</td>
                           <td className="py-2 pr-2">{s.status}</td>
                           <td className="py-2 pr-2">
@@ -305,7 +305,7 @@ export function Admin() {
                                 Delete
                               </Button>
                             ) : (
-                              <span className="text-xs text-gray-400">Deleted</span>
+                              <span className="text-xs text-slate-500">Deleted</span>
                             )}
                           </td>
                         </tr>
@@ -343,9 +343,9 @@ export function Admin() {
 
                 {analytics.rolePerformance && Object.keys(analytics.rolePerformance).length > 0 && (
                   <div>
-                    <h3 className="mb-3 font-semibold text-white">Performance by Role</h3>
+                    <h3 className="mb-3 font-semibold text-slate-900">Performance by Role</h3>
                     <table className="w-full text-sm">
-                      <thead className="text-xs uppercase tracking-wide text-gray-400">
+                      <thead className="text-xs uppercase tracking-wide text-slate-500">
                         <tr>
                           <th className="py-2 text-left">Role</th>
                           <th className="py-2 text-left">Average Score</th>
@@ -355,9 +355,9 @@ export function Admin() {
                       <tbody className="divide-y">
                         {Object.entries(analytics.rolePerformance).slice(0, 10).map(([role, stats]) => (
                           <tr key={role}>
-                            <td className="py-2 font-medium text-white">{role}</td>
+                            <td className="py-2 font-medium text-slate-900">{role}</td>
                             <td className="py-2 text-blue-600">{stats.average.toFixed(1)}</td>
-                            <td className="py-2 text-gray-300">{stats.attempts}</td>
+                            <td className="py-2 text-slate-600">{stats.attempts}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -366,7 +366,7 @@ export function Admin() {
                 )}
               </div>
             ) : (
-              <p className="text-sm text-gray-300">No analytics data available.</p>
+              <p className="text-sm text-slate-600">No analytics data available.</p>
             )}
           </Card>
         </Motion.div>
@@ -379,25 +379,25 @@ export function Admin() {
             <CardHeader title="Email Queue Status" subtitle="Background email processing" />
             {emailQueueStatus ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="rounded-lg border border-white/10 bg-[#273549] p-4">
-                  <p className="text-xs uppercase tracking-wide text-gray-400">Pending Emails</p>
+                <div className="rounded-lg border border-slate-200/80 bg-slate-50 p-4">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Pending Emails</p>
                   <p className="text-3xl font-bold text-blue-600 mt-2">{emailQueueStatus.pending || 0}</p>
                 </div>
-                <div className="rounded-lg border border-white/10 bg-[#273549] p-4">
-                  <p className="text-xs uppercase tracking-wide text-gray-400">Retrying</p>
+                <div className="rounded-lg border border-slate-200/80 bg-slate-50 p-4">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Retrying</p>
                   <p className="text-3xl font-bold text-amber-600 mt-2">{emailQueueStatus.retrying || 0}</p>
                 </div>
-                <div className="rounded-lg border border-white/10 bg-[#273549] p-4">
-                  <p className="text-xs uppercase tracking-wide text-gray-400">Failed</p>
+                <div className="rounded-lg border border-slate-200/80 bg-slate-50 p-4">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Failed</p>
                   <p className="text-3xl font-bold text-red-600 mt-2">{emailQueueStatus.failed || 0}</p>
                 </div>
-                <div className="rounded-lg border border-white/10 bg-[#273549] p-4">
-                  <p className="text-xs uppercase tracking-wide text-gray-400">Processed</p>
+                <div className="rounded-lg border border-slate-200/80 bg-slate-50 p-4">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Processed</p>
                   <p className="text-3xl font-bold text-green-600 mt-2">{emailQueueStatus.processed || 0}</p>
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-300">No email queue data available.</p>
+              <p className="text-sm text-slate-600">No email queue data available.</p>
             )}
           </Card>
         </Motion.div>
@@ -409,11 +409,11 @@ export function Admin() {
           <Card>
             <CardHeader title="Abandoned Sessions" subtitle="Sessions deleted by admin can be recovered" />
             {sessions.filter((s) => s.status === 'abandoned').length === 0 ? (
-              <p className="text-sm text-gray-300">No abandoned sessions found.</p>
+              <p className="text-sm text-slate-600">No abandoned sessions found.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="text-xs uppercase tracking-wide text-gray-400">
+                  <thead className="text-xs uppercase tracking-wide text-slate-500">
                     <tr>
                       <th className="py-2">User</th>
                       <th className="py-2">Role</th>
@@ -427,11 +427,11 @@ export function Admin() {
                       .filter((s) => s.status === 'abandoned')
                       .slice(0, 20)
                       .map((s) => (
-                        <tr key={s._id} className="border-t border-white/10">
-                          <td className="py-2 pr-2 font-medium text-white">
+                        <tr key={s._id} className="border-t border-slate-200/80">
+                          <td className="py-2 pr-2 font-medium text-slate-900">
                             <div>{formatSessionUser(s.userId)}</div>
                             {s.userId?.email ? (
-                              <div className="text-xs text-gray-400">{s.userId.email}</div>
+                              <div className="text-xs text-slate-500">{s.userId.email}</div>
                             ) : null}
                           </td>
                           <td className="py-2 pr-2">{s.role}</td>
@@ -458,3 +458,4 @@ export function Admin() {
     </Motion.div>
   )
 }
+

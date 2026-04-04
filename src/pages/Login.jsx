@@ -145,9 +145,9 @@ export function Login() {
           </Button>
         </form>
 
-        <p className="mt-4 text-sm text-gray-400">
+        <p className="mt-4 text-sm text-slate-500">
           Don’t have an account?{' '}
-          <Link to="/register" className="font-medium text-white hover:underline">
+          <Link to="/register" className="font-medium text-slate-900 hover:underline">
             Register
           </Link>
         </p>
@@ -155,3 +155,4 @@ export function Login() {
     </Motion.div>
   )
 }
+

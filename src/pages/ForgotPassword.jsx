@@ -79,12 +79,12 @@ export function ForgotPassword() {
 
         {submitted ? (
           <div className="space-y-3">
-            <p className="text-sm text-gray-300">
-              If an account exists for <span className="font-medium text-white">{email}</span>, a password
+            <p className="text-sm text-slate-600">
+              If an account exists for <span className="font-medium text-slate-900">{email}</span>, a password
               reset link has been sent.
             </p>
-            <p className="text-sm text-gray-400">Check your inbox (and spam folder) for a reset link.</p>
-            <p className="text-sm text-gray-400">The link expires in 1 hour.</p>
+            <p className="text-sm text-slate-500">Check your inbox (and spam folder) for a reset link.</p>
+            <p className="text-sm text-slate-500">The link expires in 1 hour.</p>
 
             <Button
               variant="secondary"
@@ -116,9 +116,9 @@ export function ForgotPassword() {
           </form>
         )}
 
-        <p className="mt-4 text-sm text-gray-400">
+        <p className="mt-4 text-sm text-slate-500">
           Remember your password?{' '}
-          <Link to="/login" className="font-medium text-white hover:underline">
+          <Link to="/login" className="font-medium text-slate-900 hover:underline">
             Login
           </Link>
         </p>
@@ -126,3 +126,4 @@ export function ForgotPassword() {
     </Motion.div>
   )
 }
+

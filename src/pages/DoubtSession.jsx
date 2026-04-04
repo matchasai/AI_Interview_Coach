@@ -318,9 +318,9 @@ export function DoubtSession() {
         <div className="mt-3" />
 
         {historyLoading ? (
-          <p className="text-sm text-gray-400">Loading history…</p>
+          <p className="text-sm text-slate-500">Loading history…</p>
         ) : filteredSessions.length === 0 ? (
-          <p className="text-sm text-gray-400">No matching doubt sessions.</p>
+          <p className="text-sm text-slate-500">No matching doubt sessions.</p>
         ) : (
           <div className="space-y-2">
             {filteredSessions.map((s) => {
@@ -332,7 +332,7 @@ export function DoubtSession() {
                   className={`rounded-xl border px-3 py-2 transition ${
                     active
                       ? 'border-indigo-400/40 bg-indigo-500/15'
-                      : 'border-white/10 bg-[#1e293b] hover:border-indigo-400/30 hover:bg-[#273549]'
+                      : 'border-slate-200/80 bg-white/90 hover:border-indigo-400/30 hover:bg-slate-50'
                   }`}
                 >
                   {isRenaming ? (
@@ -359,9 +359,9 @@ export function DoubtSession() {
                         onClick={() => loadSessionById(s._id)}
                         className="w-full text-left"
                       >
-                        <p className="truncate text-sm font-semibold text-white">{s.topic}</p>
-                        <p className="mt-1 text-xs text-gray-400">{s.messageCount || 0} messages</p>
-                        <p className="text-xs text-gray-400">Updated {formatDateTime(s.updatedAt)}</p>
+                        <p className="truncate text-sm font-semibold text-slate-900">{s.topic}</p>
+                        <p className="mt-1 text-xs text-slate-500">{s.messageCount || 0} messages</p>
+                        <p className="text-xs text-slate-500">Updated {formatDateTime(s.updatedAt)}</p>
                       </button>
                       <div className="mt-2 flex items-center gap-2">
                         <Button type="button" variant="ghost" className="px-2 py-1 text-xs" onClick={() => startRename(s)}>
@@ -441,7 +441,7 @@ export function DoubtSession() {
             <div className="space-y-4 text-sm text-gray-200">
               {linkedMissingKeywords.length ? (
                 <section>
-                  <h3 className="font-semibold text-white">0. Linked from your past mistakes</h3>
+                  <h3 className="font-semibold text-slate-900">0. Linked from your past mistakes</h3>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {linkedMissingKeywords.map((k) => (
                       <span key={k} className="rounded-full border border-amber-400/40 bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-200">
@@ -453,19 +453,19 @@ export function DoubtSession() {
               ) : null}
 
               <section>
-                <h3 className="font-semibold text-white">1. Definition</h3>
+                <h3 className="font-semibold text-slate-900">1. Definition</h3>
                 <p className="mt-1">{details.definition}</p>
               </section>
               <section>
-                <h3 className="font-semibold text-white">2. Why it is used</h3>
+                <h3 className="font-semibold text-slate-900">2. Why it is used</h3>
                 <p className="mt-1">{details.whyUsed}</p>
               </section>
               <section>
-                <h3 className="font-semibold text-white">3. Example</h3>
+                <h3 className="font-semibold text-slate-900">3. Example</h3>
                 <p className="mt-1">{details.example}</p>
               </section>
               <section>
-                <h3 className="font-semibold text-white">4. Applications / Use Cases</h3>
+                <h3 className="font-semibold text-slate-900">4. Applications / Use Cases</h3>
                 <ul className="mt-1 list-disc space-y-1 pl-5">
                   {(details.applications || []).map((item) => (
                     <li key={item}>{item}</li>
@@ -473,7 +473,7 @@ export function DoubtSession() {
                 </ul>
               </section>
               <section>
-                <h3 className="font-semibold text-white">5. Programming Usage</h3>
+                <h3 className="font-semibold text-slate-900">5. Programming Usage</h3>
                 <p className="mt-1">{details.programmingUsage}</p>
               </section>
             </div>
@@ -485,8 +485,8 @@ export function DoubtSession() {
             <CardHeader title="Follow-up Mini Quiz" subtitle="Auto-generated from your weak areas" />
             <div className="space-y-3">
               {miniQuiz.map((item, idx) => (
-                <div key={`${item.question}-${idx}`} className="rounded-xl border border-white/10 bg-[#1e293b] p-3">
-                  <p className="text-sm font-semibold text-white">Q{idx + 1}. {item.question}</p>
+                <div key={`${item.question}-${idx}`} className="rounded-xl border border-slate-200/80 bg-white/90 p-3">
+                  <p className="text-sm font-semibold text-slate-900">Q{idx + 1}. {item.question}</p>
                   <p className="mt-1 text-xs uppercase tracking-wide text-indigo-300">Difficulty: {item.difficulty}</p>
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-200">
                     {(item.expectedPoints || []).map((p) => (
@@ -508,7 +508,7 @@ export function DoubtSession() {
                 <p className="text-xs font-semibold uppercase tracking-wide text-amber-200">Pinned important answers</p>
                 <ul className="mt-2 space-y-2 text-sm text-gray-200">
                   {pinnedAnswers.map((msg, idx) => (
-                    <li key={`pinned-${idx}`} className="rounded-lg bg-slate-900/70 px-2 py-1">
+                    <li key={`pinned-${idx}`} className="rounded-lg bg-white/80 px-2 py-1">
                       {msg.text.split('\n')[0]}
                     </li>
                   ))}
@@ -517,9 +517,9 @@ export function DoubtSession() {
             ) : null}
 
             <div className="space-y-3">
-              <div className="max-h-80 space-y-2 overflow-y-auto rounded-2xl border border-white/10 bg-[#1e293b] p-3">
+              <div className="max-h-80 space-y-2 overflow-y-auto rounded-2xl border border-slate-200/80 bg-white/90 p-3">
                 {chatHistory.length === 0 ? (
-                  <p className="text-sm text-gray-400">No follow-up questions yet.</p>
+                  <p className="text-sm text-slate-500">No follow-up questions yet.</p>
                 ) : (
                   chatHistory.map((msg, idx) => (
                     <div key={`${msg.role}-${idx}`} className="space-y-2">
@@ -527,7 +527,7 @@ export function DoubtSession() {
                         className={`rounded-xl px-3 py-2 text-sm whitespace-pre-line ${
                           msg.role === 'user'
                             ? 'ml-auto max-w-[90%] bg-indigo-500/25 text-indigo-100'
-                            : 'mr-auto max-w-[95%] bg-slate-700/70 text-gray-200'
+                            : 'mr-auto max-w-[95%] bg-slate-100 text-gray-200'
                         }`}
                       >
                         {msg.text}
@@ -585,3 +585,4 @@ export function DoubtSession() {
     </Motion.div>
   )
 }
+

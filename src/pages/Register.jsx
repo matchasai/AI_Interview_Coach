@@ -89,9 +89,9 @@ export function Register() {
           </Button>
         </form>
 
-        <p className="mt-4 text-sm text-gray-400">
+        <p className="mt-4 text-sm text-slate-500">
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-white hover:underline">
+          <Link to="/login" className="font-medium text-slate-900 hover:underline">
             Login
           </Link>
         </p>
@@ -99,3 +99,4 @@ export function Register() {
     </Motion.div>
   )
 }
+
