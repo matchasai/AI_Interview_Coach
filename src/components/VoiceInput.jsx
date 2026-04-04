@@ -66,7 +66,7 @@ export function VoiceInput({ onTranscript }) {
       {speech.error ? <p className="text-sm text-red-600">{speech.error}</p> : null}
 
       <div className="mt-2 rounded-lg border border-slate-200/80 bg-white/90 px-3 py-2">
-        <p className="whitespace-pre-wrap text-sm text-gray-200">
+        <p className="whitespace-pre-wrap text-sm text-slate-800 dark:text-gray-200">
           {speech.transcript || 'Say something…'}
         </p>
       </div>
@@ -83,4 +83,5 @@ export function VoiceInput({ onTranscript }) {
     </Card>
   )
 }
+
 

@@ -6,3 +6,4 @@ export function Spinner({ label = 'Loading...' }) {
     </div>
   )
 }
+

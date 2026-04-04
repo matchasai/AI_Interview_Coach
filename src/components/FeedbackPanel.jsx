@@ -42,7 +42,7 @@ export function FeedbackPanel({ evaluation, showAdvanced = true }) {
       <div className="space-y-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Feedback</p>
-          <p className="mt-1 text-sm text-gray-200">{evaluation.feedback || '—'}</p>
+          <p className="mt-1 text-sm text-slate-800 dark:text-gray-200">{evaluation.feedback || '—'}</p>
         </div>
 
         <div>
@@ -54,7 +54,7 @@ export function FeedbackPanel({ evaluation, showAdvanced = true }) {
 
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Improvement Tip</p>
-          <p className="mt-1 text-sm text-gray-200">{evaluation.improvementTip || '—'}</p>
+          <p className="mt-1 text-sm text-slate-800 dark:text-gray-200">{evaluation.improvementTip || '—'}</p>
         </div>
 
         <div>
@@ -75,14 +75,14 @@ export function FeedbackPanel({ evaluation, showAdvanced = true }) {
               ))}
             </div>
           </div>
-          <p className="mt-1 whitespace-pre-wrap text-sm text-gray-200">{answerText}</p>
+          <p className="mt-1 whitespace-pre-wrap text-sm text-slate-800 dark:text-gray-200">{answerText}</p>
         </div>
 
         {showAdvanced ? (
           <>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Rubric (0-10)</p>
-              <div className="mt-1 grid grid-cols-2 gap-2 text-sm text-gray-200">
+              <div className="mt-1 grid grid-cols-2 gap-2 text-sm text-slate-800 dark:text-gray-200">
                 <p>Concept Accuracy: {evaluation.rubric?.conceptAccuracy ?? '—'}</p>
                 <p>Depth: {evaluation.rubric?.depth ?? '—'}</p>
                 <p>Example Quality: {evaluation.rubric?.exampleQuality ?? '—'}</p>
@@ -94,7 +94,7 @@ export function FeedbackPanel({ evaluation, showAdvanced = true }) {
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Evidence-Based Feedback</p>
               {!evaluation.evidence?.length ? (
-                <p className="mt-1 text-sm text-gray-200">—</p>
+                <p className="mt-1 text-sm text-slate-800 dark:text-gray-200">—</p>
               ) : (
                 <div className="mt-1 space-y-2">
                   {evaluation.evidence.map((item, idx) => (
@@ -114,4 +114,5 @@ export function FeedbackPanel({ evaluation, showAdvanced = true }) {
     </Card>
   )
 }
+
 

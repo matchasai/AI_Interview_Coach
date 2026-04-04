@@ -403,7 +403,7 @@ export function DoubtSession() {
           </form>
 
           {error ? (
-            <p className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+            <p className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-200">
               {error}
             </p>
           ) : null}
@@ -438,13 +438,13 @@ export function DoubtSession() {
               }
             />
 
-            <div className="space-y-4 text-sm text-gray-200">
+            <div className="space-y-4 text-sm text-slate-800 dark:text-gray-200">
               {linkedMissingKeywords.length ? (
                 <section>
                   <h3 className="font-semibold text-slate-900">0. Linked from your past mistakes</h3>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {linkedMissingKeywords.map((k) => (
-                      <span key={k} className="rounded-full border border-amber-400/40 bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-200">
+                      <span key={k} className="rounded-full border border-amber-400/40 bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-700 dark:text-amber-200">
                         {k}
                       </span>
                     ))}
@@ -488,7 +488,7 @@ export function DoubtSession() {
                 <div key={`${item.question}-${idx}`} className="rounded-xl border border-slate-200/80 bg-white/90 p-3">
                   <p className="text-sm font-semibold text-slate-900">Q{idx + 1}. {item.question}</p>
                   <p className="mt-1 text-xs uppercase tracking-wide text-indigo-300">Difficulty: {item.difficulty}</p>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-200">
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-800 dark:text-gray-200">
                     {(item.expectedPoints || []).map((p) => (
                       <li key={p}>{p}</li>
                     ))}
@@ -505,8 +505,8 @@ export function DoubtSession() {
 
             {pinnedAnswers.length ? (
               <div className="mb-3 rounded-xl border border-amber-400/30 bg-amber-500/10 p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-amber-200">Pinned important answers</p>
-                <ul className="mt-2 space-y-2 text-sm text-gray-200">
+                <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-200">Pinned important answers</p>
+                <ul className="mt-2 space-y-2 text-sm text-slate-800 dark:text-gray-200">
                   {pinnedAnswers.map((msg, idx) => (
                     <li key={`pinned-${idx}`} className="rounded-lg bg-white/80 px-2 py-1">
                       {msg.text.split('\n')[0]}
@@ -527,7 +527,7 @@ export function DoubtSession() {
                         className={`rounded-xl px-3 py-2 text-sm whitespace-pre-line ${
                           msg.role === 'user'
                             ? 'ml-auto max-w-[90%] bg-indigo-500/25 text-indigo-100'
-                            : 'mr-auto max-w-[95%] bg-slate-100 text-gray-200'
+                            : 'mr-auto max-w-[95%] bg-slate-100 text-slate-800 dark:text-gray-200'
                         }`}
                       >
                         {msg.text}
@@ -555,7 +555,7 @@ export function DoubtSession() {
                               type="button"
                               onClick={(e) => askFollowup(e, chip)}
                               disabled={followupLoading}
-                              className="rounded-full border border-indigo-400/35 bg-indigo-500/15 px-3 py-1 text-xs font-medium text-indigo-200 transition hover:bg-indigo-500/25 disabled:opacity-50"
+                              className="rounded-full border border-indigo-400/35 bg-indigo-500/15 px-3 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-200 transition hover:bg-indigo-500/25 disabled:opacity-50"
                             >
                               {chip}
                             </button>
@@ -585,4 +585,5 @@ export function DoubtSession() {
     </Motion.div>
   )
 }
+
 

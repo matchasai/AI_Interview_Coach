@@ -11,3 +11,4 @@ export function ScoreCard({ score, max = 10 }) {
   )
 }
 
+

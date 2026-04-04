@@ -168,7 +168,7 @@ export function Admin() {
       </div>
 
       {error ? (
-        <p className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+        <p className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-200">
           {error}
         </p>
       ) : null}
@@ -235,7 +235,7 @@ export function Admin() {
                         <th className="py-2" />
                       </tr>
                     </thead>
-                    <tbody className="text-gray-200">
+                    <tbody className="text-slate-800 dark:text-gray-200">
                       {users.slice(0, 20).map((u) => (
                         <tr key={u._id} className="border-t border-slate-200/80">
                           <td className="py-2 pr-2 font-medium text-slate-900">{u.name}</td>
@@ -285,7 +285,7 @@ export function Admin() {
                         <th className="py-2" />
                       </tr>
                     </thead>
-                    <tbody className="text-gray-200">
+                    <tbody className="text-slate-800 dark:text-gray-200">
                       {sessions.slice(0, 20).map((s) => (
                         <tr key={s._id} className="border-t border-slate-200/80">
                           <td className="py-2 pr-2 font-medium text-slate-900">{s.role}</td>
@@ -328,11 +328,11 @@ export function Admin() {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="rounded-lg border border-blue-500/30 bg-blue-500/15 p-4">
-                    <p className="text-sm text-blue-200">Total Sessions</p>
+                    <p className="text-sm text-blue-700 dark:text-blue-200">Total Sessions</p>
                     <p className="text-3xl font-bold text-blue-600">{analytics.totalSessions}</p>
                   </div>
                   <div className="rounded-lg border border-green-500/30 bg-green-500/15 p-4">
-                    <p className="text-sm text-green-200">Average Score</p>
+                    <p className="text-sm text-green-700 dark:text-green-200">Average Score</p>
                     <p className="text-3xl font-bold text-green-600">{(analytics.averageScore || 0).toFixed(1)}</p>
                   </div>
                   <div className="rounded-lg border border-purple-500/30 bg-purple-500/15 p-4">
@@ -422,7 +422,7 @@ export function Admin() {
                       <th className="py-2" />
                     </tr>
                   </thead>
-                  <tbody className="text-gray-200">
+                  <tbody className="text-slate-800 dark:text-gray-200">
                     {sessions
                       .filter((s) => s.status === 'abandoned')
                       .slice(0, 20)
@@ -458,4 +458,5 @@ export function Admin() {
     </Motion.div>
   )
 }
+
 

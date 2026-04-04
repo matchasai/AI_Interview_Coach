@@ -169,11 +169,11 @@ export function Results() {
             <div className="mt-3 grid gap-3 lg:grid-cols-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Your Answer</p>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-200">{q.userAnswer || '—'}</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-slate-800 dark:text-gray-200">{q.userAnswer || '—'}</p>
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Feedback</p>
-                <p className="mt-1 text-sm text-gray-200">{q.feedback || '—'}</p>
+                <p className="mt-1 text-sm text-slate-800 dark:text-gray-200">{q.feedback || '—'}</p>
               </div>
             </div>
 
@@ -186,19 +186,19 @@ export function Results() {
 
             <div className="mt-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Improvement Tip</p>
-              <p className="mt-1 text-sm text-gray-200">{q.improvementTip || '—'}</p>
+              <p className="mt-1 text-sm text-slate-800 dark:text-gray-200">{q.improvementTip || '—'}</p>
             </div>
 
             <div className="mt-3 grid gap-3 lg:grid-cols-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Correct Answer (Short)</p>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-200">
+                <p className="mt-1 whitespace-pre-wrap text-sm text-slate-800 dark:text-gray-200">
                   {q.correctAnswer?.short || q.correctAnswer?.long || '—'}
                 </p>
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Evaluation Source</p>
-                <p className="mt-1 text-sm text-gray-200">{q.evaluationSource || '—'} / {q.evaluationProvider || '—'}</p>
+                <p className="mt-1 text-sm text-slate-800 dark:text-gray-200">{q.evaluationSource || '—'} / {q.evaluationProvider || '—'}</p>
               </div>
             </div>
             </Card>
@@ -208,4 +208,5 @@ export function Results() {
     </Motion.div>
   )
 }
+
 

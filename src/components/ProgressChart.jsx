@@ -48,3 +48,4 @@ export function ProgressChart({ data }) {
     </Card>
   )
 }
+

@@ -397,16 +397,16 @@ export default function Analytics() {
               <table className="min-w-full">
                 <thead>
                   <tr className="bg-slate-50">
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Role</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Average Score</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Attempts</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Best Score</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-slate-800 dark:text-gray-200">Role</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-slate-800 dark:text-gray-200">Average Score</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-slate-800 dark:text-gray-200">Attempts</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-slate-800 dark:text-gray-200">Best Score</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10">
                   {rolePerformanceData.map((row) => (
                     <tr key={row.role} className="hover:bg-slate-50">
-                      <td className="px-6 py-3 text-sm text-gray-200">{row.role}</td>
+                      <td className="px-6 py-3 text-sm text-slate-800 dark:text-gray-200">{row.role}</td>
                       <td className="px-6 py-3 text-sm font-medium text-blue-600">{row.average.toFixed(1)}</td>
                       <td className="px-6 py-3 text-sm text-slate-600">{row.attempts}</td>
                       <td className="px-6 py-3 text-sm text-slate-600">{row.bestScore}</td>
@@ -421,3 +421,4 @@ export default function Analytics() {
     </div>
   )
 }
+

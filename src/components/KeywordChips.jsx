@@ -8,7 +8,7 @@ export function KeywordChips({ keywords = [] }) {
       {keywords.map((k) => (
         <span
           key={k}
-          className="rounded-full border border-slate-200/80 bg-slate-50 px-3 py-1 text-xs font-medium text-gray-200"
+          className="rounded-full border border-slate-200/80 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-800 dark:text-gray-200"
         >
           {k}
         </span>
@@ -16,4 +16,5 @@ export function KeywordChips({ keywords = [] }) {
     </div>
   )
 }
+
 

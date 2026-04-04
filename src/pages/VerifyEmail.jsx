@@ -62,14 +62,14 @@ export function VerifyEmail() {
           <p className="text-sm text-slate-600">Please wait while we verify your email link.</p>
         ) : verified ? (
           <div className="space-y-3 rounded-md border border-green-500/30 bg-green-500/10 px-3 py-2">
-            <p className="text-sm text-green-200">Your email is verified successfully.</p>
+            <p className="text-sm text-green-700 dark:text-green-200">Your email is verified successfully.</p>
             <Link to="/login">
               <Button className="w-full">Go to Login</Button>
             </Link>
           </div>
         ) : (
           <div className="space-y-3">
-            <p className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+            <p className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-200">
               {error || 'Verification failed. The link may be invalid or expired.'}
             </p>
             <p className="text-sm text-slate-500">You can request a new verification email from the login page.</p>
@@ -82,4 +82,5 @@ export function VerifyEmail() {
     </Motion.div>
   )
 }
+
 
