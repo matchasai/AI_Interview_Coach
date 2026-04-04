@@ -13,6 +13,12 @@ function formatDateTime(iso) {
   return d.toLocaleString()
 }
 
+function formatSessionUser(user) {
+  if (!user) return '—'
+  if (typeof user === 'string') return user
+  return user.name || user.email || user._id || '—'
+}
+
 export function Admin() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -422,7 +428,12 @@ export function Admin() {
                       .slice(0, 20)
                       .map((s) => (
                         <tr key={s._id} className="border-t border-slate-100">
-                          <td className="py-2 pr-2 font-medium text-slate-900">{s.userId}</td>
+                          <td className="py-2 pr-2 font-medium text-slate-900">
+                            <div>{formatSessionUser(s.userId)}</div>
+                            {s.userId?.email ? (
+                              <div className="text-xs text-slate-500">{s.userId.email}</div>
+                            ) : null}
+                          </td>
                           <td className="py-2 pr-2">{s.role}</td>
                           <td className="py-2 pr-2">{s.totalScore || 0}%</td>
                           <td className="py-2 pr-2">{formatDateTime(s.deletedAt || s.updatedAt)}</td>
