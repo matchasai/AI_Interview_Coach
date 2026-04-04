@@ -25,7 +25,11 @@ function resolveFrontendBaseUrl() {
 }
 
 function hasSmtpConfig() {
-  return Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS && env.EMAIL_FROM);
+  return Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
+}
+
+function resolveFromAddress() {
+  return 'IntervAI Coach <noreply@intervai.com>';
 }
 
 function createTransport() {
@@ -81,7 +85,7 @@ async function sendPasswordResetEmail({ to, resetToken }) {
   const transporter = createTransport();
 
   await transporter.sendMail({
-    from: env.EMAIL_FROM,
+    from: resolveFromAddress(),
     to,
     subject: "Reset your AI Interview Coach password",
     text: [
@@ -117,7 +121,7 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
   const transporter = createTransport();
 
   await transporter.sendMail({
-    from: env.EMAIL_FROM,
+    from: resolveFromAddress(),
     to,
     subject: "Verify your AI Interview Coach email",
     text: [

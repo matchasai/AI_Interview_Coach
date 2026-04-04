@@ -1,5 +1,5 @@
 const { User } = require("../auth/user.model");
-const Session = require("../session/session.model");
+const { Session } = require("../session/session.model");
 const { AppError } = require("../../utils/AppError");
 const analyticsService = require("../analytics/analytics.service");
 const emailQueue = require("../auth/email.queue");
