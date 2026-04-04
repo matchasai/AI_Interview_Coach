@@ -15,6 +15,15 @@ import {
 import { useAuth } from '../hooks/useAuth'
 import { api, getErrorMessage } from '../services/api'
 
+const chartGrid = { stroke: 'rgba(148,163,184,0.22)' }
+const chartAxis = { stroke: 'rgba(156,163,175,0.8)' }
+const chartTooltipStyle = {
+  background: '#1e293b',
+  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: '12px',
+  color: '#fff',
+}
+
 function emptyAnalytics(scope) {
   return {
     scope,
@@ -210,13 +219,13 @@ export default function Analytics() {
       : 'Filters apply to your own session history.'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <div className="p-6 md:p-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">Analytics</p>
-            <h1 className="text-4xl font-bold text-slate-900">{scopeLabel}</h1>
-            <p className="mt-2 text-sm text-slate-600">{filterHint}</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-indigo-300">Analytics</p>
+            <h1 className="text-4xl font-bold text-white">{scopeLabel}</h1>
+            <p className="mt-2 text-sm text-gray-400">{filterHint}</p>
           </div>
           <button
             onClick={() => setRefreshKey((value) => value + 1)}
@@ -232,12 +241,12 @@ export default function Analytics() {
             placeholder="Filter by role..."
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="rounded-lg border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-lg border border-white/10 bg-[#1e293b] px-4 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
           />
           <select
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
-            className="rounded-lg border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-lg border border-white/10 bg-[#1e293b] px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
           >
             <option value="">All Difficulties</option>
             <option value="easy">Easy</option>
@@ -247,7 +256,7 @@ export default function Analytics() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="rounded-lg border border-slate-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-lg border border-white/10 bg-[#1e293b] px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
           >
             <option value="">All Roles</option>
             {roleOptions.map((role) => (
@@ -259,20 +268,20 @@ export default function Analytics() {
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-          <div className="rounded-lg bg-white p-6 shadow-lg">
-            <p className="text-sm font-medium text-gray-600">Total Sessions</p>
+          <div className="rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg shadow-black/25">
+            <p className="text-sm font-medium text-gray-400">Total Sessions</p>
             <p className="mt-2 text-4xl font-bold text-blue-600">{analytics.totalSessions || 0}</p>
           </div>
-          <div className="rounded-lg bg-white p-6 shadow-lg">
-            <p className="text-sm font-medium text-gray-600">Average Score</p>
+          <div className="rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg shadow-black/25">
+            <p className="text-sm font-medium text-gray-400">Average Score</p>
             <p className="mt-2 text-4xl font-bold text-green-600">{Number(analytics.averageScore || 0).toFixed(1)}</p>
           </div>
-          <div className="rounded-lg bg-white p-6 shadow-lg">
-            <p className="text-sm font-medium text-gray-600">Best Role</p>
-            <p className="mt-2 text-2xl font-bold text-slate-900">{analytics.bestRole || '—'}</p>
+          <div className="rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg shadow-black/25">
+            <p className="text-sm font-medium text-gray-400">Best Role</p>
+            <p className="mt-2 text-2xl font-bold text-white">{analytics.bestRole || '—'}</p>
           </div>
-          <div className="rounded-lg bg-white p-6 shadow-lg">
-            <p className="text-sm font-medium text-gray-600">Avg Duration</p>
+          <div className="rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg shadow-black/25">
+            <p className="text-sm font-medium text-gray-400">Avg Duration</p>
             <p className="mt-2 text-2xl font-bold text-amber-600">
               {Math.round(analytics.avgDurationSeconds || 0)}s
             </p>
@@ -280,37 +289,37 @@ export default function Analytics() {
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <div className="min-w-0 rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-xl font-bold text-slate-900">Performance Trend</h2>
+          <div className="min-w-0 rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg shadow-black/25">
+            <h2 className="mb-4 text-xl font-bold text-white">Performance Trend</h2>
             {analytics.performanceTrend.length > 0 ? (
               <div className="h-[300px] w-full min-w-0">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
                   <LineChart data={analytics.performanceTrend}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="session" />
-                    <YAxis domain={[0, 100]} />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" {...chartGrid} />
+                    <XAxis dataKey="session" {...chartAxis} />
+                    <YAxis domain={[0, 100]} {...chartAxis} />
+                    <Tooltip contentStyle={chartTooltipStyle} />
                     <Legend />
                     <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="text-sm text-gray-600">Complete a few sessions to see your performance trend.</p>
+              <p className="text-sm text-gray-400">Complete a few sessions to see your performance trend.</p>
             )}
           </div>
 
-          <div className="min-w-0 rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-xl font-bold text-slate-900">By Difficulty</h2>
+          <div className="min-w-0 rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg shadow-black/25">
+            <h2 className="mb-4 text-xl font-bold text-white">By Difficulty</h2>
             {difficultyBreakdownData.length > 0 ? (
               <div className="h-[300px] w-full min-w-0">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
                   <BarChart data={difficultyBreakdownData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="difficulty" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" domain={[0, 100]} />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" {...chartGrid} />
+                    <XAxis dataKey="difficulty" {...chartAxis} />
+                    <YAxis yAxisId="left" {...chartAxis} />
+                    <YAxis yAxisId="right" orientation="right" domain={[0, 100]} {...chartAxis} />
+                    <Tooltip contentStyle={chartTooltipStyle} />
                     <Legend />
                     <Bar yAxisId="left" dataKey="attempts" fill="#3b82f6" name="Attempts" />
                     <Bar yAxisId="right" dataKey="average" fill="#10b981" name="Avg Score" />
@@ -318,21 +327,21 @@ export default function Analytics() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="text-sm text-gray-600">No completed sessions yet.</p>
+              <p className="text-sm text-gray-400">No completed sessions yet.</p>
             )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <div className="rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-xl font-bold text-slate-900">Weak Areas</h2>
+          <div className="rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg shadow-black/25">
+            <h2 className="mb-4 text-xl font-bold text-white">Weak Areas</h2>
             <div className="space-y-4">
               {analytics.weakAreas.length > 0 ? (
                 analytics.weakAreas.map((area, idx) => (
-                  <div key={idx} className="flex items-center justify-between border-b pb-3">
+                  <div key={idx} className="flex items-center justify-between border-b border-white/10 pb-3">
                     <div>
-                      <p className="font-medium text-slate-900">{area.area}</p>
-                      <p className="text-sm text-gray-600">{area.attempts} attempts</p>
+                      <p className="font-medium text-white">{area.area}</p>
+                      <p className="text-sm text-gray-400">{area.attempts} attempts</p>
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-red-600">{Number(area.score || 0).toFixed(1)}</p>
@@ -340,20 +349,20 @@ export default function Analytics() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-600">No weak areas identified</p>
+                <p className="text-sm text-gray-400">No weak areas identified</p>
               )}
             </div>
           </div>
 
-          <div className="rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-xl font-bold text-slate-900">Strong Areas</h2>
+          <div className="rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg shadow-black/25">
+            <h2 className="mb-4 text-xl font-bold text-white">Strong Areas</h2>
             <div className="space-y-4">
               {analytics.strongAreas.length > 0 ? (
                 analytics.strongAreas.map((area, idx) => (
-                  <div key={idx} className="flex items-center justify-between border-b pb-3">
+                  <div key={idx} className="flex items-center justify-between border-b border-white/10 pb-3">
                     <div>
-                      <p className="font-medium text-slate-900">{area.area}</p>
-                      <p className="text-sm text-gray-600">{area.attempts} attempts</p>
+                      <p className="font-medium text-white">{area.area}</p>
+                      <p className="text-sm text-gray-400">{area.attempts} attempts</p>
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-green-600">{Number(area.score || 0).toFixed(1)}</p>
@@ -361,22 +370,22 @@ export default function Analytics() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-600">No strong areas identified</p>
+                <p className="text-sm text-gray-400">No strong areas identified</p>
               )}
             </div>
           </div>
         </div>
 
         {rolePerformanceData.length > 0 && (
-          <div className="mt-8 min-w-0 rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-xl font-bold text-slate-900">Performance by Role</h2>
+          <div className="mt-8 min-w-0 rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg shadow-black/25">
+            <h2 className="mb-4 text-xl font-bold text-white">Performance by Role</h2>
             <div className="h-[320px] w-full min-w-0">
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
                 <BarChart data={rolePerformanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="role" />
-                  <YAxis domain={[0, 100]} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" {...chartGrid} />
+                  <XAxis dataKey="role" {...chartAxis} />
+                  <YAxis domain={[0, 100]} {...chartAxis} />
+                  <Tooltip contentStyle={chartTooltipStyle} />
                   <Legend />
                   <Bar dataKey="average" fill="#3b82f6" name="Average Score" />
                   <Bar dataKey="bestScore" fill="#10b981" name="Best Score" />
@@ -387,20 +396,20 @@ export default function Analytics() {
             <div className="mt-6 overflow-x-auto">
               <table className="min-w-full">
                 <thead>
-                  <tr className="bg-gray-50">
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Role</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Average Score</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Attempts</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Best Score</th>
+                  <tr className="bg-slate-700/40">
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Role</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Average Score</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Attempts</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Best Score</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y divide-white/10">
                   {rolePerformanceData.map((row) => (
-                    <tr key={row.role} className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-sm text-gray-900">{row.role}</td>
+                    <tr key={row.role} className="hover:bg-slate-700/40">
+                      <td className="px-6 py-3 text-sm text-gray-200">{row.role}</td>
                       <td className="px-6 py-3 text-sm font-medium text-blue-600">{row.average.toFixed(1)}</td>
-                      <td className="px-6 py-3 text-sm text-gray-600">{row.attempts}</td>
-                      <td className="px-6 py-3 text-sm text-gray-600">{row.bestScore}</td>
+                      <td className="px-6 py-3 text-sm text-gray-300">{row.attempts}</td>
+                      <td className="px-6 py-3 text-sm text-gray-300">{row.bestScore}</td>
                     </tr>
                   ))}
                 </tbody>
