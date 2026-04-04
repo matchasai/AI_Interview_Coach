@@ -22,6 +22,7 @@ async function listSessions({ limit = 20, offset = 0 }) {
   const o = Math.max(Number(offset) || 0, 0);
 
   const sessions = await Session.find({})
+    .populate("userId", "name email")
     .sort({ createdAt: -1 })
     .skip(o)
     .limit(l);
@@ -58,8 +59,9 @@ async function recoverSession({ sessionId }) {
     throw new AppError("Session not found", 404, "NOT_FOUND");
   }
 
-  // Restore session by removing soft-delete marker if it exists
-  session.status = "paused"; // Or "active" depending on your logic
+  // Restore session to paused so the user can resume safely.
+  session.status = "paused";
+  session.deletedAt = null;
   await session.save();
 
   return session;
