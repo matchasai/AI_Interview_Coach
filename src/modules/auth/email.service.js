@@ -148,8 +148,52 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
   return { delivered: true, verificationLink };
 }
 
+async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas = [], dashboardLink }) {
+  const link = `${resolveFrontendBaseUrl()}${dashboardLink || '/dashboard'}`;
+
+  if (!hasSmtpConfig() || env.EMAIL_PROVIDER !== "smtp") {
+    console.log(`[DEV EMAIL LOG] Practice reminder for ${to}: ${guideSummary || 'Practice today'} -> ${link}`);
+    return { delivered: false, reason: "smtp-not-configured", reminderLink: link };
+  }
+
+  const focusItems = Array.isArray(topFocusAreas) && topFocusAreas.length
+    ? topFocusAreas.slice(0, 3).map((item) => `<li style="margin-bottom:8px;"><strong>${item.role}</strong>: ${item.focus}</li>`).join('')
+    : '<li style="margin-bottom:8px;">Review your last interview and repeat the hardest 3 questions.</li>';
+
+  const transporter = createTransport();
+
+  await transporter.sendMail({
+    from: resolveFromAddress(),
+    to,
+    subject: "Your IntervAI Coach practice reminder",
+    text: [
+      `Hi ${name || 'there'},`,
+      guideSummary || 'Time for a short practice session.',
+      `Open your dashboard: ${link}`,
+      'Use the weak areas shown there to pick your next practice topic.',
+    ].join("\n"),
+    html: emailShell({
+      title: "Practice Reminder",
+      preheader: "A quick reminder to keep your interview practice on track.",
+      bodyHtml: [
+        `<p>Hi <strong>${name || 'there'}</strong>,</p>`,
+        `<p>${guideSummary || 'Time for a short practice session.'}</p>`,
+        '<p>Your current focus areas:</p>',
+        `<ul style="padding-left:18px;margin:12px 0 0 0;">${focusItems}</ul>`,
+        '<p style="margin-top:16px;">Keep the streak going with one focused interview session today.</p>',
+      ].join(''),
+      ctaText: 'Open Dashboard',
+      ctaHref: link,
+      note: 'Practice reminders help you revisit weak areas and improve consistently.',
+    }),
+  });
+
+  return { delivered: true, reminderLink: link };
+}
+
 module.exports = {
   sendPasswordResetEmail,
   sendVerificationEmail,
+  sendPracticeReminderEmail,
   hasSmtpConfig,
 };

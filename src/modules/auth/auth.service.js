@@ -27,6 +27,9 @@ function toSafeUser(userDoc) {
     role: userDoc.role,
     totalSessions: userDoc.totalSessions,
     avgScore: userDoc.avgScore,
+    themePreference: userDoc.themePreference,
+    practiceReminderEnabled: userDoc.practiceReminderEnabled,
+    practiceReminderChannel: userDoc.practiceReminderChannel,
     createdAt: userDoc.createdAt,
     updatedAt: userDoc.updatedAt,
   };
@@ -48,6 +51,9 @@ async function register({ name, email, password }) {
     password: hashed,
     role: "user",
     isEmailVerified: false,
+    themePreference: "light",
+    practiceReminderEnabled: false,
+    practiceReminderChannel: "email",
     emailVerificationToken: verificationToken,
     emailVerificationExpiry: verificationExpiry,
   });

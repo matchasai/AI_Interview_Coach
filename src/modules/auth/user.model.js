@@ -59,6 +59,20 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    themePreference: {
+      type: String,
+      enum: ["light", "dark", "system"],
+      default: "light",
+    },
+    practiceReminderEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    practiceReminderChannel: {
+      type: String,
+      enum: ["email", "notification"],
+      default: "email",
+    },
     emailVerificationToken: {
       type: String,
       default: null,

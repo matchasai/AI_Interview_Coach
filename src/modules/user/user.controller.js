@@ -25,8 +25,20 @@ const getStats = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, stats });
 });
 
+const getStudyGuides = asyncHandler(async (req, res) => {
+  const studyGuides = await userService.getStudyGuides(req.user.userId);
+  res.status(200).json({ success: true, studyGuides });
+});
+
+const sendPracticeReminder = asyncHandler(async (req, res) => {
+  const result = await userService.sendPracticeReminder(req.user.userId);
+  res.status(200).json({ success: true, ...result });
+});
+
 module.exports = {
   getProfile,
   updateProfile,
   getStats,
+  getStudyGuides,
+  sendPracticeReminder,
 };
