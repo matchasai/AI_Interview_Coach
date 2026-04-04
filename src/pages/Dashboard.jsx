@@ -15,7 +15,7 @@ import {
     downloadSessionPdf,
     formatDuration,
 } from '../utils/sessionExport'
-import { toastError, toastSuccess, toastPromise } from '../utils/toast'
+import { toastError, toastPromise, toastSuccess } from '../utils/toast'
 
 function formatDateTime(iso) {
   const d = new Date(iso)

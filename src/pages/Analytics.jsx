@@ -1,16 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Legend,
+    Line,
+    LineChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
 } from 'recharts'
 import { useAuth } from '../hooks/useAuth'
 import { api, getErrorMessage } from '../services/api'
@@ -280,39 +280,43 @@ export default function Analytics() {
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <div className="rounded-lg bg-white p-6 shadow-lg">
+          <div className="min-w-0 rounded-lg bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-xl font-bold text-slate-900">Performance Trend</h2>
             {analytics.performanceTrend.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={analytics.performanceTrend}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="session" />
-                  <YAxis domain={[0, 100]} />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="h-[300px] w-full min-w-0">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
+                  <LineChart data={analytics.performanceTrend}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="session" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             ) : (
               <p className="text-sm text-gray-600">Complete a few sessions to see your performance trend.</p>
             )}
           </div>
 
-          <div className="rounded-lg bg-white p-6 shadow-lg">
+          <div className="min-w-0 rounded-lg bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-xl font-bold text-slate-900">By Difficulty</h2>
             {difficultyBreakdownData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={difficultyBreakdownData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="difficulty" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" domain={[0, 100]} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar yAxisId="left" dataKey="attempts" fill="#3b82f6" name="Attempts" />
-                  <Bar yAxisId="right" dataKey="average" fill="#10b981" name="Avg Score" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="h-[300px] w-full min-w-0">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
+                  <BarChart data={difficultyBreakdownData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="difficulty" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="attempts" fill="#3b82f6" name="Attempts" />
+                    <Bar yAxisId="right" dataKey="average" fill="#10b981" name="Avg Score" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             ) : (
               <p className="text-sm text-gray-600">No completed sessions yet.</p>
             )}
@@ -364,19 +368,21 @@ export default function Analytics() {
         </div>
 
         {rolePerformanceData.length > 0 && (
-          <div className="mt-8 rounded-lg bg-white p-6 shadow-lg">
+          <div className="mt-8 min-w-0 rounded-lg bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-xl font-bold text-slate-900">Performance by Role</h2>
-            <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={rolePerformanceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="role" />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="average" fill="#3b82f6" name="Average Score" />
-                <Bar dataKey="bestScore" fill="#10b981" name="Best Score" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="h-[320px] w-full min-w-0">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
+                <BarChart data={rolePerformanceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="role" />
+                  <YAxis domain={[0, 100]} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="average" fill="#3b82f6" name="Average Score" />
+                  <Bar dataKey="bestScore" fill="#10b981" name="Best Score" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
 
             <div className="mt-6 overflow-x-auto">
               <table className="min-w-full">
