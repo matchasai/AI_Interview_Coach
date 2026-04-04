@@ -1,4 +1,4 @@
-const Session = require("../session/session.model");
+const { Session } = require("../session/session.model");
 const { AppError } = require("../../utils/AppError");
 
 async function getUserAnalytics({ userId, roleFilter, difficultyFilter, startDate, endDate }) {
