@@ -53,42 +53,45 @@ class EmailJob {
       return true;
     } catch (error) {
       this.retries += 1;
-      if (this.retries >= this.maxRetries) {
-        console.error(
-          `[EMAIL QUEUE] Job ${this.id} failed after ${this.maxRetries} retries`,
-          error.message
+    async execute() {
+      try {
+        let result = null;
+        console.log(`[EMAIL QUEUE] Executing job ${this.id} (${this.type}, to: ${this.payload.to})`);
+        if (this.type === 'password-reset') {
+          result = await sendPasswordResetEmail(this.payload);
+        } else if (this.type === 'verification') {
+          result = await sendVerificationEmail(this.payload);
+        } else if (this.type === 'practice-reminder') {
+          result = await sendPracticeReminderEmail(this.payload);
+        } else {
+          throw new Error(`Unsupported email job type: ${this.type}`);
+        }
+
+        // Treat explicit non-delivery as a real failure so retry/backoff can run.
+        if (result && result.delivered === false) {
+          console.warn(`[EMAIL QUEUE] Job ${this.id} marked as non-delivered: ${result.reason}`);
+          throw new Error(result.reason || 'email-not-delivered');
+        }
+
+        console.log(`[EMAIL QUEUE] Job ${this.id} completed successfully`);
+        return true;
+      } catch (error) {
+        this.retries += 1;
+        console.error(`[EMAIL QUEUE] Job ${this.id} error (attempt ${this.retries}):`, error.message);
+        if (this.retries >= this.maxRetries) {
+          console.error(
+            `[EMAIL QUEUE] Job ${this.id} failed permanently after ${this.maxRetries} retries. Error: ${error.message}`
+          );
+          return false; // Give up
+        }
+        const delay = INITIAL_DELAY_MS * Math.pow(2, this.retries - 1);
+        this.nextRetryAt = Date.now() + delay;
+        console.warn(
+          `[EMAIL QUEUE] Job ${this.id} will retry in ${delay}ms (${this.retries}/${this.maxRetries})`
         );
-        return false; // Give up
+        return null; // Retry
       }
-      const delay = INITIAL_DELAY_MS * Math.pow(2, this.retries - 1);
-      this.nextRetryAt = Date.now() + delay;
-      console.warn(
-        `[EMAIL QUEUE] Job ${this.id} retry ${this.retries}/${this.maxRetries} in ${delay}ms`
-      );
-      return null; // Retry
     }
-  }
-}
-
-// Background worker
-let workerRunning = false;
-function startWorker() {
-  if (workerRunning) return;
-  workerRunning = true;
-
-  setInterval(async () => {
-    const now = Date.now();
-    for (let i = emailQueue.length - 1; i >= 0; i -= 1) {
-      const job = emailQueue[i];
-      if (job.nextRetryAt <= now) {
-        const result = await job.execute();
-        if (result === true) {
-          emailQueue.splice(i, 1); // Remove from queue on success
-          queueStats.processed += 1;
-          queueStats.lastProcessed = new Date();
-        } else if (result === false) {
-          emailQueue.splice(i, 1); // Remove from queue on permanent failure
-          queueStats.failed += 1;
         }
         // If result is null, keep job in queue for next retry
       }

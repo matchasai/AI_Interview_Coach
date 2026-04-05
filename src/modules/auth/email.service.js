@@ -93,32 +93,36 @@ async function sendPasswordResetEmail({ to, resetToken }) {
     return { delivered: false, reason: "smtp-not-configured", resetLink };
   }
 
-  const transporter = createTransport();
-
-  await transporter.sendMail({
-    from: resolveFromAddress(),
-    to,
-    subject: "Reset your AI Interview Coach password",
-    text: [
-      "We received a request to reset your password.",
-      `Reset link: ${resetLink}`,
-      "This link expires in 1 hour.",
-      "If you did not request this, you can ignore this email.",
-    ].join("\n"),
-    html: emailShell({
-      title: "Reset Your Password",
-      preheader: "Use this secure link to reset your IntervAI Coach password.",
-      bodyHtml: [
-        "<p>We received a request to reset your password.</p>",
-        "<p>For your security, this link expires in <strong>1 hour</strong>.</p>",
-      ].join(""),
-      ctaText: "Reset Password",
-      ctaHref: resetLink,
-      note: "If you did not request this, you can safely ignore this email.",
-    }),
-  });
-
-  return { delivered: true, resetLink };
+  try {
+    const transporter = createTransport();
+    const response = await transporter.sendMail({
+      from: resolveFromAddress(),
+      to,
+      subject: "Reset your AI Interview Coach password",
+      text: [
+        "We received a request to reset your password.",
+        `Reset link: ${resetLink}`,
+        "This link expires in 1 hour.",
+        "If you did not request this, you can ignore this email.",
+      ].join("\n"),
+      html: emailShell({
+        title: "Reset Your Password",
+        preheader: "Use this secure link to reset your IntervAI Coach password.",
+        bodyHtml: [
+          "<p>We received a request to reset your password.</p>",
+          "<p>For your security, this link expires in <strong>1 hour</strong>.</p>",
+        ].join(""),
+        ctaText: "Reset Password",
+        ctaHref: resetLink,
+        note: "If you did not request this, you can safely ignore this email.",
+      }),
+    });
+    console.log(`[EMAIL] Password reset sent to ${to}, messageId: ${response.messageId}`);
+    return { delivered: true, resetLink };
+  } catch (error) {
+    console.error(`[EMAIL] Password reset send failed for ${to}:`, error.message);
+    return { delivered: false, reason: error.message, resetLink };
+  }
 }
 
 async function sendVerificationEmail({ to, name, verificationToken }) {
@@ -129,34 +133,38 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
     return { delivered: false, reason: "smtp-not-configured", verificationLink };
   }
 
-  const transporter = createTransport();
-
-  await transporter.sendMail({
-    from: resolveFromAddress(),
-    to,
-    subject: "Verify your AI Interview Coach email",
-    text: [
-      `Welcome, ${name}!`,
-      "Please verify your email to complete registration.",
-      `Verification link: ${verificationLink}`,
-      "This link expires in 24 hours.",
-      "If you did not create this account, you can ignore this email.",
-    ].join("\n"),
-    html: emailShell({
-      title: "Verify Your Email",
-      preheader: "Confirm your email and activate your IntervAI Coach account.",
-      bodyHtml: [
-        `<p>Welcome, <strong>${name}</strong>!</p>`,
-        "<p>Thanks for registering. Please verify your email to activate your account.</p>",
-        "<p>This verification link expires in <strong>24 hours</strong>.</p>",
-      ].join(""),
-      ctaText: "Verify Email",
-      ctaHref: verificationLink,
-      note: "If you did not create this account, you can ignore this email.",
-    }),
-  });
-
-  return { delivered: true, verificationLink };
+  try {
+    const transporter = createTransport();
+    const response = await transporter.sendMail({
+      from: resolveFromAddress(),
+      to,
+      subject: "Verify your AI Interview Coach email",
+      text: [
+        `Welcome, ${name}!`,
+        "Please verify your email to complete registration.",
+        `Verification link: ${verificationLink}`,
+        "This link expires in 24 hours.",
+        "If you did not create this account, you can ignore this email.",
+      ].join("\n"),
+      html: emailShell({
+        title: "Verify Your Email",
+        preheader: "Confirm your email and activate your IntervAI Coach account.",
+        bodyHtml: [
+          `<p>Welcome, <strong>${name}</strong>!</p>`,
+          "<p>Thanks for registering. Please verify your email to activate your account.</p>",
+           "<p>This verification link expires in <strong>24 hours</strong>.</p>",
+        ].join(""),
+        ctaText: "Verify Email",
+        ctaHref: verificationLink,
+        note: "If you did not create this account, you can ignore this email.",
+      }),
+    });
+    console.log(`[EMAIL] Verification sent to ${to}, messageId: ${response.messageId}`);
+    return { delivered: true, verificationLink };
+  } catch (error) {
+    console.error(`[EMAIL] Verification send failed for ${to}:`, error.message);
+    return { delivered: false, reason: error.message, verificationLink };
+  }
 }
 
 async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas = [], dashboardLink }) {
@@ -167,39 +175,43 @@ async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas
     return { delivered: false, reason: "smtp-not-configured", reminderLink: link };
   }
 
-  const focusItems = Array.isArray(topFocusAreas) && topFocusAreas.length
-    ? topFocusAreas.slice(0, 3).map((item) => `<li style="margin-bottom:8px;"><strong>${item.role}</strong>: ${item.focus}</li>`).join('')
-    : '<li style="margin-bottom:8px;">Review your last interview and repeat the hardest 3 questions.</li>';
+  try {
+    const focusItems = Array.isArray(topFocusAreas) && topFocusAreas.length
+      ? topFocusAreas.slice(0, 3).map((item) => `<li style="margin-bottom:8px;"><strong>${item.role}</strong>: ${item.focus}</li>`).join('')
+      : '<li style="margin-bottom:8px;">Review your last interview and repeat the hardest 3 questions.</li>';
 
-  const transporter = createTransport();
-
-  await transporter.sendMail({
-    from: resolveFromAddress(),
-    to,
-    subject: "Your IntervAI Coach practice reminder",
-    text: [
-      `Hi ${name || 'there'},`,
-      guideSummary || 'Time for a short practice session.',
-      `Open your dashboard: ${link}`,
-      'Use the weak areas shown there to pick your next practice topic.',
-    ].join("\n"),
-    html: emailShell({
-      title: "Practice Reminder",
-      preheader: "A quick reminder to keep your interview practice on track.",
-      bodyHtml: [
-        `<p>Hi <strong>${name || 'there'}</strong>,</p>`,
-        `<p>${guideSummary || 'Time for a short practice session.'}</p>`,
-        '<p>Your current focus areas:</p>',
-        `<ul style="padding-left:18px;margin:12px 0 0 0;">${focusItems}</ul>`,
-        '<p style="margin-top:16px;">Keep the streak going with one focused interview session today.</p>',
-      ].join(''),
-      ctaText: 'Open Dashboard',
-      ctaHref: link,
-      note: 'Practice reminders help you revisit weak areas and improve consistently.',
-    }),
-  });
-
-  return { delivered: true, reminderLink: link };
+    const transporter = createTransport();
+    const response = await transporter.sendMail({
+      from: resolveFromAddress(),
+      to,
+      subject: "Your IntervAI Coach practice reminder",
+      text: [
+        `Hi ${name || 'there'},`,
+        guideSummary || 'Time for a short practice session.',
+        `Open your dashboard: ${link}`,
+        'Use the weak areas shown there to pick your next practice topic.',
+      ].join("\n"),
+      html: emailShell({
+        title: "Practice Reminder",
+        preheader: "A quick reminder to keep your interview practice on track.",
+        bodyHtml: [
+          `<p>Hi <strong>${name || 'there'}</strong>,</p>`,
+          `<p>${guideSummary || 'Time for a short practice session.'}</p>`,
+          '<p>Your current focus areas:</p>',
+          `<ul style="padding-left:18px;margin:12px 0 0 0;">${focusItems}</ul>`,
+          '<p style="margin-top:16px;">Keep the streak going with one focused interview session today.</p>',
+        ].join(''),
+        ctaText: 'Open Dashboard',
+        ctaHref: link,
+        note: 'Practice reminders help you revisit weak areas and improve consistently.',
+      }),
+    });
+    console.log(`[EMAIL] Practice reminder sent to ${to}, messageId: ${response.messageId}`);
+    return { delivered: true, reminderLink: link };
+  } catch (error) {
+    console.error(`[EMAIL] Practice reminder send failed for ${to}:`, error.message);
+    return { delivered: false, reason: error.message, reminderLink: link };
+  }
 }
 
 module.exports = {

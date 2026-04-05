@@ -99,6 +99,24 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, ...result });
 });
 
+const emailDiagnostics = asyncHandler(async (req, res) => {
+  const { getDiagnostics } = require("./email-diagnostics");
+  const diagnostics = await getDiagnostics();
+  res.status(200).json({ success: true, diagnostics });
+});
+
+const emailTestSend = asyncHandler(async (req, res) => {
+  const testEmail = toLowerTrim(req.body?.email);
+
+  if (!validateEmail(testEmail)) {
+    throw new AppError("Valid email required for test", 400, "VALIDATION_ERROR");
+  }
+
+  const { sendTestEmail } = require("./email-diagnostics");
+  const result = await sendTestEmail(testEmail);
+  res.status(result.success ? 200 : 400).json({ success: result.success, result });
+});
+
 module.exports = {
   register,
   login,
@@ -107,4 +125,6 @@ module.exports = {
   resetPassword,
   verifyEmail,
   resendVerificationEmail,
+  emailDiagnostics,
+  emailTestSend,
 };
