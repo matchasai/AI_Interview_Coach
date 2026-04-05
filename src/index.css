@@ -4,6 +4,17 @@
 
 @layer base {
   :root {
+    color-scheme: light;
+    --surface-soft: 241 245 249;
+    --app-bg: 248 250 252;
+    --card-bg: 255 255 255;
+    --card-hover: 248 250 252;
+    --text-primary: 15 23 42;
+    --text-secondary: 71 85 105;
+    --text-muted: 100 116 139;
+  }
+
+  html.dark {
     color-scheme: dark;
     --surface-soft: 2 6 23;
     --app-bg: 2 6 23;
@@ -21,18 +32,25 @@
   body {
     @apply m-0;
     color: rgb(var(--text-primary));
-    @apply bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b];
+    background:
+      radial-gradient(900px 520px at 5% -10%, rgb(59 130 246 / 0.12), transparent 58%),
+      radial-gradient(760px 500px at 90% -12%, rgb(139 92 246 / 0.1), transparent 52%),
+      linear-gradient(180deg, #f8fafc 0%, #ffffff 46%, #eef2ff 100%);
     min-height: 100vh;
+  }
+
+  html.dark body {
+    @apply bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b];
   }
 
   h1 {
     @apply text-4xl font-bold tracking-tight md:text-5xl;
-    @apply text-white;
+    @apply text-slate-900 dark:text-white;
   }
 
   h2 {
     @apply text-xl font-semibold tracking-tight md:text-2xl;
-    @apply text-white;
+    @apply text-slate-900 dark:text-white;
   }
 }
 
@@ -42,7 +60,7 @@
   }
 
   .surface-card {
-    @apply rounded-2xl border border-white/10 bg-[#1e293b] shadow-lg shadow-black/40 transition-all duration-300 hover:bg-[#273549];
+    @apply rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-900/10 transition-all duration-300 hover:bg-slate-50 dark:border-white/10 dark:bg-[#1e293b] dark:shadow-black/40 dark:hover:bg-[#273549];
   }
 
   .surface-glow {
@@ -52,11 +70,11 @@
   }
 
   .saas-card {
-    @apply rounded-2xl border border-white/10 bg-[#1e293b] shadow-lg shadow-black/40 transition-all duration-300 hover:bg-[#273549];
+    @apply rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-900/10 transition-all duration-300 hover:bg-slate-50 dark:border-white/10 dark:bg-[#1e293b] dark:shadow-black/40 dark:hover:bg-[#273549];
   }
 
   .glass-hero {
-    @apply rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl;
+    @apply rounded-3xl border border-slate-200/80 bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/5;
   }
 
   .section-title {

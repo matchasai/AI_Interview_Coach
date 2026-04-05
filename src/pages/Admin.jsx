@@ -116,7 +116,7 @@ export function Admin() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold text-white">Admin</h1>
+            <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Admin</h1>
             <p className="mt-1 text-sm text-gray-400">Loading platform stats…</p>
           </div>
           <Skeleton className="h-10 w-28" />
@@ -137,7 +137,7 @@ export function Admin() {
     <Motion.div className="space-y-6" variants={stagger} initial="initial" animate="animate">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Admin</h1>
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Admin</h1>
           <p className="mt-1 text-sm text-gray-400">Platform overview and controls.</p>
         </div>
         <Button variant="secondary" onClick={load}>
@@ -146,7 +146,7 @@ export function Admin() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-3 border-b border-white/10">
+      <div className="flex gap-3 border-b border-slate-200 dark:border-white/10">
         {[
           { id: 'overview', label: 'Overview' },
           { id: 'analytics', label: 'Analytics' },
@@ -158,8 +158,8 @@ export function Admin() {
             onClick={() => setActiveTab(tab.id)}
             className={`pb-3 px-4 font-medium transition ${
               activeTab === tab.id
-                ? 'rounded-t-xl bg-gradient-to-r from-indigo-500/25 to-purple-600/25 border-b-2 border-indigo-400 text-white'
-                : 'text-gray-400 hover:text-white'
+                ? 'rounded-t-xl bg-gradient-to-r from-indigo-500/25 to-purple-600/25 border-b-2 border-indigo-400 text-slate-900 dark:text-white'
+                : 'text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white'
             }`}
           >
             {tab.label}
@@ -168,7 +168,7 @@ export function Admin() {
       </div>
 
       {error ? (
-        <p className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+        <p className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-200">
           {error}
         </p>
       ) : null}
@@ -200,8 +200,8 @@ export function Admin() {
                       </thead>
                       <tbody>
                         {stats.roleDistribution.map((r) => (
-                          <tr key={r.role} className="border-t border-white/10">
-                            <td className="py-2 pr-2 font-medium text-white">{r.role}</td>
+                          <tr key={r.role} className="border-t border-slate-200 dark:border-white/10">
+                            <td className="py-2 pr-2 font-medium text-slate-900 dark:text-white">{r.role}</td>
                             <td className="py-2 pr-2">{r.count}</td>
                             <td className="py-2 pr-2">{r.avgScore}%</td>
                           </tr>
@@ -237,8 +237,8 @@ export function Admin() {
                     </thead>
                     <tbody className="text-gray-200">
                       {users.slice(0, 20).map((u) => (
-                        <tr key={u._id} className="border-t border-white/10">
-                          <td className="py-2 pr-2 font-medium text-white">{u.name}</td>
+                        <tr key={u._id} className="border-t border-slate-200 dark:border-white/10">
+                          <td className="py-2 pr-2 font-medium text-slate-900 dark:text-white">{u.name}</td>
                           <td className="py-2 pr-2">{u.email}</td>
                           <td className="py-2 pr-2">{u.role}</td>
                           <td className="py-2 pr-2">
@@ -287,8 +287,8 @@ export function Admin() {
                     </thead>
                     <tbody className="text-gray-200">
                       {sessions.slice(0, 20).map((s) => (
-                        <tr key={s._id} className="border-t border-white/10">
-                          <td className="py-2 pr-2 font-medium text-white">{s.role}</td>
+                        <tr key={s._id} className="border-t border-slate-200 dark:border-white/10">
+                          <td className="py-2 pr-2 font-medium text-slate-900 dark:text-white">{s.role}</td>
                           <td className="py-2 pr-2">{s.difficulty}</td>
                           <td className="py-2 pr-2">{s.status}</td>
                           <td className="py-2 pr-2">
@@ -332,7 +332,7 @@ export function Admin() {
                     <p className="text-3xl font-bold text-blue-600">{analytics.totalSessions}</p>
                   </div>
                   <div className="saas-card p-4">
-                    <p className="text-sm text-emerald-200">Average Score</p>
+                    <p className="text-sm text-emerald-700 dark:text-emerald-200">Average Score</p>
                     <p className="text-3xl font-bold text-green-600">{(analytics.averageScore || 0).toFixed(1)}</p>
                   </div>
                   <div className="saas-card p-4">
@@ -343,7 +343,7 @@ export function Admin() {
 
                 {analytics.rolePerformance && Object.keys(analytics.rolePerformance).length > 0 && (
                   <div>
-                    <h3 className="mb-3 font-semibold text-white">Performance by Role</h3>
+                    <h3 className="mb-3 font-semibold text-slate-900 dark:text-white">Performance by Role</h3>
                     <table className="w-full text-sm">
                       <thead className="text-xs uppercase tracking-wide text-gray-400">
                         <tr>
@@ -355,7 +355,7 @@ export function Admin() {
                       <tbody className="divide-y">
                         {Object.entries(analytics.rolePerformance).slice(0, 10).map(([role, stats]) => (
                           <tr key={role}>
-                            <td className="py-2 font-medium text-white">{role}</td>
+                            <td className="py-2 font-medium text-slate-900 dark:text-white">{role}</td>
                             <td className="py-2 text-blue-600">{stats.average.toFixed(1)}</td>
                             <td className="py-2 text-gray-400">{stats.attempts}</td>
                           </tr>
@@ -427,8 +427,8 @@ export function Admin() {
                       .filter((s) => s.status === 'abandoned')
                       .slice(0, 20)
                       .map((s) => (
-                        <tr key={s._id} className="border-t border-white/10">
-                          <td className="py-2 pr-2 font-medium text-white">
+                        <tr key={s._id} className="border-t border-slate-200 dark:border-white/10">
+                          <td className="py-2 pr-2 font-medium text-slate-900 dark:text-white">
                             <div>{formatSessionUser(s.userId)}</div>
                             {s.userId?.email ? (
                               <div className="text-xs text-gray-400">{s.userId.email}</div>

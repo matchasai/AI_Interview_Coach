@@ -224,8 +224,8 @@ export default function Analytics() {
         <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-indigo-300">Analytics</p>
-            <h1 className="text-4xl font-bold text-white">{scopeLabel}</h1>
-            <p className="mt-2 text-sm text-gray-400">{filterHint}</p>
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-white">{scopeLabel}</h1>
+            <p className="mt-2 text-sm text-slate-600 dark:text-gray-400">{filterHint}</p>
           </div>
           <button
             onClick={() => setRefreshKey((value) => value + 1)}
@@ -241,12 +241,12 @@ export default function Analytics() {
             placeholder="Filter by role..."
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="rounded-lg border border-white/10 bg-[#1e293b] px-4 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1e293b] px-4 py-2 text-slate-900 dark:text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
           />
           <select
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
-            className="rounded-lg border border-white/10 bg-[#1e293b] px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1e293b] px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
           >
             <option value="">All Difficulties</option>
             <option value="easy">Easy</option>
@@ -256,7 +256,7 @@ export default function Analytics() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="rounded-lg border border-white/10 bg-[#1e293b] px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1e293b] px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
           >
             <option value="">All Roles</option>
             {roleOptions.map((role) => (
@@ -278,7 +278,7 @@ export default function Analytics() {
           </div>
           <div className="saas-card p-6">
             <p className="text-sm font-medium text-gray-400">Best Role</p>
-            <p className="mt-2 text-2xl font-bold text-white">{analytics.bestRole || '—'}</p>
+            <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{analytics.bestRole || '—'}</p>
           </div>
           <div className="saas-card p-6">
             <p className="text-sm font-medium text-gray-400">Avg Duration</p>
@@ -290,7 +290,7 @@ export default function Analytics() {
 
         <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div className="saas-card min-w-0 p-6">
-            <h2 className="mb-4 text-xl font-bold text-white">Performance Trend</h2>
+            <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">Performance Trend</h2>
             {analytics.performanceTrend.length > 0 ? (
               <div className="h-[300px] w-full min-w-0">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
@@ -310,7 +310,7 @@ export default function Analytics() {
           </div>
 
           <div className="saas-card min-w-0 p-6">
-            <h2 className="mb-4 text-xl font-bold text-white">By Difficulty</h2>
+            <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">By Difficulty</h2>
             {difficultyBreakdownData.length > 0 ? (
               <div className="h-[300px] w-full min-w-0">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
@@ -334,13 +334,13 @@ export default function Analytics() {
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div className="saas-card p-6">
-            <h2 className="mb-4 text-xl font-bold text-white">Weak Areas</h2>
+            <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">Weak Areas</h2>
             <div className="space-y-4">
               {analytics.weakAreas.length > 0 ? (
                 analytics.weakAreas.map((area, idx) => (
-                  <div key={idx} className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div key={idx} className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
                     <div>
-                      <p className="font-medium text-white">{area.area}</p>
+                      <p className="font-medium text-slate-900 dark:text-white">{area.area}</p>
                       <p className="text-sm text-gray-400">{area.attempts} attempts</p>
                     </div>
                     <div className="text-right">
@@ -355,13 +355,13 @@ export default function Analytics() {
           </div>
 
           <div className="saas-card p-6">
-            <h2 className="mb-4 text-xl font-bold text-white">Strong Areas</h2>
+            <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">Strong Areas</h2>
             <div className="space-y-4">
               {analytics.strongAreas.length > 0 ? (
                 analytics.strongAreas.map((area, idx) => (
-                  <div key={idx} className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div key={idx} className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
                     <div>
-                      <p className="font-medium text-white">{area.area}</p>
+                      <p className="font-medium text-slate-900 dark:text-white">{area.area}</p>
                       <p className="text-sm text-gray-400">{area.attempts} attempts</p>
                     </div>
                     <div className="text-right">
@@ -378,7 +378,7 @@ export default function Analytics() {
 
         {rolePerformanceData.length > 0 && (
           <div className="saas-card mt-8 min-w-0 p-6">
-            <h2 className="mb-4 text-xl font-bold text-white">Performance by Role</h2>
+            <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">Performance by Role</h2>
             <div className="h-[320px] w-full min-w-0">
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
                 <BarChart data={rolePerformanceData}>
@@ -396,7 +396,7 @@ export default function Analytics() {
             <div className="mt-6 overflow-x-auto">
               <table className="min-w-full">
                 <thead>
-                  <tr className="bg-[#273549]">
+                  <tr className="bg-slate-100 dark:bg-[#273549]">
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Role</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Average Score</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-200">Attempts</th>
@@ -405,7 +405,7 @@ export default function Analytics() {
                 </thead>
                 <tbody className="divide-y divide-white/10">
                   {rolePerformanceData.map((row) => (
-                    <tr key={row.role} className="hover:bg-[#273549]">
+                    <tr key={row.role} className="hover:bg-slate-100 dark:hover:bg-slate-100 dark:bg-[#273549]">
                       <td className="px-6 py-3 text-sm text-gray-200">{row.role}</td>
                       <td className="px-6 py-3 text-sm font-medium text-blue-600">{row.average.toFixed(1)}</td>
                       <td className="px-6 py-3 text-sm text-gray-400">{row.attempts}</td>
