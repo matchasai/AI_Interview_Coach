@@ -1,27 +1,13 @@
 import { motion as Motion } from 'framer-motion'
-import { useTheme } from '../../context/ThemeContext'
 import { cardHover } from '../../utils/motion'
 
 export function Card({ children, className = '', accent = true }) {
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === 'dark'
-
   return (
     <Motion.div
       {...cardHover}
-      className={`group relative overflow-hidden rounded-2xl p-[1px] transition-all duration-300 hover:scale-[1.02] ${
-        isDark
-          ? 'border border-white/10 bg-[#1e293b] shadow-lg shadow-black/40 hover:bg-[#273549] hover:shadow-[0_26px_58px_-18px_rgba(2,6,23,0.8)]'
-          : 'border border-slate-200/80 bg-white/90 shadow-lg shadow-slate-900/10 hover:bg-white hover:shadow-[0_26px_58px_-18px_rgba(15,23,42,0.2)]'
-      } ${className}`}
+      className={`group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 p-[1px] shadow-lg shadow-slate-900/10 transition-all duration-300 hover:scale-[1.02] hover:bg-white hover:shadow-[0_26px_58px_-18px_rgba(15,23,42,0.2)] ${className}`}
     >
-      <div
-        className={`relative overflow-hidden rounded-2xl p-5 pl-7 transition-all duration-300 ${
-          isDark
-            ? 'border border-white/10 bg-gradient-to-b from-[#1e293b] to-[#172033] group-hover:from-[#273549] group-hover:to-[#1f2d43]'
-            : 'border border-slate-200/70 bg-gradient-to-b from-white to-slate-50 group-hover:from-white group-hover:to-slate-100'
-        }`}
-      >
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-b from-white to-slate-50 p-5 pl-7 transition-all duration-300 group-hover:from-white group-hover:to-slate-100">
         {accent ? (
           <span className="pointer-events-none absolute bottom-5 left-3 top-5 w-[3px] rounded-full bg-gradient-to-b from-blue-500 via-violet-500 to-pink-500 opacity-85" />
         ) : null}
@@ -37,14 +23,11 @@ export function Card({ children, className = '', accent = true }) {
 }
 
 export function CardHeader({ title, subtitle, right }) {
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === 'dark'
-
   return (
     <div className="mb-3 flex items-start justify-between gap-3">
       <div>
-        <h2 className={`text-lg font-semibold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>{title}</h2>
-        {subtitle ? <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{subtitle}</p> : null}
+        <h2 className="text-lg font-semibold tracking-tight text-slate-900">{title}</h2>
+        {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
       </div>
       {right ? <div className="shrink-0">{right}</div> : null}
     </div>

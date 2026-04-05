@@ -48,21 +48,21 @@ export function Home() {
         <div className="pointer-events-none absolute -left-16 -bottom-24 h-56 w-56 rounded-full bg-blue-400/16 blur-3xl" />
 
         <div className="relative z-10 max-w-3xl">
-          <p className="mb-3 inline-flex rounded-full border border-indigo-400/35 bg-indigo-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-200">
+          <p className="mb-3 inline-flex rounded-full border border-indigo-400/35 bg-indigo-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-700">
             Interview prep reinvented
           </p>
           <h1>
             Land your next role with
             <span className="brand-gradient block">IntervAI Coach</span>
           </h1>
-          <p className="mt-4 text-base leading-relaxed text-slate-600 dark:text-gray-400 md:text-lg">
+          <p className="mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
             Practice role-specific interviews with voice input, instant AI feedback, and progress analytics that feel like a premium career co-pilot.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">High score: green</span>
-            <span className="rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">Average score: yellow</span>
-            <span className="rounded-full border border-rose-400/30 bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-700 dark:text-rose-300">Low score: red</span>
+            <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700">High score: green</span>
+            <span className="rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700">Average score: yellow</span>
+            <span className="rounded-full border border-rose-400/30 bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-700">Low score: red</span>
           </div>
 
           <div className="mt-7 flex flex-wrap gap-3">
@@ -97,7 +97,7 @@ export function Home() {
               subtitle="Pick your target role"
               right={<FeatureIcon kind="role" />}
             />
-            <p className="text-sm leading-relaxed text-slate-600 dark:text-gray-300">
+            <p className="text-sm leading-relaxed text-slate-600">
               Sessions generate questions tailored to your selected role and difficulty.
             </p>
           </Card>
@@ -109,7 +109,7 @@ export function Home() {
               subtitle="Score + tips"
               right={<FeatureIcon kind="feedback" />}
             />
-            <p className="text-sm leading-relaxed text-slate-600 dark:text-gray-300">
+            <p className="text-sm leading-relaxed text-slate-600">
               Submit answers one-by-one and get scores, missing keywords, and improvement tips.
             </p>
           </Card>
@@ -121,7 +121,7 @@ export function Home() {
               subtitle="Web Speech API"
               right={<FeatureIcon kind="voice" />}
             />
-            <p className="text-sm leading-relaxed text-slate-600 dark:text-gray-300">
+            <p className="text-sm leading-relaxed text-slate-600">
               Speak answers and convert the transcript into text with one click.
             </p>
           </Card>

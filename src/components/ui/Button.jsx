@@ -16,10 +16,10 @@ export function Button({
     primary:
       'text-white shadow-lg shadow-indigo-900/45 bg-gradient-to-r from-indigo-500 to-purple-600 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/35',
     secondary:
-      'bg-white text-slate-900 border border-slate-200 hover:bg-slate-100 hover:border-indigo-300 hover:scale-105 dark:bg-white/10 dark:text-white dark:border-white/10 dark:hover:bg-white/15 dark:hover:border-indigo-400/50',
+      'bg-white text-slate-900 border border-slate-200 hover:bg-slate-100 hover:border-indigo-300 hover:scale-105',
     danger:
       'text-white shadow-lg shadow-rose-900/45 bg-gradient-to-r from-rose-500 to-red-500 hover:scale-105 hover:shadow-[0_0_20px_rgba(244,63,94,0.4)]',
-    ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 hover:scale-105 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white',
+    ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 hover:scale-105',
   }
 
   return (
