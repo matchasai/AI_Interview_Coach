@@ -13,6 +13,81 @@ function ensureArrayOfStrings(value, fallback = []) {
   return value.filter((x) => typeof x === "string" && x.trim().length > 0);
 }
 
+function coerceQuestionItems(payload) {
+  if (Array.isArray(payload)) {
+    return payload
+      .map((item) => {
+        if (typeof item === "string") {
+          return { questionText: item };
+        }
+        if (item && typeof item === "object" && typeof item.questionText === "string") {
+          return { questionText: item.questionText };
+        }
+        if (item && typeof item === "object" && typeof item.question === "string") {
+          return { questionText: item.question };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }
+
+  if (payload && typeof payload === "object") {
+    const candidates = [payload.questions, payload.items, payload.data, payload.result];
+    for (const candidate of candidates) {
+      if (Array.isArray(candidate)) {
+        return coerceQuestionItems(candidate);
+      }
+    }
+  }
+
+  return [];
+}
+
+function toNumberOrNull(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function deriveScore(payload) {
+  const direct = toNumberOrNull(payload?.score);
+  if (direct !== null) return Math.max(0, Math.min(10, direct));
+
+  const rubric = payload?.rubric || {};
+  const parts = [
+    toNumberOrNull(rubric.conceptAccuracy),
+    toNumberOrNull(rubric.depth),
+    toNumberOrNull(rubric.exampleQuality),
+    toNumberOrNull(rubric.tradeoffAwareness),
+    toNumberOrNull(rubric.communication),
+  ].filter((v) => v !== null);
+
+  if (parts.length > 0) {
+    const avg = parts.reduce((sum, value) => sum + value, 0) / parts.length;
+    return Math.max(0, Math.min(10, avg));
+  }
+
+  return 0;
+}
+
+function normalizeEvaluationShape(payload) {
+  if (!payload || typeof payload !== "object") return {};
+
+  const nested = payload.evaluation || payload.result || payload.data;
+  const source = nested && typeof nested === "object" ? nested : payload;
+
+  const missingKeywords = Array.isArray(source.missingKeywords)
+    ? source.missingKeywords
+    : typeof source.missingKeywords === "string"
+      ? source.missingKeywords.split(/[,\n]/).map((x) => x.trim()).filter(Boolean)
+      : [];
+
+  return {
+    ...source,
+    score: deriveScore(source),
+    missingKeywords,
+  };
+}
+
 function extractJsonFromText(text) {
   if (typeof text !== "string") return null;
   const trimmed = text.trim();
@@ -157,7 +232,8 @@ function parseEvaluation(payload) {
 
 function parseQuestionsFromText(text, { expectedCount } = {}) {
   const json = extractJsonFromText(text);
-  const parsed = QuestionsSchema.safeParse(json);
+  const normalizedPayload = coerceQuestionItems(json);
+  const parsed = QuestionsSchema.safeParse(normalizedPayload);
   if (!parsed.success) return [];
 
   const normalized = parseQuestions(parsed.data);
@@ -169,7 +245,8 @@ function parseQuestionsFromText(text, { expectedCount } = {}) {
 
 function parseEvaluationFromText(text) {
   const json = extractJsonFromText(text);
-  const parsed = EvaluationSchema.safeParse(json);
+  const normalizedPayload = normalizeEvaluationShape(json);
+  const parsed = EvaluationSchema.safeParse(normalizedPayload);
   if (!parsed.success) return null;
 
   const normalized = parseEvaluation(parsed.data);

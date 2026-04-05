@@ -40,13 +40,13 @@ const askQuestion = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { question } = req.body || {};
 
-  const session = await doubtService.askQuestion({
+  const { session, reply } = await doubtService.askQuestion({
     userId: req.user.userId,
     sessionId: id,
     question,
   });
 
-  res.status(200).json({ success: true, session });
+  res.status(200).json({ success: true, session, reply });
 });
 
 const archiveSession = asyncHandler(async (req, res) => {

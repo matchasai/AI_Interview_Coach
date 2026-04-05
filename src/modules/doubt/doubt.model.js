@@ -24,7 +24,10 @@ const doubtSessionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    details: String,
+    details: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
     messages: [messageSchema],
     status: {
       type: String,

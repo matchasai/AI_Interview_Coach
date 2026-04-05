@@ -10,7 +10,7 @@ async function createSession({ userId, topic, details }) {
   const session = await DoubtSession.create({
     userId,
     topic: topic.trim(),
-    details: details?.trim() || "",
+    details: details || null,
     messages: [],
   });
 
@@ -59,50 +59,12 @@ async function askQuestion({ userId, sessionId, question }) {
     text: question.trim(),
   });
 
-  // Get AI response
-  const prompt = `You are an expert tutor helping a student understand: "${session.topic}"
-
-Student context: ${session.details || "No additional context provided"}
-
-Student question: ${question.trim()}
-
-Provide a clear, concise explanation with:
-1. Direct answer to the question
-2. Key points (as array)
-3. Common mistakes to avoid (as array)
-
-Respond in JSON format:
-{
-  "answer": "your explanation here",
-  "keyPoints": ["point1", "point2", "point3"],
-  "commonMistakes": ["mistake1", "mistake2"]
-}`;
-
-  let aiResponse = null;
-
-  try {
-    // Try live AI first
-    const result = await aiService.evaluateAnswer({
-      role: session.topic,
-      difficulty: "medium",
-      questionText: `Explain: ${session.topic}`,
-      answerText: question,
-    });
-
-    // Format for doubt session
-    aiResponse = {
-      answer: result.feedback || "I understand your question. Let me break this down...",
-      keyPoints: result.missingKeywords?.slice(0, 3) || ["Key concept", "Implementation", "Use case"],
-      commonMistakes: ["Overlooking edge cases", "Missing context", "Incomplete explanation"],
-    };
-  } catch (err) {
-    // Fallback response
-    aiResponse = {
-      answer: `That's a great question about ${session.topic}. This is an important concept. Here's what you should know...`,
-      keyPoints: ["Definition", "How it works", "Real-world application"],
-      commonMistakes: ["Confusing with similar concepts", "Missing key details", "Not providing examples"],
-    };
-  }
+  const aiResponse = await aiService.generateDoubtReply({
+    topic: session.topic,
+    details: typeof session.details === "string" ? session.details : JSON.stringify(session.details || {}),
+    question: question.trim(),
+    history: session.messages,
+  });
 
   // Add assistant message
   session.messages.push({
@@ -113,7 +75,7 @@ Respond in JSON format:
   });
 
   await session.save();
-  return session;
+  return { session, reply: aiResponse };
 }
 
 async function archiveSession({ userId, sessionId }) {

@@ -181,6 +181,7 @@ function buildFallbackQuestions({ role, difficulty, questionCount }) {
   const bank = pickBank(role);
   const shuffled = shuffle(bank);
   const prefix = difficultyPrefix(difficulty);
+  const startOffset = Math.floor(Math.random() * Math.max(shuffled.length, 1));
   const extensions = [
     "Include one practical example.",
     "Discuss key tradeoffs.",
@@ -191,8 +192,9 @@ function buildFallbackQuestions({ role, difficulty, questionCount }) {
   const questions = [];
 
   for (let i = 0; i < questionCount; i += 1) {
-    const base = shuffled[i % shuffled.length] || bank[i % bank.length] || "Explain this topic clearly.";
-    const ext = i >= shuffled.length ? ` ${extensions[i % extensions.length]}` : "";
+    const idx = (startOffset + i) % Math.max(shuffled.length, 1);
+    const base = shuffled[idx] || bank[idx] || "Explain this topic clearly.";
+    const ext = i >= shuffled.length || Math.random() > 0.55 ? ` ${extensions[(startOffset + i) % extensions.length]}` : "";
     questions.push({ questionText: `${prefix}${base}${ext}`.trim() });
   }
 
@@ -317,6 +319,153 @@ function buildRubricAndEvidence({ role, questionText, answerText, missingKeyword
 
 function hasGroqKey() {
   return typeof env.GROQ_API_KEY === "string" && env.GROQ_API_KEY.trim().length > 0;
+}
+
+function extractJsonObjectFromText(text) {
+  if (typeof text !== "string") return null;
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (parsed && typeof parsed === "object") return parsed;
+  } catch {
+    // Continue to fallback parsing.
+  }
+
+  const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fence?.[1]) {
+    try {
+      const parsed = JSON.parse(fence[1].trim());
+      if (parsed && typeof parsed === "object") return parsed;
+    } catch {
+      // Continue to fallback parsing.
+    }
+  }
+
+  const firstObj = trimmed.indexOf("{");
+  const lastObj = trimmed.lastIndexOf("}");
+  if (firstObj !== -1 && lastObj !== -1 && lastObj > firstObj) {
+    try {
+      const parsed = JSON.parse(trimmed.slice(firstObj, lastObj + 1));
+      if (parsed && typeof parsed === "object") return parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+function ensureShortString(value, fallback = "") {
+  if (typeof value !== "string") return fallback;
+  return value.trim() || fallback;
+}
+
+function ensureStringList(value, fallback = []) {
+  if (!Array.isArray(value)) return fallback;
+  return value
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter(Boolean);
+}
+
+function buildFallbackDoubtDetails(topic) {
+  const cleanTopic = ensureShortString(topic, "this topic");
+  return {
+    definition: `${cleanTopic} is a core interview concept. Start with what it is, where it appears, and why it matters in real systems.`,
+    whyUsed: `Interviewers ask ${cleanTopic} to evaluate practical understanding, not just theory. They expect clear reasoning and tradeoff awareness.`,
+    example: `A practical way to explain ${cleanTopic} is to walk through one project scenario, then highlight the decision you made and why.`,
+    applications: [
+      "System design discussions",
+      "Code review and debugging",
+      "Architecture and performance tradeoffs",
+    ],
+    programmingUsage: `In implementation, ${cleanTopic} should be explained with one data flow, one edge case, and one measurable outcome.`,
+    linkedMissingKeywords: [],
+    miniQuiz: [
+      {
+        question: `Explain ${cleanTopic} in 60 seconds with one real example.`,
+        difficulty: "easy",
+        expectedPoints: ["Definition", "When to use", "One example"],
+      },
+      {
+        question: `What tradeoffs are important when applying ${cleanTopic}?`,
+        difficulty: "medium",
+        expectedPoints: ["Pros", "Cons", "Decision criteria"],
+      },
+    ],
+  };
+}
+
+function normalizeDoubtDetails(payload, topic) {
+  const fallback = buildFallbackDoubtDetails(topic);
+  const source = payload && typeof payload === "object" ? payload : {};
+  const miniQuizSource = Array.isArray(source.miniQuiz) ? source.miniQuiz : [];
+
+  const miniQuiz = miniQuizSource
+    .map((item) => ({
+      question: ensureShortString(item?.question),
+      difficulty: ensureShortString(item?.difficulty, "medium"),
+      expectedPoints: ensureStringList(item?.expectedPoints, []),
+    }))
+    .filter((item) => item.question);
+
+  return {
+    definition: ensureShortString(source.definition, fallback.definition),
+    whyUsed: ensureShortString(source.whyUsed, fallback.whyUsed),
+    example: ensureShortString(source.example, fallback.example),
+    applications: ensureStringList(source.applications, fallback.applications),
+    programmingUsage: ensureShortString(source.programmingUsage, fallback.programmingUsage),
+    linkedMissingKeywords: ensureStringList(source.linkedMissingKeywords, []),
+    miniQuiz: miniQuiz.length ? miniQuiz : fallback.miniQuiz,
+  };
+}
+
+function buildFallbackDoubtReply({ topic, question }) {
+  const cleanTopic = ensureShortString(topic, "this topic");
+  const cleanQuestion = ensureShortString(question, "your question");
+
+  return {
+    answer: `Good question: "${cleanQuestion}". For ${cleanTopic}, first define the concept, then explain the mechanism, and finish with one concrete project example and edge case.`,
+    keyPoints: [
+      "Start with a one-line definition",
+      "Explain how it works step-by-step",
+      "Add one realistic project example",
+    ],
+    commonMistakes: [
+      "Giving theory without implementation detail",
+      "Skipping tradeoffs and edge cases",
+      "Not connecting answer to business impact",
+    ],
+    followUpQuestions: [
+      `Can you show a backend example for ${cleanTopic}?`,
+      `What are the tradeoffs of ${cleanTopic}?`,
+      `How would you explain ${cleanTopic} to a non-technical stakeholder?`,
+    ],
+    miniQuiz: [],
+  };
+}
+
+function normalizeDoubtReply(payload, { topic, question }) {
+  const fallback = buildFallbackDoubtReply({ topic, question });
+  const source = payload && typeof payload === "object" ? payload : {};
+  const miniQuizSource = Array.isArray(source.miniQuiz) ? source.miniQuiz : [];
+
+  const miniQuiz = miniQuizSource
+    .map((item) => ({
+      question: ensureShortString(item?.question),
+      difficulty: ensureShortString(item?.difficulty, "medium"),
+      expectedPoints: ensureStringList(item?.expectedPoints, []),
+    }))
+    .filter((item) => item.question);
+
+  return {
+    answer: ensureShortString(source.answer, fallback.answer),
+    keyPoints: ensureStringList(source.keyPoints, fallback.keyPoints),
+    commonMistakes: ensureStringList(source.commonMistakes, fallback.commonMistakes),
+    followUpQuestions: ensureStringList(source.followUpQuestions, fallback.followUpQuestions),
+    miniQuiz,
+  };
 }
 
 let groqClient = null;
@@ -468,7 +617,100 @@ async function evaluateAnswer({ role, difficulty, questionText, answerText }) {
   });
 }
 
+async function generateDoubtTopicDetails({ topic, details }) {
+  const cleanTopic = ensureShortString(topic);
+  const context = ensureShortString(details);
+
+  if (hasGroqKey()) {
+    const prompt = [
+      "You are an interview coach.",
+      "Return ONLY valid JSON object with these keys exactly:",
+      "definition, whyUsed, example, applications, programmingUsage, linkedMissingKeywords, miniQuiz",
+      "applications must be array of strings (3-6).",
+      "linkedMissingKeywords must be array of strings.",
+      "miniQuiz must be array (0-3) of {question, difficulty, expectedPoints}.",
+      "No markdown, no commentary.",
+      "",
+      `topic: ${cleanTopic}`,
+      `studentContext: ${context || "none"}`,
+    ].join("\n");
+
+    try {
+      const text = await groqGenerateText(prompt);
+      const parsed = extractJsonObjectFromText(text);
+      if (parsed) {
+        return {
+          details: normalizeDoubtDetails(parsed, cleanTopic),
+          source: "live-ai",
+          provider: "groq",
+        };
+      }
+    } catch {
+      // Continue to fallback.
+    }
+  }
+
+  return {
+    details: buildFallbackDoubtDetails(cleanTopic),
+    source: "fallback-heuristic",
+    provider: "local",
+  };
+}
+
+async function generateDoubtReply({ topic, details, question, history = [] }) {
+  const cleanTopic = ensureShortString(topic);
+  const cleanQuestion = ensureShortString(question);
+  const cleanDetails = ensureShortString(details);
+  const compactHistory = Array.isArray(history)
+    ? history
+        .slice(-6)
+        .map((msg) => `${msg.role === "assistant" ? "Coach" : "Student"}: ${ensureShortString(msg.text)}`)
+        .filter(Boolean)
+        .join("\n")
+    : "";
+
+  if (hasGroqKey()) {
+    const prompt = [
+      "You are an expert interview coach.",
+      "Return ONLY valid JSON with keys:",
+      "answer, keyPoints, commonMistakes, followUpQuestions, miniQuiz",
+      "answer must be concise and practical.",
+      "keyPoints/commonMistakes/followUpQuestions must be arrays of strings.",
+      "miniQuiz must be array (0-2) of {question, difficulty, expectedPoints}.",
+      "No markdown, no extra text.",
+      "",
+      `topic: ${cleanTopic}`,
+      `topicContext: ${cleanDetails || "none"}`,
+      `studentQuestion: ${cleanQuestion}`,
+      "recentConversation:",
+      compactHistory || "none",
+    ].join("\n");
+
+    try {
+      const text = await groqGenerateText(prompt);
+      const parsed = extractJsonObjectFromText(text);
+      if (parsed) {
+        return {
+          ...normalizeDoubtReply(parsed, { topic: cleanTopic, question: cleanQuestion }),
+          source: "live-ai",
+          provider: "groq",
+        };
+      }
+    } catch {
+      // Continue to fallback.
+    }
+  }
+
+  return {
+    ...buildFallbackDoubtReply({ topic: cleanTopic, question: cleanQuestion }),
+    source: "fallback-heuristic",
+    provider: "local",
+  };
+}
+
 module.exports = {
   generateQuestions,
   evaluateAnswer,
+  generateDoubtTopicDetails,
+  generateDoubtReply,
 };

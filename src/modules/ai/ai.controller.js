@@ -4,38 +4,43 @@ const doubtService = require("../doubt/doubt.service");
 const { AppError } = require("../../utils/AppError");
 
 const explainTopic = asyncHandler(async (req, res) => {
-  const { topic } = req.body || {};
+  const { topic, details } = req.body || {};
 
   const doubtSession = await doubtService.createSession({
     userId: req.user.userId,
     topic,
-    details: "",
+    details: null,
   });
 
-  // For now, return basic structure. In production, you'd generate detailed explanation
+  const generated = await aiService.generateDoubtTopicDetails({
+    topic,
+    details,
+  });
+
+  doubtSession.details = generated.details;
+  await doubtSession.save();
+
   res.status(201).json({
     success: true,
     doubtSessionId: doubtSession._id,
-    details: {
-      definition: `${topic} is a fundamental concept...`,
-      whyUsed: `Understanding ${topic} is important because...`,
-      example: `A practical example of ${topic}...`,
-      applications: ["Application 1", "Application 2", "Application 3"],
-      programmingUsage: `In programming, ${topic} is used...`,
+    details: generated.details,
+    linkedMissingKeywords: generated.details.linkedMissingKeywords || [],
+    miniQuiz: generated.details.miniQuiz || [],
+    ai: {
+      source: generated.source,
+      provider: generated.provider,
     },
-    linkedMissingKeywords: [],
-    miniQuiz: [],
   });
 });
 
 const doubtFollowup = asyncHandler(async (req, res) => {
-  const { sessionId, question, topic } = req.body || {};
+  const { sessionId, question } = req.body || {};
 
   if (!sessionId) {
     throw new AppError("Session ID is required", 400, "VALIDATION_ERROR");
   }
 
-  const session = await doubtService.askQuestion({
+  const { session, reply } = await doubtService.askQuestion({
     userId: req.user.userId,
     sessionId,
     question,
@@ -43,12 +48,7 @@ const doubtFollowup = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    reply: {
-      answer: `Regarding "${question}", here's the explanation...`,
-      keyPoints: ["Key point 1", "Key point 2", "Key point 3"],
-      commonMistakes: ["Mistake 1", "Mistake 2"],
-      followUpQuestions: [],
-    },
+    reply,
     session,
   });
 });
@@ -65,7 +65,7 @@ const getDoubtSessions = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     sessions: sessions.map((s) => ({
-      ...s,
+      ...(typeof s.toObject === "function" ? s.toObject() : s),
       messageCount: s.messages?.length || 0,
     })),
   });
@@ -82,7 +82,7 @@ const getDoubtSessionById = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     session: {
-      ...session,
+      ...(typeof session.toObject === "function" ? session.toObject() : session),
       messageCount: session.messages?.length || 0,
     },
   });
