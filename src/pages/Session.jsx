@@ -183,8 +183,8 @@ export function Session() {
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Interview Session</h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">Loading questions…</p>
+            <h1 className="text-xl font-semibold text-slate-900">Interview Session</h1>
+            <p className="mt-1 text-sm text-slate-600">Loading questions…</p>
           </div>
           <div className="w-28">
             <Skeleton className="h-10 w-full" />
@@ -230,19 +230,19 @@ export function Session() {
 
   return (
     <div className="space-y-4">
-      <Motion.section initial={fadeUp.initial} animate={fadeUp.animate} transition={fadeUp.transition} className="surface-card surface-glow relative overflow-hidden rounded-3xl border border-white/70 p-5 md:p-6">
+      <Motion.section initial={fadeUp.initial} animate={fadeUp.animate} transition={fadeUp.transition} className="surface-card surface-glow relative overflow-hidden rounded-3xl border border-slate-200 p-5 md:p-6">
         <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-violet-400/20 blur-3xl" />
         <div className="pointer-events-none absolute -left-12 -bottom-16 h-40 w-40 rounded-full bg-blue-400/20 blur-3xl" />
 
         <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900 dark:text-white md:text-2xl">Interview Session</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-gray-400">
-              <span className="rounded-full bg-indigo-500/20 px-2 py-0.5 font-medium text-indigo-700 dark:text-indigo-200">{session.role}</span>{' '}
-              <span className="rounded-full bg-violet-500/20 px-2 py-0.5 font-medium text-violet-700 dark:text-violet-200">{session.difficulty}</span>{' '}
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-800 dark:text-gray-200">{answeredCount}/{totalQuestions} answered</span>{' '}
-              <span className="rounded-full bg-blue-500/20 px-2 py-0.5 font-medium text-blue-700 dark:text-blue-200">Elapsed {formatElapsed(elapsed)}</span>
-              {session.status === 'paused' && <span className="ml-2 rounded-full bg-amber-500/20 px-2 py-0.5 font-medium text-amber-700 dark:text-amber-200">Paused</span>}
+            <h1 className="text-xl font-semibold text-slate-900 md:text-2xl">Interview Session</h1>
+            <p className="mt-1 text-sm text-slate-600">
+              <span className="rounded-full bg-indigo-500/20 px-2 py-0.5 font-medium text-indigo-700">{session.role}</span>{' '}
+              <span className="rounded-full bg-violet-500/20 px-2 py-0.5 font-medium text-violet-700">{session.difficulty}</span>{' '}
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-800">{answeredCount}/{totalQuestions} answered</span>{' '}
+              <span className="rounded-full bg-blue-500/20 px-2 py-0.5 font-medium text-blue-700">Elapsed {formatElapsed(elapsed)}</span>
+              {session.status === 'paused' && <span className="ml-2 rounded-full bg-amber-500/20 px-2 py-0.5 font-medium text-amber-700">Paused</span>}
             </p>
             <div className="mt-3 max-w-sm">
               <ProgressBar value={answeredCount} max={totalQuestions || 1} />
@@ -267,7 +267,7 @@ export function Session() {
               variant="ghost"
               onClick={deleteSession}
               disabled={deleteLoading || pauseLoading || submitting}
-              className="text-red-700 dark:text-red-300 hover:text-red-800 dark:hover:text-red-200"
+              className="text-red-700 hover:text-red-800"
             >
               {deleteLoading ? 'Deleting…' : 'Delete Session'}
             </Button>
@@ -279,7 +279,7 @@ export function Session() {
       </Motion.section>
 
       {error ? (
-        <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-200">
+        <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700">
           {error}
         </p>
       ) : null}
@@ -310,12 +310,12 @@ export function Session() {
           <Card>
             <CardHeader title="Your Answer" subtitle="Type or use voice input" />
             {session.status === 'paused' && (
-              <p className="mb-3 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-200">
+              <p className="mb-3 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700">
                 This session is paused. Click "Resume" to continue.
               </p>
             )}
             <textarea
-              className="min-h-40 w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1e293b] px-3.5 py-2.5 text-sm text-slate-900 dark:text-white shadow-sm shadow-black/20 transition-all duration-300 placeholder:text-gray-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 disabled:bg-slate-50 disabled:text-gray-500"
+              className="min-h-40 w-full rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-300 placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/60 disabled:bg-slate-50 disabled:text-gray-500"
               placeholder="Write your answer here…"
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
@@ -373,7 +373,7 @@ export function Session() {
               {evaluation ? (
                 <Card className="mt-4">
                   <CardHeader title="Next Steps" />
-                  <p className="text-sm text-slate-600 dark:text-gray-400">
+                  <p className="text-sm text-slate-600">
                     Review feedback, improve your answer, and continue to the next unanswered question.
                   </p>
                   {nextDifficultyHint ? (
@@ -385,7 +385,7 @@ export function Session() {
               ) : (
                 <Card className="mt-4">
                   <CardHeader title="Feedback" subtitle="Submit an answer to see feedback" />
-                  <p className="text-sm text-slate-600 dark:text-gray-400">
+                  <p className="text-sm text-slate-600">
                     Tip: Use a clear structure — definition, approach, example, and edge cases.
                   </p>
                 </Card>
