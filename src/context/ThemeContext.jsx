@@ -4,6 +4,11 @@ import { useAuth } from '../hooks/useAuth'
 const ThemeContext = createContext(null)
 
 const STORAGE_KEY = 'themePreference'
+const ALLOWED_THEMES = new Set(['light', 'dark', 'system'])
+
+function normalizeTheme(value) {
+  return ALLOWED_THEMES.has(value) ? value : 'light'
+}
 
 function resolveTheme(theme) {
   if (theme === 'system') {
@@ -17,8 +22,17 @@ function resolveTheme(theme) {
 function applyTheme(theme) {
   if (typeof document === 'undefined') return
 
-  const resolved = resolveTheme(theme)
-  document.documentElement.classList.toggle('dark', resolved === 'dark')
+  const resolved = resolveTheme(normalizeTheme(theme))
+  const isDark = resolved === 'dark'
+  document.documentElement.classList.toggle('dark', isDark)
+  document.body.classList.toggle('dark', isDark)
+  document.documentElement.setAttribute('data-theme', resolved)
+  document.body.setAttribute('data-theme', resolved)
+  const root = document.getElementById('root')
+  if (root) {
+    root.classList.toggle('dark', isDark)
+    root.setAttribute('data-theme', resolved)
+  }
   document.documentElement.style.colorScheme = resolved
 }
 
@@ -26,18 +40,19 @@ export function ThemeProvider({ children }) {
   const { user } = useAuth()
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'light'
-    return localStorage.getItem(STORAGE_KEY) || user?.themePreference || 'light'
+    return normalizeTheme(localStorage.getItem(STORAGE_KEY) || user?.themePreference || 'light')
   })
 
   useEffect(() => {
     const stored = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-    if (stored) {
-      setTheme(stored)
+    const normalizedStored = normalizeTheme(stored)
+    if (stored && normalizedStored === stored) {
+      setTheme(normalizedStored)
       return
     }
 
     if (user?.themePreference) {
-      setTheme(user.themePreference)
+      setTheme(normalizeTheme(user.themePreference))
     }
   }, [user?.themePreference])
 
@@ -49,7 +64,7 @@ export function ThemeProvider({ children }) {
   }, [theme])
 
   const updateTheme = useCallback((nextTheme) => {
-    setTheme(nextTheme)
+    setTheme(normalizeTheme(nextTheme))
   }, [])
 
   const toggleTheme = useCallback(() => {

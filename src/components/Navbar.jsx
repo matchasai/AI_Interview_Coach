@@ -48,7 +48,7 @@ export function Navbar() {
                 </NavLink>
               ) : null}
               <Button variant="secondary" className="px-3 py-2" onClick={toggleTheme}>
-                {resolvedTheme === 'dark' ? 'Light mode' : 'Dark mode'}
+                {resolvedTheme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
               </Button>
               <Button
                 variant="secondary"
