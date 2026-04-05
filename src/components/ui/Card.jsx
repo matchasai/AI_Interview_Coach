@@ -26,8 +26,8 @@ export function CardHeader({ title, subtitle, right }) {
   return (
     <div className="mb-3 flex items-start justify-between gap-3">
       <div>
-        <h2 className="text-lg font-bold tracking-tight text-slate-900">{title}</h2>
-        {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
+        <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">{title}</h2>
+        {subtitle ? <p className="text-sm text-slate-500 dark:text-gray-400">{subtitle}</p> : null}
       </div>
       {right ? <div className="shrink-0">{right}</div> : null}
     </div>

@@ -178,7 +178,7 @@ export function Dashboard() {
 
   return (
     <Motion.div className="space-y-6" variants={stagger} initial="initial" animate="animate">
-      <Motion.section variants={fadeUp} className="surface-card surface-glow relative overflow-hidden rounded-3xl border border-white/70 p-5 md:p-7">
+      <Motion.section variants={fadeUp} className="surface-card surface-glow relative overflow-hidden rounded-3xl border border-slate-200/70 p-5 md:p-7 dark:border-white/10">
         <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-violet-400/20 blur-3xl" />
         <div className="pointer-events-none absolute -left-16 -bottom-20 h-48 w-48 rounded-full bg-blue-400/20 blur-3xl" />
         <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
@@ -247,7 +247,7 @@ export function Dashboard() {
             <CardHeader title="Study Guides" subtitle="Focus areas based on your weakest roles" />
             <div className="grid gap-4 md:grid-cols-2">
               {studyGuides.slice(0, 4).map((guide) => (
-                <div key={guide.role} className="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 p-4">
+                <div key={guide.role} className="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 p-4 dark:bg-[#1e293b]">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
                       <p className="text-sm font-semibold text-slate-900 dark:text-white">{guide.role}</p>
@@ -271,7 +271,7 @@ export function Dashboard() {
                       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-400">Resources</p>
                       <p className="mt-1">{(guide.resources || []).join(' • ')}</p>
                     </div>
-                    <div className="rounded-xl bg-white dark:bg-[#1e293b]/80 dark:bg-[#1e293b] px-3 py-2 text-xs text-slate-600 dark:text-gray-400">
+                    <div className="rounded-xl bg-white px-3 py-2 text-xs text-slate-600 dark:bg-[#273549] dark:text-gray-300">
                       Next target: reach {guide.nextTargetScore}% on {guide.role}
                     </div>
                   </div>
