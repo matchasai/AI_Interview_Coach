@@ -4,22 +4,9 @@
 
 @layer base {
   :root {
-    color-scheme: light;
-    --brand-1: 37 99 235;
-    --brand-2: 124 58 237;
-    --surface-soft: 248 250 252;
-    --app-bg: 248 250 252;
-    --card-bg: 255 255 255;
-    --card-hover: 248 250 252;
-    --text-primary: 15 23 42;
-    --text-secondary: 71 85 105;
-    --text-muted: 100 116 139;
-  }
-
-  html.dark {
     color-scheme: dark;
-    --surface-soft: 15 23 42;
-    --app-bg: 15 23 42;
+    --surface-soft: 2 6 23;
+    --app-bg: 2 6 23;
     --card-bg: 30 41 59;
     --card-hover: 39 53 73;
     --text-primary: 255 255 255;
@@ -34,29 +21,18 @@
   body {
     @apply m-0;
     color: rgb(var(--text-primary));
-    background:
-      radial-gradient(900px 520px at 5% -10%, rgb(59 130 246 / 0.16), transparent 58%),
-      radial-gradient(760px 500px at 90% -12%, rgb(139 92 246 / 0.14), transparent 52%),
-      linear-gradient(180deg, rgb(var(--surface-soft)) 0%, rgb(255 255 255) 44%, rgb(238 242 255) 100%);
+    @apply bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b];
     min-height: 100vh;
-  }
-
-  html.dark body {
-    color: rgb(var(--text-primary));
-    background:
-      radial-gradient(900px 520px at 5% -10%, rgb(37 99 235 / 0.2), transparent 58%),
-      radial-gradient(760px 500px at 90% -12%, rgb(124 58 237 / 0.18), transparent 52%),
-      linear-gradient(180deg, #0f172a 0%, rgb(15 23 42) 48%, rgb(30 41 59) 100%);
   }
 
   h1 {
     @apply text-4xl font-bold tracking-tight md:text-5xl;
-    color: rgb(var(--text-primary));
+    @apply text-white;
   }
 
   h2 {
     @apply text-xl font-semibold tracking-tight md:text-2xl;
-    color: rgb(var(--text-primary));
+    @apply text-white;
   }
 }
 
@@ -66,25 +42,29 @@
   }
 
   .surface-card {
-    @apply border border-slate-200/70 backdrop-blur dark:border-white/10;
-    background-color: rgb(var(--card-bg) / 0.86);
+    @apply rounded-2xl border border-white/10 bg-[#1e293b] shadow-lg shadow-black/40 transition-all duration-300 hover:bg-[#273549];
   }
 
   .surface-glow {
     box-shadow:
-      0 18px 44px rgb(2 6 23 / 0.24),
-      0 2px 8px rgb(37 99 235 / 0.14);
+      0 20px 48px rgb(2 6 23 / 0.55),
+      0 2px 8px rgb(99 102 241 / 0.25);
   }
 
-  html.dark .surface-card {
-    @apply border border-white/10;
-    background-color: #1e293b;
+  .saas-card {
+    @apply rounded-2xl border border-white/10 bg-[#1e293b] shadow-lg shadow-black/40 transition-all duration-300 hover:bg-[#273549];
   }
 
-  html.dark .surface-glow {
-    box-shadow:
-      0 18px 44px rgb(2 6 23 / 0.45),
-      0 2px 8px rgb(59 130 246 / 0.18);
+  .glass-hero {
+    @apply rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl;
+  }
+
+  .section-title {
+    @apply text-white font-semibold;
+  }
+
+  .section-subtitle {
+    @apply text-gray-400;
   }
 }
 
