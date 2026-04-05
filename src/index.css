@@ -14,17 +14,6 @@
     --text-muted: 100 116 139;
   }
 
-  html.dark {
-    color-scheme: dark;
-    --surface-soft: 2 6 23;
-    --app-bg: 2 6 23;
-    --card-bg: 30 41 59;
-    --card-hover: 39 53 73;
-    --text-primary: 255 255 255;
-    --text-secondary: 156 163 175;
-    --text-muted: 107 114 128;
-  }
-
   html {
     @apply antialiased;
   }
@@ -39,18 +28,14 @@
     min-height: 100vh;
   }
 
-  html.dark body {
-    @apply bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b];
-  }
-
   h1 {
     @apply text-4xl font-bold tracking-tight md:text-5xl;
-    @apply text-slate-900 dark:text-white;
+    @apply text-slate-900;
   }
 
   h2 {
     @apply text-xl font-semibold tracking-tight md:text-2xl;
-    @apply text-slate-900 dark:text-white;
+    @apply text-slate-900;
   }
 }
 
@@ -60,7 +45,7 @@
   }
 
   .surface-card {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-900/10 transition-all duration-300 hover:bg-slate-50 dark:border-white/10 dark:bg-[#1e293b] dark:shadow-black/40 dark:hover:bg-[#273549];
+    @apply rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-900/10 transition-all duration-300 hover:bg-slate-50;
   }
 
   .surface-glow {
@@ -70,11 +55,11 @@
   }
 
   .saas-card {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-900/10 transition-all duration-300 hover:bg-slate-50 dark:border-white/10 dark:bg-[#1e293b] dark:shadow-black/40 dark:hover:bg-[#273549];
+    @apply rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-900/10 transition-all duration-300 hover:bg-slate-50;
   }
 
   .glass-hero {
-    @apply rounded-3xl border border-slate-200/80 bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/5;
+    @apply rounded-3xl border border-slate-200/80 bg-white/70 backdrop-blur-xl;
   }
 
   .section-title {

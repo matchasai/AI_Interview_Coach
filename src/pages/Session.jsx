@@ -267,7 +267,7 @@ export function Session() {
               variant="ghost"
               onClick={deleteSession}
               disabled={deleteLoading || pauseLoading || submitting}
-              className="text-red-700 hover:text-red-800"
+              className="text-red-700 hover:bg-red-50 hover:text-red-800"
             >
               {deleteLoading ? 'Deleting…' : 'Delete Session'}
             </Button>

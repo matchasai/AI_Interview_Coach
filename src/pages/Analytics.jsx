@@ -269,19 +269,19 @@ export default function Analytics() {
 
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
           <div className="saas-card p-6">
-            <p className="text-sm font-medium text-gray-400">Total Sessions</p>
+            <p className="text-sm font-medium text-slate-600">Total Sessions</p>
             <p className="mt-2 text-4xl font-bold text-blue-600">{analytics.totalSessions || 0}</p>
           </div>
           <div className="saas-card p-6">
-            <p className="text-sm font-medium text-gray-400">Average Score</p>
+            <p className="text-sm font-medium text-slate-600">Average Score</p>
             <p className="mt-2 text-4xl font-bold text-green-600">{Number(analytics.averageScore || 0).toFixed(1)}</p>
           </div>
           <div className="saas-card p-6">
-            <p className="text-sm font-medium text-gray-400">Best Role</p>
+            <p className="text-sm font-medium text-slate-600">Best Role</p>
             <p className="mt-2 text-2xl font-bold text-slate-900">{analytics.bestRole || '—'}</p>
           </div>
           <div className="saas-card p-6">
-            <p className="text-sm font-medium text-gray-400">Avg Duration</p>
+            <p className="text-sm font-medium text-slate-600">Avg Duration</p>
             <p className="mt-2 text-2xl font-bold text-amber-600">
               {Math.round(analytics.avgDurationSeconds || 0)}s
             </p>
@@ -305,7 +305,7 @@ export default function Analytics() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="text-sm text-gray-400">Complete a few sessions to see your performance trend.</p>
+              <p className="text-sm text-slate-600">Complete a few sessions to see your performance trend.</p>
             )}
           </div>
 
@@ -327,7 +327,7 @@ export default function Analytics() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="text-sm text-gray-400">No completed sessions yet.</p>
+              <p className="text-sm text-slate-600">No completed sessions yet.</p>
             )}
           </div>
         </div>
@@ -341,7 +341,7 @@ export default function Analytics() {
                   <div key={idx} className="flex items-center justify-between border-b border-slate-200 pb-3">
                     <div>
                       <p className="font-medium text-slate-900">{area.area}</p>
-                      <p className="text-sm text-gray-400">{area.attempts} attempts</p>
+                      <p className="text-sm text-slate-600">{area.attempts} attempts</p>
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-red-600">{Number(area.score || 0).toFixed(1)}</p>
@@ -349,7 +349,7 @@ export default function Analytics() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-400">No weak areas identified</p>
+                <p className="text-sm text-slate-600">No weak areas identified</p>
               )}
             </div>
           </div>
@@ -362,7 +362,7 @@ export default function Analytics() {
                   <div key={idx} className="flex items-center justify-between border-b border-slate-200 pb-3">
                     <div>
                       <p className="font-medium text-slate-900">{area.area}</p>
-                      <p className="text-sm text-gray-400">{area.attempts} attempts</p>
+                      <p className="text-sm text-slate-600">{area.attempts} attempts</p>
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-green-600">{Number(area.score || 0).toFixed(1)}</p>
@@ -370,7 +370,7 @@ export default function Analytics() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-400">No strong areas identified</p>
+                <p className="text-sm text-slate-600">No strong areas identified</p>
               )}
             </div>
           </div>

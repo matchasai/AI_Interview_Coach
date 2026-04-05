@@ -251,7 +251,7 @@ export function Dashboard() {
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
                       <p className="text-sm font-semibold text-slate-900">{guide.role}</p>
-                      <p className="text-xs text-gray-400">Average score: {guide.averageScore}%</p>
+                      <p className="text-xs text-slate-600">Average score: {guide.averageScore}%</p>
                     </div>
                     <span className="rounded-full bg-indigo-500/20 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-indigo-700">
                       {guide.priority}
@@ -260,15 +260,15 @@ export function Dashboard() {
 
                   <div className="mt-3 space-y-3 text-sm text-slate-600">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Focus Areas</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Focus Areas</p>
                       <p className="mt-1">{(guide.focusAreas || []).join(' • ')}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Drills</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Drills</p>
                       <p className="mt-1">{(guide.drills || []).join(' • ')}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Resources</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Resources</p>
                       <p className="mt-1">{(guide.resources || []).join(' • ')}</p>
                     </div>
                     <div className="rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-xs text-slate-600">
@@ -354,7 +354,7 @@ export function Dashboard() {
             </div>
 
             {filteredSessions.length === 0 ? (
-              <p className="text-sm text-gray-400">No sessions matching filters.</p>
+              <p className="text-sm text-slate-600">No sessions matching filters.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
