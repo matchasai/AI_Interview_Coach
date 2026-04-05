@@ -32,9 +32,15 @@ export function Register() {
       handleSubmit(async (values) => {
         setServerError('')
         try {
-          await registerUser(values)
-          toastSuccess('Account created')
-          navigate('/dashboard', { replace: true })
+          const result = await registerUser(values)
+          toastSuccess(result?.message || 'Account created. Please verify your email before login.')
+          navigate('/login', {
+            replace: true,
+            state: {
+              verificationEmail: values.email,
+              notice: 'Account created. Verification link sent. Please check your inbox or use resend verification.',
+            },
+          })
         } catch (e) {
           setServerError(getErrorMessage(e))
         }

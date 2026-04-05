@@ -1,7 +1,7 @@
 import { motion as Motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { Card, CardHeader } from '../components/ui/Card'
 import { Input } from '../components/ui/Input'
@@ -12,10 +12,12 @@ import { toastError, toastSuccess } from '../utils/toast'
 
 export function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAuthenticated, login } = useAuth()
   const [serverError, setServerError] = useState('')
   const [forgotLoading, setForgotLoading] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
+  const [notice, setNotice] = useState(location.state?.notice || '')
 
   useEffect(() => {
     if (serverError) toastError(serverError)
@@ -24,11 +26,18 @@ export function Login() {
   const {
     register,
     handleSubmit,
+    setValue,
     getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: { email: '', password: '' },
   })
+
+  useEffect(() => {
+    if (location.state?.verificationEmail) {
+      setValue('email', location.state.verificationEmail)
+    }
+  }, [location.state, setValue])
 
   async function requestPasswordReset() {
     const email = (getValues('email') || '').trim()
@@ -60,9 +69,12 @@ export function Login() {
 
     setResendLoading(true)
     setServerError('')
+    setNotice('')
     try {
       const res = await api.post('/api/auth/resend-verification-email', { email })
-      toastSuccess(res?.data?.message || 'Verification email sent.')
+      const message = res?.data?.message || 'Verification email sent.'
+      setNotice(message)
+      toastSuccess(message)
     } catch (e) {
       const message = getErrorMessage(e)
       setServerError(message)
@@ -76,6 +88,7 @@ export function Login() {
     () =>
       handleSubmit(async (values) => {
         setServerError('')
+        setNotice('')
         try {
           await login(values)
           toastSuccess('Welcome back')
@@ -97,6 +110,12 @@ export function Login() {
         {serverError ? (
           <p className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
             {serverError}
+          </p>
+        ) : null}
+
+        {notice ? (
+          <p className="mb-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700">
+            {notice}
           </p>
         ) : null}
 

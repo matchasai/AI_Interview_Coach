@@ -53,9 +53,13 @@ export function AuthProvider({ children }) {
   const register = useCallback(
     async ({ name, email, password }) => {
       const res = await api.post('/api/auth/register', { name, email, password })
-      setAuthToken(res.data.token)
-      setUser(res.data.user)
-      return res.data.user
+      // Registration requires email verification before login.
+      setAuthToken(null)
+      setUser(null)
+      return {
+        message: res.data.message,
+        user: res.data.user,
+      }
     },
     [setAuthToken],
   )
