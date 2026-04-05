@@ -27,3 +27,5 @@ export function AnimatedNumber({ value = 0, durationMs = 900, className = '' }) 
   return <span className={className}>{display}</span>
 }
 
+
+

@@ -16,7 +16,7 @@ export function QuestionCard({
         title={`Question ${index + 1} of ${total}`}
         subtitle={timerLabel}
       />
-      <p className="text-sm leading-relaxed text-slate-900">{questionText}</p>
+      <p className="text-sm leading-relaxed text-slate-900 dark:text-white">{questionText}</p>
 
       {topicOverview ? (
         <div className="mt-3 rounded-xl border border-indigo-400/30 bg-indigo-500/15 px-3 py-2">
@@ -34,7 +34,7 @@ export function QuestionCard({
 
       {Array.isArray(applications) && applications.length ? (
         <div className="mt-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Applications</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-400">Applications</p>
           <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-800 dark:text-gray-200">
             {applications.map((item) => (
               <li key={item}>{item}</li>
@@ -52,5 +52,8 @@ export function QuestionCard({
     </Card>
   )
 }
+
+
+
 
 

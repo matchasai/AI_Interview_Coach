@@ -25,7 +25,7 @@ export function VoiceInput({ onTranscript }) {
                 }
                 aria-hidden="true"
               />
-              <span className="hidden text-xs font-medium text-slate-500 sm:inline">
+              <span className="hidden text-xs font-medium text-slate-500 dark:text-gray-400 sm:inline">
                 {speech.listening ? 'Listening…' : 'Idle'}
               </span>
             </div>
@@ -65,7 +65,7 @@ export function VoiceInput({ onTranscript }) {
 
       {speech.error ? <p className="text-sm text-red-600">{speech.error}</p> : null}
 
-      <div className="mt-2 rounded-lg border border-slate-200/80 bg-white/90 px-3 py-2">
+      <div className="mt-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1e293b] px-3 py-2">
         <p className="whitespace-pre-wrap text-sm text-slate-800 dark:text-gray-200">
           {speech.transcript || 'Say something…'}
         </p>
@@ -83,5 +83,8 @@ export function VoiceInput({ onTranscript }) {
     </Card>
   )
 }
+
+
+
 
 

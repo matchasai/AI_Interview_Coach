@@ -156,8 +156,8 @@ export function Profile() {
         <CardHeader title="Profile" subtitle="Update your account" />
 
         {user ? (
-          <p className="mb-4 text-sm text-slate-700">
-            Signed in as <span className="font-medium text-slate-900">{user.email}</span>
+          <p className="mb-4 text-sm text-slate-700 dark:text-gray-300">
+            Signed in as <span className="font-medium text-slate-900 dark:text-white">{user.email}</span>
           </p>
         ) : null}
 
@@ -193,9 +193,9 @@ export function Profile() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold text-slate-700">Theme Preference</span>
+              <span className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-gray-300">Theme Preference</span>
               <select
-                className="w-full rounded-2xl border border-slate-300/90 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-300 focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100"
+                className="w-full rounded-2xl border border-slate-300/90 dark:border-white/10 bg-white dark:bg-[#1e293b] px-3.5 py-2.5 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100"
                 {...register('themePreference')}
               >
                 <option value="light">Light</option>
@@ -205,9 +205,9 @@ export function Profile() {
             </label>
 
             <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold text-slate-700">Reminder Channel</span>
+              <span className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-gray-300">Reminder Channel</span>
               <select
-                className="w-full rounded-2xl border border-slate-300/90 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-all duration-300 focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100"
+                className="w-full rounded-2xl border border-slate-300/90 dark:border-white/10 bg-white dark:bg-[#1e293b] px-3.5 py-2.5 text-sm text-slate-900 dark:text-white shadow-sm transition-all duration-300 focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-100"
                 {...register('practiceReminderChannel')}
               >
                 <option value="email">Email</option>
@@ -216,15 +216,15 @@ export function Profile() {
             </label>
           </div>
 
-          <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white/70 p-4 text-sm text-slate-700">
+          <label className="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1e293b]/70 p-4 text-sm text-slate-700 dark:text-gray-300">
             <input
               type="checkbox"
               className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               {...register('practiceReminderEnabled')}
             />
             <span>
-              <span className="block font-semibold text-slate-900">Enable practice reminders</span>
-              <span className="block text-xs text-slate-500">
+              <span className="block font-semibold text-slate-900 dark:text-white">Enable practice reminders</span>
+              <span className="block text-xs text-slate-500 dark:text-gray-400">
                 We can send practice reminders by email or show a browser notification.
               </span>
             </span>
@@ -248,4 +248,7 @@ export function Profile() {
     </div>
   )
 }
+
+
+
 
