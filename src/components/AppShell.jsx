@@ -1,22 +1,13 @@
 import { AnimatePresence, motion as Motion } from 'framer-motion'
 import { Outlet, useLocation } from 'react-router-dom'
-import { useTheme } from '../context/ThemeContext'
 import { pageTransition } from '../utils/motion'
 import { Navbar } from './Navbar'
 
 export function AppShell() {
   const location = useLocation()
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === 'dark'
 
   return (
-    <div
-      className={`relative min-h-dvh overflow-hidden ${
-        isDark
-          ? 'bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#1e293b] text-white'
-          : 'bg-gradient-to-br from-slate-50 via-white to-indigo-50 text-slate-900'
-      }`}
-    >
+    <div className="relative min-h-dvh overflow-hidden bg-gradient-to-br from-slate-50 via-white to-indigo-50 text-slate-900">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-[-10rem] top-[-12rem] h-[28rem] w-[28rem] rounded-full bg-blue-500/20 blur-3xl" />
         <div className="absolute right-[-8rem] top-[-10rem] h-[24rem] w-[24rem] rounded-full bg-violet-500/25 blur-3xl" />

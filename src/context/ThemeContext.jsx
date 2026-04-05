@@ -1,89 +1,60 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { useAuth } from '../hooks/useAuth'
 
 const ThemeContext = createContext(null)
 
 const STORAGE_KEY = 'themePreference'
-const ALLOWED_THEMES = new Set(['light', 'dark', 'system'])
-
-function normalizeTheme(value) {
-  return ALLOWED_THEMES.has(value) ? value : 'light'
-}
+const FORCED_THEME = 'light'
 
 function resolveTheme(theme) {
-  if (theme === 'system') {
-    if (typeof window === 'undefined') return 'light'
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  }
-
-  return theme === 'dark' ? 'dark' : 'light'
+  return FORCED_THEME
 }
 
 function applyTheme(theme) {
   if (typeof document === 'undefined') return
 
-  const resolved = resolveTheme(normalizeTheme(theme))
-  const isDark = resolved === 'dark'
+  const resolved = FORCED_THEME
   document.documentElement.classList.remove('dark')
   document.body.classList.remove('dark')
-  if (isDark) {
-    document.documentElement.classList.add('dark')
-    document.body.classList.add('dark')
-  }
   document.documentElement.setAttribute('data-theme', resolved)
   document.body.setAttribute('data-theme', resolved)
   const root = document.getElementById('root')
   if (root) {
     root.classList.remove('dark')
-    if (isDark) root.classList.add('dark')
     root.setAttribute('data-theme', resolved)
   }
   document.documentElement.style.colorScheme = resolved
 }
 
 export function ThemeProvider({ children }) {
-  const { user } = useAuth()
-  const [theme, setTheme] = useState(() => {
-    if (typeof window === 'undefined') return 'light'
-    return normalizeTheme(localStorage.getItem(STORAGE_KEY) || user?.themePreference || 'light')
-  })
+  const [theme, setTheme] = useState(FORCED_THEME)
 
   useEffect(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-    const normalizedStored = normalizeTheme(stored)
-    if (stored && normalizedStored === stored) {
-      setTheme(normalizedStored)
-      return
-    }
-
-    if (user?.themePreference) {
-      setTheme(normalizeTheme(user.themePreference))
-    }
-  }, [user?.themePreference])
+    setTheme(FORCED_THEME)
+  }, [])
 
   useEffect(() => {
-    applyTheme(theme)
+    applyTheme(FORCED_THEME)
     if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, theme)
+      localStorage.setItem(STORAGE_KEY, FORCED_THEME)
     }
   }, [theme])
 
-  const updateTheme = useCallback((nextTheme) => {
-    setTheme(normalizeTheme(nextTheme))
+  const updateTheme = useCallback(() => {
+    setTheme(FORCED_THEME)
   }, [])
 
   const toggleTheme = useCallback(() => {
-    setTheme((current) => (resolveTheme(current) === 'dark' ? 'light' : 'dark'))
+    setTheme(FORCED_THEME)
   }, [])
 
   const value = useMemo(
     () => ({
-      theme,
-      resolvedTheme: resolveTheme(theme),
+      theme: FORCED_THEME,
+      resolvedTheme: FORCED_THEME,
       setTheme: updateTheme,
       toggleTheme,
     }),
-    [theme, updateTheme, toggleTheme],
+    [updateTheme, toggleTheme],
   )
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>

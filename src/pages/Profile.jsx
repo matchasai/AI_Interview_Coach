@@ -28,7 +28,6 @@ export function Profile() {
     defaultValues: {
       name: '',
       password: '',
-      themePreference: 'light',
       practiceReminderEnabled: false,
       practiceReminderChannel: 'email',
     },
@@ -47,7 +46,6 @@ export function Profile() {
         reset({
           name: res.data.user?.name || '',
           password: '',
-          themePreference: res.data.user?.themePreference || 'light',
           practiceReminderEnabled: Boolean(res.data.user?.practiceReminderEnabled),
           practiceReminderChannel: res.data.user?.practiceReminderChannel || 'email',
         })
@@ -75,7 +73,7 @@ export function Profile() {
           const payload = {}
           if (values.name && values.name.trim().length) payload.name = values.name
           if (values.password && values.password.length) payload.password = values.password
-          payload.themePreference = values.themePreference
+          payload.themePreference = 'light'
           payload.practiceReminderEnabled = Boolean(values.practiceReminderEnabled)
           payload.practiceReminderChannel = values.practiceReminderChannel
 
@@ -85,11 +83,10 @@ export function Profile() {
           reset({
             name: res.data.user?.name || '',
             password: '',
-            themePreference: res.data.user?.themePreference || 'light',
             practiceReminderEnabled: Boolean(res.data.user?.practiceReminderEnabled),
             practiceReminderChannel: res.data.user?.practiceReminderChannel || 'email',
           })
-          setTheme(values.themePreference)
+          setTheme('light')
           await refresh()
         } catch (e) {
           setError(getErrorMessage(e))
@@ -192,18 +189,6 @@ export function Profile() {
           />
 
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold text-slate-900 dark:text-white">Theme Preference</span>
-              <select
-                className="w-full rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1e293b] px-3.5 py-2.5 text-sm text-slate-900 dark:text-white shadow-lg shadow-black/30 transition-all duration-300 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                {...register('themePreference')}
-              >
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="system">System</option>
-              </select>
-            </label>
-
             <label className="block">
               <span className="mb-1.5 block text-sm font-semibold text-slate-900 dark:text-white">Reminder Channel</span>
               <select

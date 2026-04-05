@@ -1,6 +1,5 @@
 import { motion as Motion } from 'framer-motion'
 import { Link, NavLink } from 'react-router-dom'
-import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../hooks/useAuth'
 import { Button } from './ui/Button'
 
@@ -14,7 +13,6 @@ function navClass({ isActive }) {
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth()
-  const { resolvedTheme, toggleTheme } = useTheme()
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/65 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
@@ -47,9 +45,6 @@ export function Navbar() {
                   Admin
                 </NavLink>
               ) : null}
-              <Button variant="secondary" className="px-3 py-2" onClick={toggleTheme}>
-                {resolvedTheme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
-              </Button>
               <Button
                 variant="secondary"
                 className="px-3 py-2"
