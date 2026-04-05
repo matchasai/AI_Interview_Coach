@@ -58,16 +58,18 @@ async function register({ name, email, password }) {
     emailVerificationExpiry: verificationExpiry,
   });
 
-  // Send verification email
-  const emailService = require("./email.service");
-  await emailService.sendVerificationEmail({
+  // Send verification email using queue + retry to avoid blocking registration.
+  const emailResult = await enqueueEmail("verification", {
     to: user.email,
     name: user.name,
     verificationToken,
-  }).catch(() => {
-    // Don't fail registration if email fails; user can resend
-    console.log("[EMAIL] Verification email failed for " + user.email);
   });
+
+  if (!emailResult.queued && !emailResult.sent) {
+    console.warn(
+      `[AUTH] Verification email send failed for ${user.email}. User can request resend.`
+    );
+  }
 
   // Don't return auth token yet - user must verify email first
   return { message: "Registration successful. Please verify your email.", user: toSafeUser(user) };
@@ -192,17 +194,21 @@ async function resendVerificationEmail({ email }) {
   user.emailVerificationExpiry = verificationExpiry;
   await user.save();
 
-  // Send verification email
-  const emailService = require("./email.service");
-  await emailService.sendVerificationEmail({
+  const emailResult = await enqueueEmail("verification", {
     to: user.email,
     name: user.name,
     verificationToken,
-  }).catch(() => {
-    console.log("[EMAIL] Verification email failed for " + user.email);
   });
 
-  return { message: "Verification link sent to your email" };
+  if (!emailResult.queued && !emailResult.sent) {
+    throw new AppError("Failed to send verification email", 502, "EMAIL_SEND_FAILED");
+  }
+
+  return {
+    message: emailResult.queued
+      ? "Verification email queued. It may take a few moments to arrive."
+      : "Verification link sent to your email",
+  };
 }
 
 module.exports = {

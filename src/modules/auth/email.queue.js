@@ -3,7 +3,11 @@
  * Allows email sending to fail without blocking user requests.
  */
 
-const { sendPasswordResetEmail, sendPracticeReminderEmail } = require('./email.service');
+const {
+  sendPasswordResetEmail,
+  sendPracticeReminderEmail,
+  sendVerificationEmail,
+} = require('./email.service');
 
 // In-memory queue (in production, use Bull/BullMQ with Redis)
 const emailQueue = [];
@@ -32,6 +36,8 @@ class EmailJob {
     try {
       if (this.type === 'password-reset') {
         await sendPasswordResetEmail(this.payload);
+      } else if (this.type === 'verification') {
+        await sendVerificationEmail(this.payload);
       } else if (this.type === 'practice-reminder') {
         await sendPracticeReminderEmail(this.payload);
       }

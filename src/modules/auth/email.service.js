@@ -29,7 +29,7 @@ function hasSmtpConfig() {
 }
 
 function resolveFromAddress() {
-  return 'IntervAI Coach <noreply@intervai.com>';
+  return env.EMAIL_FROM || 'IntervAI Coach <noreply@intervai.com>';
 }
 
 function createTransport() {
@@ -37,6 +37,11 @@ function createTransport() {
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
     secure: env.SMTP_SECURE,
+    pool: true,
+    maxConnections: 3,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: env.SMTP_USER,
       pass: env.SMTP_PASS,
