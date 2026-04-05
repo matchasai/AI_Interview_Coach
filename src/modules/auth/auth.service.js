@@ -65,14 +65,22 @@ async function register({ name, email, password }) {
     verificationToken,
   });
 
-  if (!emailResult.queued && !emailResult.sent) {
+  let message = "Registration successful. Please verify your email.";
+
+  if (emailResult.sent) {
+    message = "Registration successful. Verification link sent to your email.";
+  } else if (emailResult.queued) {
+    message = "Registration successful. Verification email is queued and should arrive shortly.";
+  } else {
     console.warn(
       `[AUTH] Verification email send failed for ${user.email}. User can request resend.`
     );
+    message =
+      "Registration successful, but verification email could not be sent right now. Please use resend verification from login.";
   }
 
   // Don't return auth token yet - user must verify email first
-  return { message: "Registration successful. Please verify your email.", user: toSafeUser(user) };
+  return { message, user: toSafeUser(user) };
 }
 
 async function login({ email, password }) {

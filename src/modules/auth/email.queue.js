@@ -12,7 +12,7 @@ const {
 // In-memory queue (in production, use Bull/BullMQ with Redis)
 const emailQueue = [];
 const MAX_RETRIES = 3;
-const INITIAL_DELAY_MS = 2000; // 2 seconds
+const INITIAL_DELAY_MS = 1000; // 1 second
 
 let queueStats = {
   pending: 0,
@@ -34,13 +34,22 @@ class EmailJob {
 
   async execute() {
     try {
+      let result = null;
       if (this.type === 'password-reset') {
-        await sendPasswordResetEmail(this.payload);
+        result = await sendPasswordResetEmail(this.payload);
       } else if (this.type === 'verification') {
-        await sendVerificationEmail(this.payload);
+        result = await sendVerificationEmail(this.payload);
       } else if (this.type === 'practice-reminder') {
-        await sendPracticeReminderEmail(this.payload);
+        result = await sendPracticeReminderEmail(this.payload);
+      } else {
+        throw new Error(`Unsupported email job type: ${this.type}`);
       }
+
+      // Treat explicit non-delivery as a real failure so retry/backoff can run.
+      if (result && result.delivered === false) {
+        throw new Error(result.reason || 'email-not-delivered');
+      }
+
       return true;
     } catch (error) {
       this.retries += 1;
@@ -85,7 +94,7 @@ function startWorker() {
       }
     }
     updateQueueStats();
-  }, 5000); // Check every 5 seconds
+  }, 1000); // Check every 1 second
 }
 
 function updateQueueStats() {

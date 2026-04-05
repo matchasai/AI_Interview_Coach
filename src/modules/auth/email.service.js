@@ -29,7 +29,13 @@ function hasSmtpConfig() {
 }
 
 function resolveFromAddress() {
-  return env.EMAIL_FROM || 'IntervAI Coach <noreply@intervai.com>';
+  if (typeof env.EMAIL_FROM === 'string' && env.EMAIL_FROM.includes('@')) {
+    return env.EMAIL_FROM;
+  }
+  if (typeof env.SMTP_USER === 'string' && env.SMTP_USER.includes('@')) {
+    return `IntervAI Coach <${env.SMTP_USER}>`;
+  }
+  return 'IntervAI Coach <noreply@intervai.com>';
 }
 
 function createTransport() {
@@ -39,9 +45,9 @@ function createTransport() {
     secure: env.SMTP_SECURE,
     pool: true,
     maxConnections: 3,
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
+    connectionTimeout: 7000,
+    greetingTimeout: 7000,
+    socketTimeout: 10000,
     auth: {
       user: env.SMTP_USER,
       pass: env.SMTP_PASS,
