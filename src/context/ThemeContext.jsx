@@ -24,13 +24,18 @@ function applyTheme(theme) {
 
   const resolved = resolveTheme(normalizeTheme(theme))
   const isDark = resolved === 'dark'
-  document.documentElement.classList.toggle('dark', isDark)
-  document.body.classList.toggle('dark', isDark)
+  document.documentElement.classList.remove('dark')
+  document.body.classList.remove('dark')
+  if (isDark) {
+    document.documentElement.classList.add('dark')
+    document.body.classList.add('dark')
+  }
   document.documentElement.setAttribute('data-theme', resolved)
   document.body.setAttribute('data-theme', resolved)
   const root = document.getElementById('root')
   if (root) {
-    root.classList.toggle('dark', isDark)
+    root.classList.remove('dark')
+    if (isDark) root.classList.add('dark')
     root.setAttribute('data-theme', resolved)
   }
   document.documentElement.style.colorScheme = resolved
