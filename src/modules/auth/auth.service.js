@@ -5,7 +5,10 @@ const crypto = require("crypto");
 const { env } = require("../../config/env");
 const { AppError } = require("../../utils/AppError");
 const { User } = require("./user.model");
-const { enqueueEmail } = require("./email.queue");
+const {
+  sendPasswordResetAlert,
+  sendVerificationAlert,
+} = require("./alert.service");
 
 function signToken(user) {
   return jwt.sign(
@@ -58,8 +61,7 @@ async function register({ name, email, password }) {
     emailVerificationExpiry: verificationExpiry,
   });
 
-  // Send verification email using queue + retry to avoid blocking registration.
-  const emailResult = await enqueueEmail("verification", {
+  const emailResult = await sendVerificationAlert({
     to: user.email,
     name: user.name,
     verificationToken,
@@ -69,14 +71,11 @@ async function register({ name, email, password }) {
 
   if (emailResult.sent) {
     message = "Registration successful. Verification link sent to your email.";
-  } else if (emailResult.queued) {
-    message = "Registration successful. Verification email is queued and should arrive shortly.";
   } else {
     console.warn(
-      `[AUTH] Verification email send failed for ${user.email}. User can request resend.`
+      `[AUTH] Verification email send failed for ${user.email}: ${emailResult.reason}`
     );
-    message =
-      "Registration successful, but verification email could not be sent right now. Please use resend verification from login.";
+    message = "Registration successful, but verification email failed. Please use resend verification.";
   }
 
   // Don't return auth token yet - user must verify email first
@@ -126,20 +125,15 @@ async function forgotPassword({ email }) {
   user.resetToken = resetToken;
   user.resetTokenExpiry = resetTokenExpiry;
   await user.save();
-  // Attempt email send; if it fails, queue for retry in background.
-  // User still gets success response since reset token is persisted.
-  const emailResult = await enqueueEmail("password-reset", {
+  const emailResult = await sendPasswordResetAlert({
     to: user.email,
     resetToken,
   });
 
-  if (!emailResult.queued && !emailResult.sent) {
-    // Only fail if email provider is configured and sending failed permanently.
-    // If SMTP not configured, it logs to console and succeeds gracefully.
+  if (!emailResult.sent) {
     console.warn(
-      `[AUTH] Password reset email send failed for ${user.email}, but token persisted.`
+      `[AUTH] Password reset email send failed for ${user.email}: ${emailResult.reason}`
     );
-    // Still return success to user since token is valid; they can retry request.
     throw new AppError("Failed to send password reset email", 502, "EMAIL_SEND_FAILED");
   }
 }
@@ -202,20 +196,22 @@ async function resendVerificationEmail({ email }) {
   user.emailVerificationExpiry = verificationExpiry;
   await user.save();
 
-  const emailResult = await enqueueEmail("verification", {
+  const emailResult = await sendVerificationAlert({
     to: user.email,
     name: user.name,
     verificationToken,
   });
 
-  if (!emailResult.queued && !emailResult.sent) {
-    throw new AppError("Failed to send verification email", 502, "EMAIL_SEND_FAILED");
+  if (!emailResult.sent) {
+    throw new AppError(
+      `Failed to send verification email: ${emailResult.reason || "delivery-error"}`,
+      502,
+      "EMAIL_SEND_FAILED"
+    );
   }
 
   return {
-    message: emailResult.queued
-      ? "Verification email queued. It may take a few moments to arrive."
-      : "Verification link sent to your email",
+    message: "Verification link sent to your email",
   };
 }
 

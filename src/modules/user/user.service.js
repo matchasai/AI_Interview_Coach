@@ -4,7 +4,7 @@ const { AppError } = require("../../utils/AppError");
 const { User } = require("../auth/user.model");
 const { Session } = require("../session/session.model");
 const { toSafeUser } = require("../auth/auth.service");
-const { enqueueEmail } = require("../auth/email.queue");
+const { sendPracticeReminderAlert } = require("../auth/alert.service");
 
 const ROLE_GUIDE_LIBRARY = {
   "SDE": {
@@ -239,13 +239,21 @@ async function sendPracticeReminder(userId) {
     focus: guide.focusAreas.slice(0, 2).join(', '),
   }));
 
-  const reminderResult = await enqueueEmail('practice-reminder', {
+  const reminderResult = await sendPracticeReminderAlert({
     to: user.email,
     name: user.name,
     guideSummary: studyGuides.summary,
     topFocusAreas,
     dashboardLink: '/dashboard',
   });
+
+  if (!reminderResult.sent) {
+    throw new AppError(
+      `Failed to send reminder email: ${reminderResult.reason || "delivery-error"}`,
+      502,
+      "EMAIL_SEND_FAILED"
+    );
+  }
 
   return {
     message: 'Practice reminder sent',

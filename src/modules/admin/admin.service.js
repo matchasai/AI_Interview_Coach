@@ -2,7 +2,7 @@ const { User } = require("../auth/user.model");
 const { Session } = require("../session/session.model");
 const { AppError } = require("../../utils/AppError");
 const analyticsService = require("../analytics/analytics.service");
-const emailQueue = require("../auth/email.queue");
+const alertService = require("../auth/alert.service");
 
 async function listUsers({ limit = 20, offset = 0 }) {
   const l = Math.min(Math.max(Number(limit) || 20, 1), 100);
@@ -83,15 +83,14 @@ async function deleteUser({ userId }) {
 }
 
 async function getEmailQueueStatus() {
-  // Get queue status from email queue
-  const queueStatus = emailQueue.getQueueStatus ? emailQueue.getQueueStatus() : {};
+  const queueStatus = alertService.getAlertStatus ? alertService.getAlertStatus() : {};
 
   return {
-    pending: queueStatus.pending || 0,
+    pending: 0,
     failed: queueStatus.failed || 0,
-    retrying: queueStatus.retrying || 0,
-    processed: queueStatus.processed || 0,
-    lastProcessed: queueStatus.lastProcessed || null,
+    retrying: 0,
+    processed: queueStatus.sent || 0,
+    lastProcessed: queueStatus.lastSentAt || null,
   };
 }
 
