@@ -34,7 +34,7 @@ const env = {
   SMTP_SECURE: String(process.env.SMTP_SECURE || "false").toLowerCase() === "true",
   SMTP_USER: process.env.SMTP_USER || "",
   SMTP_PASS: process.env.SMTP_PASS || "",
-  EMAIL_FROM: process.env.EMAIL_FROM || "IntervAI Coach <noreply@intervai.com>",
+  EMAIL_FROM: process.env.EMAIL_FROM || "IntervAI Coach <testingexample70@gmail.com>",
 };
 
 module.exports = { env };

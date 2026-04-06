@@ -15,7 +15,7 @@ function resolveFromAddress() {
   if (typeof env.SMTP_USER === 'string' && env.SMTP_USER.includes('@')) {
     return `IntervAI Coach <${env.SMTP_USER}>`;
   }
-  return 'IntervAI Coach <noreply@intervai.com>';
+  return 'IntervAI Coach <testingexample70@gmail.com>';
 }
 
 function createTransport() {
