@@ -8,20 +8,15 @@ import { Input } from '../components/ui/Input'
 import { useAuth } from '../hooks/useAuth'
 import { api, getErrorMessage } from '../services/api'
 import { fadeUp } from '../utils/motion'
-import { toastError, toastSuccess } from '../utils/toast'
 
 export function Login() {
   const navigate = useNavigate()
   const location = useLocation()
   const { isAuthenticated, login } = useAuth()
-  const [serverError, setServerError] = useState('')
+  const [status, setStatus] = useState({ type: '', message: '' })
   const [forgotLoading, setForgotLoading] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
   const [notice, setNotice] = useState(location.state?.notice || '')
-
-  useEffect(() => {
-    if (serverError) toastError(serverError)
-  }, [serverError])
 
   const {
     register,
@@ -42,19 +37,18 @@ export function Login() {
   async function requestPasswordReset() {
     const email = (getValues('email') || '').trim()
     if (!email) {
-      setServerError('Please enter your email first.')
+      setStatus({ type: 'error', message: 'Please enter your email first.' })
       return
     }
 
     setForgotLoading(true)
-    setServerError('')
+    setStatus({ type: '', message: '' })
     try {
       const res = await api.post('/api/auth/forgot-password', { email })
-      toastSuccess(res?.data?.message || 'If an account exists, a reset link has been sent.')
+      setNotice(res?.data?.message || 'If an account exists, a reset link has been sent.')
     } catch (e) {
       const message = getErrorMessage(e)
-      setServerError(message)
-      toastError(message)
+      setStatus({ type: 'error', message })
     } finally {
       setForgotLoading(false)
     }
@@ -63,22 +57,20 @@ export function Login() {
   async function resendVerification() {
     const email = (getValues('email') || '').trim()
     if (!email) {
-      setServerError('Please enter your email first.')
+      setStatus({ type: 'error', message: 'Please enter your email first.' })
       return
     }
 
     setResendLoading(true)
-    setServerError('')
+    setStatus({ type: '', message: '' })
     setNotice('')
     try {
       const res = await api.post('/api/auth/resend-verification-email', { email })
       const message = res?.data?.message || 'Verification email sent.'
       setNotice(message)
-      toastSuccess(message)
     } catch (e) {
       const message = getErrorMessage(e)
-      setServerError(message)
-      toastError(message)
+      setStatus({ type: 'error', message })
     } finally {
       setResendLoading(false)
     }
@@ -87,14 +79,13 @@ export function Login() {
   const onSubmit = useMemo(
     () =>
       handleSubmit(async (values) => {
-        setServerError('')
+        setStatus({ type: '', message: '' })
         setNotice('')
         try {
           await login(values)
-          toastSuccess('Welcome back')
           navigate('/dashboard', { replace: true })
         } catch (e) {
-          setServerError(getErrorMessage(e))
+          setStatus({ type: 'error', message: getErrorMessage(e) })
         }
       }),
     [handleSubmit, login, navigate],
@@ -107,9 +98,9 @@ export function Login() {
       <Card>
         <CardHeader title="Login" subtitle="Access your account" />
 
-        {serverError ? (
+        {status.type === 'error' ? (
           <p className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
-            {serverError}
+            {status.message}
           </p>
         ) : null}
 

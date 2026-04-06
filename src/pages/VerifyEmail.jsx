@@ -5,7 +5,6 @@ import { Button } from '../components/ui/Button'
 import { Card, CardHeader } from '../components/ui/Card'
 import { api, getErrorMessage } from '../services/api'
 import { fadeUp } from '../utils/motion'
-import { toastError, toastSuccess } from '../utils/toast'
 
 export function VerifyEmail() {
   const { token } = useParams()
@@ -28,12 +27,10 @@ export function VerifyEmail() {
         await api.post('/api/auth/verify-email', { token })
         if (!active) return
         setVerified(true)
-        toastSuccess('Email verified successfully. You can login now.')
       } catch (e) {
         if (!active) return
         const msg = getErrorMessage(e)
         setError(msg)
-        toastError(msg)
       } finally {
         if (active) setLoading(false)
       }

@@ -8,16 +8,11 @@ import { Input } from '../components/ui/Input'
 import { useAuth } from '../hooks/useAuth'
 import { getErrorMessage } from '../services/api'
 import { fadeUp } from '../utils/motion'
-import { toastError, toastSuccess } from '../utils/toast'
 
 export function Register() {
   const navigate = useNavigate()
   const { isAuthenticated, register: registerUser } = useAuth()
-  const [serverError, setServerError] = useState('')
-
-  useEffect(() => {
-    if (serverError) toastError(serverError)
-  }, [serverError])
+  const [status, setStatus] = useState({ type: '', message: '' })
 
   const {
     register,
@@ -30,19 +25,22 @@ export function Register() {
   const onSubmit = useMemo(
     () =>
       handleSubmit(async (values) => {
-        setServerError('')
+        setStatus({ type: '', message: '' })
         try {
           const result = await registerUser(values)
-          toastSuccess(result?.message || 'Account created. Please verify your email before login.')
+          setStatus({
+            type: 'success',
+            message: result?.message || 'Account created. Please verify your email before login.',
+          })
           navigate('/login', {
             replace: true,
             state: {
               verificationEmail: values.email,
-              notice: 'Account created. Verification link sent. Please check your inbox or use resend verification.',
+              notice: result?.message || 'Account created. Please verify your email using the link sent to your inbox.',
             },
           })
         } catch (e) {
-          setServerError(getErrorMessage(e))
+          setStatus({ type: 'error', message: getErrorMessage(e) })
         }
       }),
     [handleSubmit, registerUser, navigate],
@@ -55,9 +53,15 @@ export function Register() {
       <Card>
         <CardHeader title="Register" subtitle="Create your account" />
 
-        {serverError ? (
+        {status.type === 'error' ? (
           <p className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-700">
-            {serverError}
+            {status.message}
+          </p>
+        ) : null}
+
+        {status.type === 'success' ? (
+          <p className="mb-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700">
+            {status.message}
           </p>
         ) : null}
 
