@@ -11,6 +11,14 @@ function requireEnv(name) {
   return value;
 }
 
+function normalizeEnvValue(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeSmtpPassword(value) {
+  return normalizeEnvValue(value).replace(/\s+/g, "");
+}
+
 const env = {
   NODE_ENV: process.env.NODE_ENV || "development",
   PORT: Number(process.env.PORT || 5000),
@@ -27,14 +35,14 @@ const env = {
   AI_STRICT_MODE: String(process.env.AI_STRICT_MODE || "false").toLowerCase() === "true",
 
   // Email provider (SMTP)
-  FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5173",
+  FRONTEND_URL: normalizeEnvValue(process.env.FRONTEND_URL) || "http://localhost:5173",
   EMAIL_PROVIDER: process.env.EMAIL_PROVIDER || "smtp",
-  SMTP_HOST: process.env.SMTP_HOST || "",
+  SMTP_HOST: normalizeEnvValue(process.env.SMTP_HOST),
   SMTP_PORT: Number(process.env.SMTP_PORT || 587),
   SMTP_SECURE: String(process.env.SMTP_SECURE || "false").toLowerCase() === "true",
-  SMTP_USER: process.env.SMTP_USER || "",
-  SMTP_PASS: process.env.SMTP_PASS || "",
-  EMAIL_FROM: process.env.EMAIL_FROM || "IntervAI Coach <testingexample70@gmail.com>",
+  SMTP_USER: normalizeEnvValue(process.env.SMTP_USER),
+  SMTP_PASS: normalizeSmtpPassword(process.env.SMTP_PASS),
+  EMAIL_FROM: normalizeEnvValue(process.env.EMAIL_FROM) || "IntervAI Coach <testingexample70@gmail.com>",
 };
 
 module.exports = { env };
