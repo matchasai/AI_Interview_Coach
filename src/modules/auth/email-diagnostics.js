@@ -10,12 +10,13 @@ function hasSmtpConfig() {
 
 function resolveFromAddress() {
   if (typeof env.EMAIL_FROM === 'string' && env.EMAIL_FROM.includes('@')) {
-    return env.EMAIL_FROM;
+    const match = env.EMAIL_FROM.match(/<([^>]+)>/);
+    return match ? match[1].trim() : env.EMAIL_FROM.trim();
   }
   if (typeof env.SMTP_USER === 'string' && env.SMTP_USER.includes('@')) {
-    return `IntervAI Coach <${env.SMTP_USER}>`;
+    return env.SMTP_USER.trim();
   }
-  return 'IntervAI Coach <testingexample70@gmail.com>';
+  return 'testingexample70@gmail.com';
 }
 
 function createTransport() {
