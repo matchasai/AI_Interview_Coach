@@ -38,6 +38,11 @@ function toSafeUser(userDoc) {
   };
 }
 
+function buildVerificationLink(token) {
+  const baseUrl = (env.FRONTEND_URL || "http://localhost:5173").replace(/\/+$/, "");
+  return `${baseUrl}/verify-email/${token}`;
+}
+
 async function register({ name, email, password }) {
   const existing = await User.findOne({ email });
   if (existing) {
@@ -67,6 +72,8 @@ async function register({ name, email, password }) {
     verificationToken,
   });
 
+  const verificationLink = buildVerificationLink(verificationToken);
+
   let message = "Registration successful. Please verify your email.";
 
   if (emailResult.sent) {
@@ -75,11 +82,11 @@ async function register({ name, email, password }) {
     console.warn(
       `[AUTH] Verification email send failed for ${user.email}: ${emailResult.reason}`
     );
-    message = "Registration successful, but verification email failed. Please use resend verification.";
+    message = "Registration successful, but verification email failed. Use the link shown in the app to verify.";
   }
 
   // Don't return auth token yet - user must verify email first
-  return { message, user: toSafeUser(user) };
+  return { message, user: toSafeUser(user), verificationLink, deliveryStatus: emailResult.sent ? "sent" : "failed" };
 }
 
 async function login({ email, password }) {
@@ -202,18 +209,22 @@ async function resendVerificationEmail({ email }) {
     verificationToken,
   });
 
+  const verificationLink = buildVerificationLink(verificationToken);
+
   if (!emailResult.sent) {
     return {
       message:
-        "Verification email provider timed out. Please retry in 1 minute from login.",
+        "Verification email provider timed out. Use the verification link shown in the app.",
       deliveryStatus: "failed",
       reason: emailResult.reason || "delivery-error",
+      verificationLink,
     };
   }
 
   return {
     message: "Verification link sent to your email",
     deliveryStatus: "sent",
+    verificationLink,
   };
 }
 
