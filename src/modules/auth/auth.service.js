@@ -203,15 +203,17 @@ async function resendVerificationEmail({ email }) {
   });
 
   if (!emailResult.sent) {
-    throw new AppError(
-      `Failed to send verification email: ${emailResult.reason || "delivery-error"}`,
-      502,
-      "EMAIL_SEND_FAILED"
-    );
+    return {
+      message:
+        "Verification email provider timed out. Please retry in 1 minute from login.",
+      deliveryStatus: "failed",
+      reason: emailResult.reason || "delivery-error",
+    };
   }
 
   return {
     message: "Verification link sent to your email",
+    deliveryStatus: "sent",
   };
 }
 

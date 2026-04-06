@@ -248,17 +248,19 @@ async function sendPracticeReminder(userId) {
   });
 
   if (!reminderResult.sent) {
-    throw new AppError(
-      `Failed to send reminder email: ${reminderResult.reason || "delivery-error"}`,
-      502,
-      "EMAIL_SEND_FAILED"
-    );
+    return {
+      message: 'Reminder provider timed out. Please retry in a minute.',
+      studyGuides,
+      reminderResult,
+      deliveryStatus: 'failed',
+    };
   }
 
   return {
     message: 'Practice reminder sent',
     studyGuides,
     reminderResult,
+    deliveryStatus: 'sent',
   };
 }
 

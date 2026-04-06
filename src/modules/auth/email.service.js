@@ -44,14 +44,16 @@ function createTransport() {
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
     secure: env.SMTP_SECURE,
-    pool: true,
-    maxConnections: 3,
-    connectionTimeout: 7000,
-    greetingTimeout: 7000,
-    socketTimeout: 10000,
+    connectionTimeout: 20000,
+    greetingTimeout: 15000,
+    socketTimeout: 30000,
     auth: {
       user: env.SMTP_USER,
       pass: env.SMTP_PASS,
+    },
+    tls: {
+      servername: env.SMTP_HOST,
+      minVersion: "TLSv1.2",
     },
   });
 }
