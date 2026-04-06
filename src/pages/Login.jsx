@@ -8,6 +8,7 @@ import { Input } from '../components/ui/Input'
 import { useAuth } from '../hooks/useAuth'
 import { api, getErrorMessage } from '../services/api'
 import { fadeUp } from '../utils/motion'
+import { toast } from '../utils/toast'
 
 export function Login() {
   const navigate = useNavigate()
@@ -17,6 +18,7 @@ export function Login() {
   const [forgotLoading, setForgotLoading] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
   const [notice, setNotice] = useState(location.state?.notice || '')
+  const [verificationLink, setVerificationLink] = useState(location.state?.verificationLink || '')
 
   const {
     register,
@@ -67,7 +69,12 @@ export function Login() {
     try {
       const res = await api.post('/api/auth/resend-verification-email', { email })
       const message = res?.data?.message || 'Verification email sent.'
+      const link = res?.data?.verificationLink || ''
       setNotice(message)
+      setVerificationLink(link)
+      if (link) {
+        toast.success('Verification link created. Use it if email does not arrive.')
+      }
     } catch (e) {
       const message = getErrorMessage(e)
       setStatus({ type: 'error', message })
@@ -108,6 +115,15 @@ export function Login() {
           <p className="mb-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700">
             {notice}
           </p>
+        ) : null}
+
+        {verificationLink ? (
+          <div className="mb-3 rounded-md border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-sm text-blue-800">
+            <p className="font-medium">Verification link fallback</p>
+            <a href={verificationLink} className="break-all underline">
+              {verificationLink}
+            </a>
+          </div>
         ) : null}
 
         <form onSubmit={onSubmit} className="space-y-4">

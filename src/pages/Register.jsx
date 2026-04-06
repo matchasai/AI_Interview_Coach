@@ -8,6 +8,7 @@ import { Input } from '../components/ui/Input'
 import { useAuth } from '../hooks/useAuth'
 import { getErrorMessage } from '../services/api'
 import { fadeUp } from '../utils/motion'
+import { toast } from '../utils/toast'
 
 export function Register() {
   const navigate = useNavigate()
@@ -32,11 +33,15 @@ export function Register() {
             type: 'success',
             message: result?.message || 'Account created. Please verify your email before login.',
           })
+          if (result?.verificationLink) {
+            toast.success('Verification link created. Use the link below if email does not arrive.')
+          }
           navigate('/login', {
             replace: true,
             state: {
               verificationEmail: values.email,
               notice: result?.message || 'Account created. Please verify your email using the link sent to your inbox.',
+              verificationLink: result?.verificationLink || '',
             },
           })
         } catch (e) {

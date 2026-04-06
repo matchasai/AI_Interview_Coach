@@ -59,6 +59,8 @@ export function AuthProvider({ children }) {
       return {
         message: res.data.message,
         user: res.data.user,
+        verificationLink: res.data.verificationLink,
+        deliveryStatus: res.data.deliveryStatus,
       }
     },
     [setAuthToken],
