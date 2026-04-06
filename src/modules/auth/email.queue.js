@@ -122,15 +122,16 @@ async function enqueueEmail(type, payload) {
 
   // Try immediately first
   const result = await job.execute();
+  const jobIndex = emailQueue.indexOf(job);
   if (result === true) {
-    emailQueue.pop(); // Remove if succeeded
+    if (jobIndex !== -1) emailQueue.splice(jobIndex, 1); // Remove this specific job
     queueStats.processed += 1;
     queueStats.lastProcessed = new Date();
     return { queued: false, sent: true };
   }
 
   if (result === false) {
-    emailQueue.pop(); // Remove if failed permanently
+    if (jobIndex !== -1) emailQueue.splice(jobIndex, 1); // Remove this specific job
     queueStats.failed += 1;
     console.error(`[EMAIL QUEUE] Email job failed permanently: ${type}`);
     return { queued: false, sent: false };
