@@ -58,6 +58,24 @@ function createTransport() {
   });
 }
 
+  async function verifyTransport(transporter, to) {
+    try {
+      await transporter.verify();
+      return { ok: true };
+    } catch (error) {
+      console.error(`[EMAIL] SMTP verify failed for ${to}:`, {
+        message: error.message,
+        code: error.code,
+        responseCode: error.responseCode,
+        command: error.command,
+      });
+      return {
+        ok: false,
+        reason: error.message || 'smtp-verify-failed',
+      };
+    }
+  }
+
 function emailShell({ title, preheader, bodyHtml, ctaText, ctaHref, note }) {
   return [
     "<!doctype html>",
@@ -98,6 +116,10 @@ async function sendPasswordResetEmail({ to, resetToken }) {
 
   try {
     const transporter = createTransport();
+    const verified = await verifyTransport(transporter, to);
+    if (!verified.ok) {
+      return { delivered: false, reason: verified.reason, resetLink };
+    }
     const response = await transporter.sendMail({
       from: resolveFromAddress(),
       to,
@@ -138,6 +160,10 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
 
   try {
     const transporter = createTransport();
+    const verified = await verifyTransport(transporter, to);
+    if (!verified.ok) {
+      return { delivered: false, reason: verified.reason, verificationLink };
+    }
     const response = await transporter.sendMail({
       from: resolveFromAddress(),
       to,
@@ -189,6 +215,10 @@ async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas
       : '<li style="margin-bottom:8px;">Review your last interview and repeat the hardest 3 questions.</li>';
 
     const transporter = createTransport();
+    const verified = await verifyTransport(transporter, to);
+    if (!verified.ok) {
+      return { delivered: false, reason: verified.reason, reminderLink: link };
+    }
     const response = await transporter.sendMail({
       from: resolveFromAddress(),
       to,
@@ -227,4 +257,5 @@ module.exports = {
   sendVerificationEmail,
   sendPracticeReminderEmail,
   hasSmtpConfig,
+  verifyTransport,
 };
