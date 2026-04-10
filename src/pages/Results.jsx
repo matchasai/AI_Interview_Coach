@@ -106,7 +106,7 @@ export function Results() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Session Results</h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-700">
             {session.role} · {session.difficulty} · Created {formatDateTime(session.createdAt)}
           </p>
         </div>
@@ -123,24 +123,24 @@ export function Results() {
       <div className="grid gap-4 md:grid-cols-3">
         <Motion.div variants={fadeUp}>
           <Card>
-          <CardHeader title="Status" />
-          <p className="text-lg font-semibold text-slate-900">{session.status}</p>
+            <CardHeader title="Status" subtitle="Current session state" />
+            <p className="text-lg font-semibold text-slate-950">{session.status}</p>
           </Card>
         </Motion.div>
         <Motion.div variants={fadeUp}>
           <Card>
-          <CardHeader title="Answered" />
-          <p className="text-lg font-semibold text-slate-900">
-            {answered}/{session.questions?.length || 0}
-          </p>
+            <CardHeader title="Answered" subtitle="Questions completed" />
+            <p className="text-lg font-semibold text-slate-950">
+              {answered}/{session.questions?.length || 0}
+            </p>
           </Card>
         </Motion.div>
         <Motion.div variants={fadeUp}>
           <Card>
-          <CardHeader title="Total Score" subtitle="Percent" />
-          <p className="text-2xl font-semibold text-slate-900">
-            <AnimatedNumber value={session.totalScore ?? 0} />%
-          </p>
+            <CardHeader title="Total Score" subtitle="Percent" />
+            <p className="text-2xl font-semibold text-slate-950">
+              <AnimatedNumber value={session.totalScore ?? 0} />%
+            </p>
           </Card>
         </Motion.div>
       </div>
@@ -148,7 +148,7 @@ export function Results() {
       {session.status !== 'completed' ? (
         <Card>
           <CardHeader title="Session not completed" />
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-700">
             This session is not marked as completed yet. You can continue answering questions.
           </p>
           <div className="mt-3">
@@ -163,44 +163,44 @@ export function Results() {
         {(session.questions || []).map((q, idx) => (
           <Motion.div key={q.questionId} variants={fadeUp}>
             <Card>
-            <CardHeader title={`Question ${idx + 1}`} subtitle={`Score: ${q.score ?? '—'}/10`} />
-            <p className="text-sm font-medium text-slate-900">{q.questionText}</p>
+              <CardHeader title={`Question ${idx + 1}`} subtitle={`Score: ${q.score ?? '—'}/10`} />
+              <p className="text-sm font-semibold leading-6 text-slate-950">{q.questionText}</p>
 
-            <div className="mt-3 grid gap-3 lg:grid-cols-2">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Your Answer</p>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-slate-800 dark:text-gray-200">{q.userAnswer || '—'}</p>
+              <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Your Answer</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-900">{q.userAnswer || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Feedback</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-900">{q.feedback || '—'}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Feedback</p>
-                <p className="mt-1 text-sm text-slate-800 dark:text-gray-200">{q.feedback || '—'}</p>
-              </div>
-            </div>
 
-            <div className="mt-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Missing Keywords</p>
-              <div className="mt-1">
-                <KeywordChips keywords={q.missingKeywords} />
+              <div className="mt-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Missing Keywords</p>
+                <div className="mt-1">
+                  <KeywordChips keywords={q.missingKeywords} />
+                </div>
               </div>
-            </div>
 
-            <div className="mt-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Improvement Tip</p>
-              <p className="mt-1 text-sm text-slate-800 dark:text-gray-200">{q.improvementTip || '—'}</p>
-            </div>
+              <div className="mt-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Improvement Tip</p>
+                <p className="mt-1 text-sm leading-6 text-slate-900">{q.improvementTip || '—'}</p>
+              </div>
 
-            <div className="mt-3 grid gap-3 lg:grid-cols-2">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Correct Answer (Short)</p>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-slate-800 dark:text-gray-200">
-                  {q.correctAnswer?.short || q.correctAnswer?.long || '—'}
-                </p>
+              <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Correct Answer (Short)</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-900">
+                    {q.correctAnswer?.short || q.correctAnswer?.long || '—'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Evaluation Source</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-900">{q.evaluationSource || '—'} / {q.evaluationProvider || '—'}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Evaluation Source</p>
-                <p className="mt-1 text-sm text-slate-800 dark:text-gray-200">{q.evaluationSource || '—'} / {q.evaluationProvider || '—'}</p>
-              </div>
-            </div>
             </Card>
           </Motion.div>
         ))}
