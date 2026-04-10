@@ -27,6 +27,36 @@ function buildAssistantText(reply) {
     .join('\n')
 }
 
+function buildStructuredSections(details) {
+  if (!details) return []
+  if (Array.isArray(details.sections) && details.sections.length) {
+    return details.sections
+  }
+
+  return [
+    { title: '1. Simple Definition', content: details.simpleDefinition || details.definition || '—' },
+    { title: '2. Why It Is Used (REAL PURPOSE)', content: details.whyItIsUsed || details.whyUsed || '—' },
+    { title: '3. Real-World Example (VERY IMPORTANT)', content: details.realWorldExample || details.example || '—' },
+    { title: '4. How It Works (Step-by-step)', bullets: details.howItWorks || [] },
+    { title: '5. Where It Is Used (Applications)', bullets: details.whereItIsUsed || details.applications || [] },
+    {
+      title: '6. Programming Usage',
+      content: details.programmingUsage?.explanation || details.programmingUsageText || details.programmingUsage || '—',
+      code: details.programmingUsage?.code || '',
+    },
+    {
+      title: '7. Pros and Cons',
+      bullets: [
+        ...(details.prosAndCons?.pros || []).map((item) => `Pros: ${item}`),
+        ...(details.prosAndCons?.cons || []).map((item) => `Cons: ${item}`),
+      ],
+    },
+    { title: '8. Common Mistakes (INTERVIEW GOLD)', bullets: details.commonMistakes || [] },
+    { title: '9. Interview Answer (Short Version)', content: details.interviewAnswer || '—' },
+    { title: '10. Follow-up Question', content: details.followUpQuestion || '—' },
+  ]
+}
+
 export function DoubtSession() {
   const [topic, setTopic] = useState('')
   const [loading, setLoading] = useState(false)
@@ -452,30 +482,29 @@ export function DoubtSession() {
                 </section>
               ) : null}
 
-              <section>
-                <h3 className="font-semibold text-slate-900">1. Definition</h3>
-                <p className="mt-1 leading-7 text-slate-900">{details.definition}</p>
-              </section>
-              <section>
-                <h3 className="font-semibold text-slate-900">2. Why it is used</h3>
-                <p className="mt-1 leading-7 text-slate-900">{details.whyUsed}</p>
-              </section>
-              <section>
-                <h3 className="font-semibold text-slate-900">3. Example</h3>
-                <p className="mt-1 leading-7 text-slate-900">{details.example}</p>
-              </section>
-              <section>
-                <h3 className="font-semibold text-slate-900">4. Applications / Use Cases</h3>
-                <ul className="mt-1 list-disc space-y-1 pl-5 text-slate-900">
-                  {(details.applications || []).map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </section>
-              <section>
-                <h3 className="font-semibold text-slate-900">5. Programming Usage</h3>
-                <p className="mt-1 leading-7 text-slate-900">{details.programmingUsage}</p>
-              </section>
+              {buildStructuredSections(details).map((section) => (
+                <section key={section.title} className="space-y-2">
+                  <h3 className="font-semibold text-slate-950">{section.title}</h3>
+
+                  {section.content ? (
+                    <p className="whitespace-pre-wrap leading-7 text-slate-900">{section.content}</p>
+                  ) : null}
+
+                  {Array.isArray(section.bullets) && section.bullets.length ? (
+                    <ul className="list-disc space-y-1 pl-5 text-slate-900">
+                      {section.bullets.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+
+                  {section.code ? (
+                    <pre className="overflow-x-auto rounded-xl border border-slate-200 bg-slate-950 p-4 text-xs leading-6 text-slate-100">
+                      <code>{section.code}</code>
+                    </pre>
+                  ) : null}
+                </section>
+              ))}
             </div>
           </Card>
         ) : null}
