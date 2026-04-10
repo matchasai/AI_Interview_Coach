@@ -375,72 +375,129 @@ function ensureCodeBlock(value, fallback = "") {
   return trimmed || fallback;
 }
 
+function isSystemDesignTopic(topic) {
+  const t = ensureShortString(topic).toLowerCase();
+  return t.includes("system design") || t.includes("design ") || t.includes("architecture");
+}
+
+function pickRealSystem(topic) {
+  const t = ensureShortString(topic).toLowerCase();
+  if (t.includes("video") || t.includes("stream") || t.includes("cdn")) {
+    return {
+      name: "YouTube",
+      scenario: "video upload and playback",
+      flow: "Client -> Load Balancer -> API Gateway -> Video Service -> Metadata DB + Object Storage -> CDN -> Client",
+      bottleneck: "transcoding queue and CDN cold cache latency",
+    };
+  }
+  if (t.includes("chat") || t.includes("message") || t.includes("whatsapp")) {
+    return {
+      name: "WhatsApp",
+      scenario: "send message and delivery confirmation",
+      flow: "Client -> Load Balancer -> Messaging API -> Queue -> Delivery Worker -> Message Store + Cache -> Recipient Client",
+      bottleneck: "fan-out to large groups and retry storms",
+    };
+  }
+  if (t.includes("commerce") || t.includes("cart") || t.includes("payment") || t.includes("order")) {
+    return {
+      name: "Amazon",
+      scenario: "place order during peak traffic",
+      flow: "Client -> Load Balancer -> API Gateway -> Order Service -> Inventory DB + Redis Cache -> Payment Service -> Response",
+      bottleneck: "inventory contention and payment timeout coordination",
+    };
+  }
+
+  return {
+    name: "URL Shortener",
+    scenario: "create short URL and redirect",
+    flow: "Client -> Load Balancer -> API -> Shortener Service -> Redis Cache + SQL/NoSQL DB -> Redirect Response",
+    bottleneck: "hot-key cache pressure and write amplification",
+  };
+}
+
 function buildStructuredDoubtDetails(topic) {
   const cleanTopic = ensureShortString(topic, "this topic");
+  const system = pickRealSystem(cleanTopic);
+  const systemDesign = isSystemDesignTopic(cleanTopic);
+
+  const howItWorksSteps = [
+    "User request first hits a load balancer, which spreads traffic across multiple API instances.",
+    "API validates input and sends the request to the core service that owns business logic.",
+    "Service checks Redis cache before querying the primary database to reduce read latency.",
+    "On cache miss, service reads from DB, computes result, updates cache, and returns response.",
+    "Background workers handle slow tasks asynchronously so request latency stays low.",
+  ];
+
+  if (systemDesign) {
+    howItWorksSteps.unshift(
+      `Text architecture: ${system.flow}`
+    );
+  }
+
   return {
-    simpleDefinition: `${cleanTopic} is the core idea you should explain in one clear line, then connect it to a real project decision.`,
-    whyItIsUsed: `Developers use ${cleanTopic} to solve a specific practical problem, not just to sound theoretical in interviews.`,
-    realWorldExample: `In a project, ${cleanTopic} would show up when you need to make a design choice, debug an issue, or explain why one approach is better than another.`,
-    howItWorks: [
-      "Start with the problem you are trying to solve.",
-      "Explain the internal flow step by step.",
-      "Point out the tradeoffs and constraints.",
-      "Finish with one concrete example from a project.",
-    ],
+    simpleDefinition: `${cleanTopic} is a practical engineering approach used inside production services to process requests reliably and predictably. In interviews, it is usually discussed in backend APIs, distributed systems, and performance-sensitive flows.`,
+    whyItIsUsed: `Teams use ${cleanTopic} to solve real production constraints like latency spikes, scaling limits, and consistency tradeoffs. In ${system.name}, this appears when handling ${system.scenario} under heavy concurrent traffic.`,
+    realWorldExample: `${system.name}: during ${system.scenario}, the request passes through API, service, cache, and DB. Cache serves hot reads, DB is source of truth, and queue/worker handles expensive tasks so user response stays fast.`,
+    howItWorks: howItWorksSteps,
     whereItIsUsed: [
-      "System design interviews",
-      "Code reviews and debugging discussions",
-      "Architecture decisions in production systems",
-      "Performance and scalability conversations",
+      "High-traffic APIs (auth, feed, checkout)",
+      "Distributed services using cache + database patterns",
+      "System design interviews for backend/full-stack roles",
+      "Production incident debugging and performance tuning",
     ],
     programmingUsage: {
-      explanation: `When writing code for ${cleanTopic}, explain the flow, the edge case, and the measurable outcome instead of only describing the theory.`,
+      explanation: `Use the topic in code by showing API request handling, cache check, DB fallback, and response shaping. Mention timeout handling and idempotent retries for reliability.`,
       code: [
-        `// Example: explain ${cleanTopic} with a small, concrete flow`,
-        `function handle${cleanTopic.replace(/\s+/g, "")}() {`,
-        `  // step 1: validate input`,
-        `  // step 2: process the main logic`,
-        `  // step 3: handle edge cases`,
-        `  return true;`,
-        `}`,
+        `// Node.js service flow: API -> cache -> DB -> response`,
+        `app.get('/v1/items/:id', async (req, res) => {`,
+        `  const key = \`item:${req.params.id}\`;`,
+        `  const cached = await redis.get(key);`,
+        `  if (cached) return res.json({ source: 'cache', data: JSON.parse(cached) });`,
+        ``,
+        `  const row = await db.query('SELECT * FROM items WHERE id = $1', [req.params.id]);`,
+        `  if (!row.rows.length) return res.status(404).json({ error: 'not found' });`,
+        ``,
+        `  await redis.setex(key, 60, JSON.stringify(row.rows[0]));`,
+        `  return res.json({ source: 'db', data: row.rows[0] });`,
+        `});`,
       ].join("\n"),
     },
     prosAndCons: {
       pros: [
-        "Helps you answer in a structured and interview-friendly way",
-        "Makes your answer easy to follow in real project discussions",
-        "Shows that you understand tradeoffs, not just definitions",
+        "Lower average latency by serving hot reads from cache",
+        "Better horizontal scaling because stateless API instances can be added quickly",
+        "Clear separation between request path and async background work",
       ],
       cons: [
-        "A long answer can become too generic if you skip the project example",
-        "Too much theory without code or tradeoffs sounds memorized",
-        "If you ignore edge cases, the answer feels incomplete",
+        "More moving parts increase operational complexity and on-call burden",
+        "Cache invalidation bugs can cause stale reads",
+        "Extra infrastructure (cache, queue, workers) increases cost",
       ],
     },
     commonMistakes: [
-      "Giving a textbook definition without a project example",
-      "Not explaining why developers choose it in practice",
-      "Skipping tradeoffs, limitations, and edge cases",
-      "Writing vague answers with no measurable outcome",
+      "Explaining architecture without request flow (API -> cache -> DB)",
+      "Ignoring bottlenecks like hot keys, DB locks, or queue backlogs",
+      "Claiming strong consistency while also using eventually consistent cache reads",
+      "No scaling strategy (single instance assumptions in high-traffic systems)",
     ],
-    interviewAnswer: `A strong answer for ${cleanTopic} should be short, practical, and structured: define it, explain why it is used, show one real example, mention the tradeoffs, and close with a clear takeaway.`,
-    followUpQuestion: `Can you show me one real project example where ${cleanTopic} would be used?`,
+    interviewAnswer: `${cleanTopic} is used in production request paths where latency and reliability matter. In practice, traffic goes through load balancer, API service, cache, then DB on cache miss. Systems like ${system.name} use this to keep response time low under scale. The tradeoff is higher operational complexity and cache consistency management.`,
+    followUpQuestion: `If traffic grows 10x for ${system.name}, where is the first bottleneck in this flow and how would you scale it?`,
     linkedMissingKeywords: [],
     miniQuiz: [
       {
-        question: `Explain ${cleanTopic} in 60 seconds with one project example.`,
+        question: `Explain ${cleanTopic} in 60 seconds using ${system.name} and one API->cache->DB flow.`,
         difficulty: "easy",
-        expectedPoints: ["Definition", "Real example", "Why it matters"],
+        expectedPoints: ["Definition", "Real system", "Flow"],
       },
       {
-        question: `What tradeoffs should you mention when discussing ${cleanTopic}?`,
+        question: `What tradeoffs should you mention when discussing ${cleanTopic} in production?`,
         difficulty: "medium",
-        expectedPoints: ["Pros", "Cons", "Edge cases"],
+        expectedPoints: ["Latency vs consistency", "Scale vs cost", "Complexity vs simplicity"],
       },
       {
-        question: `How would you implement or apply ${cleanTopic} in code?`,
+        question: `How would you implement ${cleanTopic} with cache fallback and DB query?`,
         difficulty: "medium",
-        expectedPoints: ["Step-by-step flow", "Code example", "Outcome"],
+        expectedPoints: ["API handler", "Cache miss path", "Failure handling"],
       },
     ],
   };
@@ -748,10 +805,20 @@ async function evaluateAnswer({ role, difficulty, questionText, answerText }) {
 async function generateDoubtTopicDetails({ topic, details }) {
   const cleanTopic = ensureShortString(topic);
   const context = ensureShortString(details);
+  const system = pickRealSystem(cleanTopic);
+  const systemDesign = isSystemDesignTopic(cleanTopic);
 
   if (hasGroqKey()) {
     const prompt = [
-      "You are an interview coach.",
+      "You are a senior software engineer and system design interviewer.",
+      "STRICT RULES:",
+      "- Do not write generic theory.",
+      "- Do not repeat the topic in filler text.",
+      "- Every section must include practical technical content.",
+      "- Include real systems (YouTube, WhatsApp, Amazon or equivalent).",
+      "- Include real components (API, DB, cache, load balancer).",
+      "- Include real flow (request -> processing -> response).",
+      "",
       "Return ONLY valid JSON object with these keys exactly:",
       "simpleDefinition, whyItIsUsed, realWorldExample, howItWorks, whereItIsUsed, programmingUsage, prosAndCons, commonMistakes, interviewAnswer, followUpQuestion, linkedMissingKeywords, miniQuiz, sections",
       "howItWorks and whereItIsUsed must be arrays of strings.",
@@ -760,10 +827,27 @@ async function generateDoubtTopicDetails({ topic, details }) {
       "linkedMissingKeywords must be array of strings.",
       "miniQuiz must be array (0-3) of {question, difficulty, expectedPoints}.",
       "sections must be an array of 10 objects with title and content or bullets/code.",
+      "Section order must be exactly:",
+      "1) Simple Definition",
+      "2) Why It Is Used (REAL PURPOSE)",
+      "3) Real-World Example (MANDATORY)",
+      "4) How It Works (STEP-BY-STEP FLOW)",
+      "5) Where It Is Used",
+      "6) Programming Usage (REAL CODE)",
+      "7) Tradeoffs",
+      "8) Common Mistakes",
+      "9) Interview Answer (SHORT)",
+      "10) Follow-up Question",
+      systemDesign
+        ? "Because this topic is system design, include text architecture diagram explanation, horizontal scaling strategy, and bottleneck analysis."
+        : "Keep the explanation practical and interview-ready with concrete engineering detail.",
       "No markdown, no commentary.",
       "",
       `topic: ${cleanTopic}`,
       `studentContext: ${context || "none"}`,
+      `preferredRealSystem: ${system.name}`,
+      `preferredFlow: ${system.flow}`,
+      `knownBottleneck: ${system.bottleneck}`,
     ].join("\n");
 
     try {
