@@ -42,7 +42,7 @@ const env = {
   SMTP_SECURE: String(process.env.SMTP_SECURE || "false").toLowerCase() === "true",
   SMTP_USER: normalizeEnvValue(process.env.SMTP_USER),
   SMTP_PASS: normalizeSmtpPassword(process.env.SMTP_PASS),
-  EMAIL_FROM: normalizeEnvValue(process.env.EMAIL_FROM) || "IntervAI Coach <testingexample70@gmail.com>",
+  EMAIL_FROM: normalizeEnvValue(process.env.EMAIL_FROM) || "no-reply@gmail.com",
 };
 
 module.exports = { env };
