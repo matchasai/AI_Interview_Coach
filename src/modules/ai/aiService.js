@@ -369,31 +369,91 @@ function ensureStringList(value, fallback = []) {
     .filter(Boolean);
 }
 
-function buildFallbackDoubtDetails(topic) {
+function ensureCodeBlock(value, fallback = "") {
+  if (typeof value !== "string") return fallback;
+  const trimmed = value.trim();
+  return trimmed || fallback;
+}
+
+function buildStructuredDoubtDetails(topic) {
   const cleanTopic = ensureShortString(topic, "this topic");
   return {
-    definition: `${cleanTopic} is a core interview concept. Start with what it is, where it appears, and why it matters in real systems.`,
-    whyUsed: `Interviewers ask ${cleanTopic} to evaluate practical understanding, not just theory. They expect clear reasoning and tradeoff awareness.`,
-    example: `A practical way to explain ${cleanTopic} is to walk through one project scenario, then highlight the decision you made and why.`,
-    applications: [
-      "System design discussions",
-      "Code review and debugging",
-      "Architecture and performance tradeoffs",
+    simpleDefinition: `${cleanTopic} is the core idea you should explain in one clear line, then connect it to a real project decision.`,
+    whyItIsUsed: `Developers use ${cleanTopic} to solve a specific practical problem, not just to sound theoretical in interviews.`,
+    realWorldExample: `In a project, ${cleanTopic} would show up when you need to make a design choice, debug an issue, or explain why one approach is better than another.`,
+    howItWorks: [
+      "Start with the problem you are trying to solve.",
+      "Explain the internal flow step by step.",
+      "Point out the tradeoffs and constraints.",
+      "Finish with one concrete example from a project.",
     ],
-    programmingUsage: `In implementation, ${cleanTopic} should be explained with one data flow, one edge case, and one measurable outcome.`,
+    whereItIsUsed: [
+      "System design interviews",
+      "Code reviews and debugging discussions",
+      "Architecture decisions in production systems",
+      "Performance and scalability conversations",
+    ],
+    programmingUsage: {
+      explanation: `When writing code for ${cleanTopic}, explain the flow, the edge case, and the measurable outcome instead of only describing the theory.`,
+      code: [
+        `// Example: explain ${cleanTopic} with a small, concrete flow`,
+        `function handle${cleanTopic.replace(/\s+/g, "")}() {`,
+        `  // step 1: validate input`,
+        `  // step 2: process the main logic`,
+        `  // step 3: handle edge cases`,
+        `  return true;`,
+        `}`,
+      ].join("\n"),
+    },
+    prosAndCons: {
+      pros: [
+        "Helps you answer in a structured and interview-friendly way",
+        "Makes your answer easy to follow in real project discussions",
+        "Shows that you understand tradeoffs, not just definitions",
+      ],
+      cons: [
+        "A long answer can become too generic if you skip the project example",
+        "Too much theory without code or tradeoffs sounds memorized",
+        "If you ignore edge cases, the answer feels incomplete",
+      ],
+    },
+    commonMistakes: [
+      "Giving a textbook definition without a project example",
+      "Not explaining why developers choose it in practice",
+      "Skipping tradeoffs, limitations, and edge cases",
+      "Writing vague answers with no measurable outcome",
+    ],
+    interviewAnswer: `A strong answer for ${cleanTopic} should be short, practical, and structured: define it, explain why it is used, show one real example, mention the tradeoffs, and close with a clear takeaway.`,
+    followUpQuestion: `Can you show me one real project example where ${cleanTopic} would be used?`,
     linkedMissingKeywords: [],
     miniQuiz: [
       {
-        question: `Explain ${cleanTopic} in 60 seconds with one real example.`,
+        question: `Explain ${cleanTopic} in 60 seconds with one project example.`,
         difficulty: "easy",
-        expectedPoints: ["Definition", "When to use", "One example"],
+        expectedPoints: ["Definition", "Real example", "Why it matters"],
       },
       {
-        question: `What tradeoffs are important when applying ${cleanTopic}?`,
+        question: `What tradeoffs should you mention when discussing ${cleanTopic}?`,
         difficulty: "medium",
-        expectedPoints: ["Pros", "Cons", "Decision criteria"],
+        expectedPoints: ["Pros", "Cons", "Edge cases"],
+      },
+      {
+        question: `How would you implement or apply ${cleanTopic} in code?`,
+        difficulty: "medium",
+        expectedPoints: ["Step-by-step flow", "Code example", "Outcome"],
       },
     ],
+  };
+}
+
+function buildFallbackDoubtDetails(topic) {
+  const base = buildStructuredDoubtDetails(topic);
+  return {
+    ...base,
+    definition: base.simpleDefinition,
+    whyUsed: base.whyItIsUsed,
+    example: base.realWorldExample,
+    applications: base.whereItIsUsed,
   };
 }
 
@@ -410,12 +470,80 @@ function normalizeDoubtDetails(payload, topic) {
     }))
     .filter((item) => item.question);
 
+  const structured = source.sections && Array.isArray(source.sections) ? source.sections : [];
+
+  const simpleDefinition = ensureShortString(
+    source.simpleDefinition || source.definition,
+    fallback.simpleDefinition
+  );
+  const whyItIsUsed = ensureShortString(source.whyItIsUsed || source.whyUsed, fallback.whyItIsUsed);
+  const realWorldExample = ensureShortString(
+    source.realWorldExample || source.example,
+    fallback.realWorldExample
+  );
+  const howItWorks = ensureStringList(source.howItWorks, fallback.howItWorks);
+  const whereItIsUsed = ensureStringList(source.whereItIsUsed || source.applications, fallback.whereItIsUsed);
+  const programmingUsage = {
+    explanation: ensureShortString(
+      source.programmingUsage?.explanation || source.programmingUsage,
+      fallback.programmingUsage.explanation
+    ),
+    code: ensureCodeBlock(source.programmingUsage?.code, fallback.programmingUsage.code),
+  };
+  const prosAndCons = {
+    pros: ensureStringList(source.prosAndCons?.pros, fallback.prosAndCons.pros),
+    cons: ensureStringList(source.prosAndCons?.cons, fallback.prosAndCons.cons),
+  };
+  const commonMistakes = ensureStringList(source.commonMistakes, fallback.commonMistakes);
+  const interviewAnswer = ensureShortString(source.interviewAnswer, fallback.interviewAnswer);
+  const followUpQuestion = ensureShortString(source.followUpQuestion, fallback.followUpQuestion);
+
+  const sections = structured.length
+    ? structured
+        .map((item) => ({
+          title: ensureShortString(item?.title),
+          content: ensureShortString(item?.content),
+          bullets: ensureStringList(item?.bullets, []),
+          code: ensureCodeBlock(item?.code, ""),
+        }))
+        .filter((item) => item.title && (item.content || item.bullets.length || item.code))
+    : [
+        { title: "1. Simple Definition", content: simpleDefinition },
+        { title: "2. Why It Is Used (REAL PURPOSE)", content: whyItIsUsed },
+        { title: "3. Real-World Example (VERY IMPORTANT)", content: realWorldExample },
+        { title: "4. How It Works (Step-by-step)", bullets: howItWorks },
+        { title: "5. Where It Is Used (Applications)", bullets: whereItIsUsed },
+        { title: "6. Programming Usage", content: programmingUsage.explanation, code: programmingUsage.code },
+        {
+          title: "7. Pros and Cons",
+          bullets: [
+            ...prosAndCons.pros.map((item) => `Pros: ${item}`),
+            ...prosAndCons.cons.map((item) => `Cons: ${item}`),
+          ],
+        },
+        { title: "8. Common Mistakes (INTERVIEW GOLD)", bullets: commonMistakes },
+        { title: "9. Interview Answer (Short Version)", content: interviewAnswer },
+        { title: "10. Follow-up Question", content: followUpQuestion },
+      ];
+
   return {
-    definition: ensureShortString(source.definition, fallback.definition),
-    whyUsed: ensureShortString(source.whyUsed, fallback.whyUsed),
-    example: ensureShortString(source.example, fallback.example),
-    applications: ensureStringList(source.applications, fallback.applications),
-    programmingUsage: ensureShortString(source.programmingUsage, fallback.programmingUsage),
+    simpleDefinition,
+    whyItIsUsed,
+    realWorldExample,
+    howItWorks,
+    whereItIsUsed,
+    programmingUsage,
+    prosAndCons,
+    commonMistakes,
+    interviewAnswer,
+    followUpQuestion,
+    sections,
+    // Backward-compatible aliases for existing UI and exports.
+    definition: simpleDefinition,
+    whyUsed: whyItIsUsed,
+    example: realWorldExample,
+    applications: whereItIsUsed,
+    programmingUsageText: programmingUsage.explanation,
     linkedMissingKeywords: ensureStringList(source.linkedMissingKeywords, []),
     miniQuiz: miniQuiz.length ? miniQuiz : fallback.miniQuiz,
   };
@@ -625,10 +753,13 @@ async function generateDoubtTopicDetails({ topic, details }) {
     const prompt = [
       "You are an interview coach.",
       "Return ONLY valid JSON object with these keys exactly:",
-      "definition, whyUsed, example, applications, programmingUsage, linkedMissingKeywords, miniQuiz",
-      "applications must be array of strings (3-6).",
+      "simpleDefinition, whyItIsUsed, realWorldExample, howItWorks, whereItIsUsed, programmingUsage, prosAndCons, commonMistakes, interviewAnswer, followUpQuestion, linkedMissingKeywords, miniQuiz, sections",
+      "howItWorks and whereItIsUsed must be arrays of strings.",
+      "programmingUsage must be an object with explanation and code.",
+      "prosAndCons must be an object with pros and cons arrays.",
       "linkedMissingKeywords must be array of strings.",
       "miniQuiz must be array (0-3) of {question, difficulty, expectedPoints}.",
+      "sections must be an array of 10 objects with title and content or bullets/code.",
       "No markdown, no commentary.",
       "",
       `topic: ${cleanTopic}`,
