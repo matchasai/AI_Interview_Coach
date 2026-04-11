@@ -15,6 +15,10 @@ function normalizeEnvValue(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function normalizeLowerEnvValue(value) {
+  return normalizeEnvValue(value).toLowerCase();
+}
+
 function normalizeSmtpPassword(value) {
   return normalizeEnvValue(value).replace(/\s+/g, "");
 }
@@ -36,7 +40,7 @@ const env = {
 
   // Email provider (SMTP)
   FRONTEND_URL: normalizeEnvValue(process.env.FRONTEND_URL) || "http://localhost:5173",
-  EMAIL_PROVIDER: process.env.EMAIL_PROVIDER || "smtp",
+  EMAIL_PROVIDER: normalizeLowerEnvValue(process.env.EMAIL_PROVIDER) || "smtp",
   SMTP_HOST: normalizeEnvValue(process.env.SMTP_HOST),
   SMTP_PORT: Number(process.env.SMTP_PORT || 587),
   SMTP_SECURE: String(process.env.SMTP_SECURE || "false").toLowerCase() === "true",

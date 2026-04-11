@@ -22,6 +22,21 @@ function wait(ms) {
   });
 }
 
+function isRetryableFailure(reason) {
+  const text = String(reason || "").toLowerCase();
+  if (!text) return true;
+
+  const nonRetryablePatterns = [
+    "smtp-not-configured",
+    "auth",
+    "invalid login",
+    "535",
+    "recipient-rejected",
+  ];
+
+  return !nonRetryablePatterns.some((pattern) => text.includes(pattern));
+}
+
 async function dispatchWithRetry(sendFn, payload, type, attempts = DEFAULT_RETRY_ATTEMPTS) {
   let lastFailure = null;
 
@@ -40,10 +55,16 @@ async function dispatchWithRetry(sendFn, payload, type, attempts = DEFAULT_RETRY
       }
 
       const reason = result?.reason || "not-delivered";
+      if (!isRetryableFailure(reason)) {
+        throw Object.assign(new Error(reason), { nonRetryable: true });
+      }
       throw new Error(reason);
     } catch (error) {
       lastFailure = error;
       alertStats.retried += 1;
+      if (error?.nonRetryable) {
+        break;
+      }
       if (i < attempts) {
         const delay = RETRY_BASE_DELAY_MS * i;
         await wait(delay);

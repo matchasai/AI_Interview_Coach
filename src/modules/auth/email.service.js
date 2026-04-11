@@ -116,6 +116,25 @@ function shouldVerifyBeforeSend() {
   return String(process.env.SMTP_VERIFY_BEFORE_SEND || "false").toLowerCase() === "true";
 }
 
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function isRecipientAccepted(response, to) {
+  const target = normalizeEmail(to);
+  const accepted = Array.isArray(response?.accepted)
+    ? response.accepted.map((entry) => normalizeEmail(entry))
+    : [];
+  const rejected = Array.isArray(response?.rejected)
+    ? response.rejected.map((entry) => normalizeEmail(entry))
+    : [];
+
+  if (rejected.includes(target)) return false;
+  if (accepted.length === 0) return false;
+  if (!target) return accepted.length > 0;
+  return accepted.includes(target);
+}
+
 async function maybeVerifyTransport(transporter, to) {
   if (!shouldVerifyBeforeSend()) {
     return { ok: true };
@@ -210,6 +229,9 @@ async function sendPasswordResetEmail({ to, resetToken }) {
         note: "If you did not request this, you can safely ignore this email.",
       }),
     });
+    if (!isRecipientAccepted(response, to)) {
+      return { delivered: false, reason: "recipient-rejected", resetLink };
+    }
     logNonProduction(`[EMAIL] Password reset sent to ${to}, messageId: ${response.messageId}`);
     return { delivered: true, resetLink };
   } catch (error) {
@@ -260,6 +282,9 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
         note: "If you did not create this account, you can ignore this email.",
       }),
     });
+    if (!isRecipientAccepted(response, to)) {
+      return { delivered: false, reason: "recipient-rejected", verificationLink };
+    }
     logNonProduction(`[EMAIL] Verification sent to ${to}, messageId: ${response.messageId}`);
     return { delivered: true, verificationLink };
   } catch (error) {
@@ -320,6 +345,9 @@ async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas
         note: 'Practice reminders help you revisit weak areas and improve consistently.',
       }),
     });
+    if (!isRecipientAccepted(response, to)) {
+      return { delivered: false, reason: "recipient-rejected", reminderLink: link };
+    }
     logNonProduction(`[EMAIL] Practice reminder sent to ${to}, messageId: ${response.messageId}`);
     return { delivered: true, reminderLink: link };
   } catch (error) {
