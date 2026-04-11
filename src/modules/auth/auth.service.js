@@ -115,7 +115,7 @@ async function forgotPassword({ email }) {
   const user = await User.findOne({ email });
   if (!user) {
     // For security, don't reveal whether email exists
-    return;
+    return { deliveryStatus: "skipped", reason: "user-not-found" };
   }
 
   // Generate a reset token valid for 1 hour
@@ -134,8 +134,13 @@ async function forgotPassword({ email }) {
     console.warn(
       `[AUTH] Password reset email send failed for ${user.email}: ${emailResult.reason}`
     );
-    throw new AppError("Failed to send password reset email", 502, "EMAIL_SEND_FAILED");
+    return {
+      deliveryStatus: "failed",
+      reason: emailResult.reason || "delivery-error",
+    };
   }
+
+  return { deliveryStatus: "sent" };
 }
 
 async function resetPassword({ token, password }) {
