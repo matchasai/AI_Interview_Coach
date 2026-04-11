@@ -37,15 +37,46 @@ function logNonProduction(message) {
   }
 }
 
+function extractEmailAddress(value) {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const match = trimmed.match(/<([^>]+)>/);
+  if (match && match[1]) {
+    return match[1].trim().toLowerCase();
+  }
+
+  if (trimmed.includes("@")) {
+    return trimmed.toLowerCase();
+  }
+
+  return "";
+}
+
 function resolveFromAddress() {
-  if (typeof env.EMAIL_FROM === 'string' && env.EMAIL_FROM.includes('@')) {
-    const match = env.EMAIL_FROM.match(/<([^>]+)>/);
-    return match ? match[1].trim() : env.EMAIL_FROM.trim();
-  }
-  if (typeof env.SMTP_USER === 'string' && env.SMTP_USER.includes('@')) {
-    return env.SMTP_USER.trim();
-  }
-  return 'testingexample70@gmail.com';
+  const smtpUser = extractEmailAddress(env.SMTP_USER);
+  const configuredFromEmail = extractEmailAddress(env.EMAIL_FROM);
+  const configuredFromRaw = typeof env.EMAIL_FROM === "string" ? env.EMAIL_FROM.trim() : "";
+
+  const canUseConfiguredFrom =
+    configuredFromEmail &&
+    (env.NODE_ENV !== "production" || configuredFromEmail === smtpUser);
+
+  const senderEmail = canUseConfiguredFrom
+    ? configuredFromEmail
+    : (smtpUser || configuredFromEmail || "testingexample70@gmail.com");
+
+  const from =
+    canUseConfiguredFrom && configuredFromRaw
+      ? configuredFromRaw
+      : `IntervAI Coach <${senderEmail}>`;
+
+  return {
+    from,
+    envelopeFrom: senderEmail,
+    replyTo: senderEmail,
+  };
 }
 
 function createTransport() {
@@ -142,6 +173,7 @@ function emailShell({ title, preheader, bodyHtml, ctaText, ctaHref, note }) {
 
 async function sendPasswordResetEmail({ to, resetToken }) {
   const resetLink = `${resolveFrontendBaseUrl()}/reset-password/${resetToken}`;
+  const sender = resolveFromAddress();
 
   if (!hasSmtpConfig() || env.EMAIL_PROVIDER !== "smtp") {
     logNonProduction(`[DEV EMAIL LOG] Password reset link for ${to}: ${resetLink}`);
@@ -155,8 +187,10 @@ async function sendPasswordResetEmail({ to, resetToken }) {
       return { delivered: false, reason: verified.reason, resetLink };
     }
     const response = await transporter.sendMail({
-      from: resolveFromAddress(),
+      from: sender.from,
       to,
+      envelope: { from: sender.envelopeFrom, to },
+      replyTo: sender.replyTo,
       subject: "Reset your AI Interview Coach password",
       text: [
         "We received a request to reset your password.",
@@ -187,6 +221,7 @@ async function sendPasswordResetEmail({ to, resetToken }) {
 
 async function sendVerificationEmail({ to, name, verificationToken }) {
   const verificationLink = `${resolveFrontendBaseUrl()}/verify-email/${verificationToken}`;
+  const sender = resolveFromAddress();
 
   if (!hasSmtpConfig() || env.EMAIL_PROVIDER !== "smtp") {
     logNonProduction(`[DEV EMAIL LOG] Email verification link for ${to}: ${verificationLink}`);
@@ -200,8 +235,10 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
       return { delivered: false, reason: verified.reason, verificationLink };
     }
     const response = await transporter.sendMail({
-      from: resolveFromAddress(),
+      from: sender.from,
       to,
+      envelope: { from: sender.envelopeFrom, to },
+      replyTo: sender.replyTo,
       subject: "Verify your AI Interview Coach email",
       text: [
         `Welcome, ${name}!`,
@@ -239,6 +276,7 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
 
 async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas = [], dashboardLink }) {
   const link = `${resolveFrontendBaseUrl()}${dashboardLink || '/dashboard'}`;
+  const sender = resolveFromAddress();
 
   if (!hasSmtpConfig() || env.EMAIL_PROVIDER !== "smtp") {
     logNonProduction(`[DEV EMAIL LOG] Practice reminder for ${to}: ${guideSummary || 'Practice today'} -> ${link}`);
@@ -256,8 +294,10 @@ async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas
       return { delivered: false, reason: verified.reason, reminderLink: link };
     }
     const response = await transporter.sendMail({
-      from: resolveFromAddress(),
+      from: sender.from,
       to,
+      envelope: { from: sender.envelopeFrom, to },
+      replyTo: sender.replyTo,
       subject: "Your IntervAI Coach practice reminder",
       text: [
         `Hi ${name || 'there'},`,

@@ -8,15 +8,39 @@ function hasSmtpConfig() {
   return Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
 }
 
+function extractEmailAddress(value) {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const match = trimmed.match(/<([^>]+)>/);
+  if (match && match[1]) {
+    return match[1].trim().toLowerCase();
+  }
+
+  if (trimmed.includes("@")) {
+    return trimmed.toLowerCase();
+  }
+
+  return "";
+}
+
 function resolveFromAddress() {
-  if (typeof env.EMAIL_FROM === 'string' && env.EMAIL_FROM.includes('@')) {
-    const match = env.EMAIL_FROM.match(/<([^>]+)>/);
-    return match ? match[1].trim() : env.EMAIL_FROM.trim();
-  }
-  if (typeof env.SMTP_USER === 'string' && env.SMTP_USER.includes('@')) {
-    return env.SMTP_USER.trim();
-  }
-  return 'testingexample70@gmail.com';
+  const smtpUser = extractEmailAddress(env.SMTP_USER);
+  const configuredFromEmail = extractEmailAddress(env.EMAIL_FROM);
+  const configuredFromRaw = typeof env.EMAIL_FROM === "string" ? env.EMAIL_FROM.trim() : "";
+
+  const canUseConfiguredFrom =
+    configuredFromEmail &&
+    (env.NODE_ENV !== "production" || configuredFromEmail === smtpUser);
+
+  const senderEmail = canUseConfiguredFrom
+    ? configuredFromEmail
+    : (smtpUser || configuredFromEmail || "testingexample70@gmail.com");
+
+  return canUseConfiguredFrom && configuredFromRaw
+    ? configuredFromRaw
+    : `IntervAI Coach <${senderEmail}>`;
 }
 
 function createTransport() {
