@@ -1,15 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo } from 'react'
 
 const ThemeContext = createContext(null)
 
 const STORAGE_KEY = 'themePreference'
 const FORCED_THEME = 'light'
 
-function resolveTheme(theme) {
-  return FORCED_THEME
-}
-
-function applyTheme(theme) {
+function applyTheme() {
   if (typeof document === 'undefined') return
 
   const resolved = FORCED_THEME
@@ -26,35 +22,28 @@ function applyTheme(theme) {
 }
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(FORCED_THEME)
-
   useEffect(() => {
-    setTheme(FORCED_THEME)
-  }, [])
-
-  useEffect(() => {
-    applyTheme(FORCED_THEME)
+    applyTheme()
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY, FORCED_THEME)
     }
-  }, [theme])
-
-  const updateTheme = useCallback(() => {
-    setTheme(FORCED_THEME)
   }, [])
 
-  const toggleTheme = useCallback(() => {
-    setTheme(FORCED_THEME)
+  const keepLightTheme = useCallback(() => {
+    applyTheme()
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, FORCED_THEME)
+    }
   }, [])
 
   const value = useMemo(
     () => ({
       theme: FORCED_THEME,
       resolvedTheme: FORCED_THEME,
-      setTheme: updateTheme,
-      toggleTheme,
+      setTheme: keepLightTheme,
+      toggleTheme: keepLightTheme,
     }),
-    [updateTheme, toggleTheme],
+    [keepLightTheme],
   )
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
