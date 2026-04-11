@@ -28,6 +28,13 @@ function hasSmtpConfig() {
   return Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS);
 }
 
+function logNonProduction(message) {
+  if (env.NODE_ENV !== "production") {
+    // eslint-disable-next-line no-console
+    console.log(message);
+  }
+}
+
 function resolveFromAddress() {
   if (typeof env.EMAIL_FROM === 'string' && env.EMAIL_FROM.includes('@')) {
     const match = env.EMAIL_FROM.match(/<([^>]+)>/);
@@ -110,7 +117,7 @@ async function sendPasswordResetEmail({ to, resetToken }) {
   const resetLink = `${resolveFrontendBaseUrl()}/reset-password/${resetToken}`;
 
   if (!hasSmtpConfig() || env.EMAIL_PROVIDER !== "smtp") {
-    console.log(`[DEV EMAIL LOG] Password reset link for ${to}: ${resetLink}`);
+    logNonProduction(`[DEV EMAIL LOG] Password reset link for ${to}: ${resetLink}`);
     return { delivered: false, reason: "smtp-not-configured", resetLink };
   }
 
@@ -142,7 +149,7 @@ async function sendPasswordResetEmail({ to, resetToken }) {
         note: "If you did not request this, you can safely ignore this email.",
       }),
     });
-    console.log(`[EMAIL] Password reset sent to ${to}, messageId: ${response.messageId}`);
+    logNonProduction(`[EMAIL] Password reset sent to ${to}, messageId: ${response.messageId}`);
     return { delivered: true, resetLink };
   } catch (error) {
     console.error(`[EMAIL] Password reset send failed for ${to}:`, error.message);
@@ -154,7 +161,7 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
   const verificationLink = `${resolveFrontendBaseUrl()}/verify-email/${verificationToken}`;
 
   if (!hasSmtpConfig() || env.EMAIL_PROVIDER !== "smtp") {
-    console.log(`[DEV EMAIL LOG] Email verification link for ${to}: ${verificationLink}`);
+    logNonProduction(`[DEV EMAIL LOG] Email verification link for ${to}: ${verificationLink}`);
     return { delivered: false, reason: "smtp-not-configured", verificationLink };
   }
 
@@ -188,7 +195,7 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
         note: "If you did not create this account, you can ignore this email.",
       }),
     });
-    console.log(`[EMAIL] Verification sent to ${to}, messageId: ${response.messageId}`);
+    logNonProduction(`[EMAIL] Verification sent to ${to}, messageId: ${response.messageId}`);
     return { delivered: true, verificationLink };
   } catch (error) {
     console.error(`[EMAIL] Verification send failed for ${to}:`, {
@@ -205,7 +212,7 @@ async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas
   const link = `${resolveFrontendBaseUrl()}${dashboardLink || '/dashboard'}`;
 
   if (!hasSmtpConfig() || env.EMAIL_PROVIDER !== "smtp") {
-    console.log(`[DEV EMAIL LOG] Practice reminder for ${to}: ${guideSummary || 'Practice today'} -> ${link}`);
+    logNonProduction(`[DEV EMAIL LOG] Practice reminder for ${to}: ${guideSummary || 'Practice today'} -> ${link}`);
     return { delivered: false, reason: "smtp-not-configured", reminderLink: link };
   }
 
@@ -244,7 +251,7 @@ async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas
         note: 'Practice reminders help you revisit weak areas and improve consistently.',
       }),
     });
-    console.log(`[EMAIL] Practice reminder sent to ${to}, messageId: ${response.messageId}`);
+    logNonProduction(`[EMAIL] Practice reminder sent to ${to}, messageId: ${response.messageId}`);
     return { delivered: true, reminderLink: link };
   } catch (error) {
     console.error(`[EMAIL] Practice reminder send failed for ${to}:`, error.message);
