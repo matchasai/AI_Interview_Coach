@@ -1,6 +1,8 @@
 const nodemailer = require("nodemailer");
 const { env } = require("../../config/env");
 
+let sharedTransporter = null;
+
 function normalizeBaseUrl(value) {
   if (!value || typeof value !== "string") return "";
   const trimmed = value.trim();
@@ -51,9 +53,12 @@ function createTransport() {
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
     secure: env.SMTP_SECURE,
-    connectionTimeout: 20000,
-    greetingTimeout: 15000,
-    socketTimeout: 30000,
+    pool: true,
+    maxConnections: 3,
+    maxMessages: 100,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: env.SMTP_USER,
       pass: env.SMTP_PASS,
@@ -63,6 +68,28 @@ function createTransport() {
       minVersion: "TLSv1.2",
     },
   });
+}
+
+function getTransporter() {
+  if (!sharedTransporter) {
+    sharedTransporter = createTransport();
+  }
+  return sharedTransporter;
+}
+
+function resetTransporter() {
+  sharedTransporter = null;
+}
+
+function shouldVerifyBeforeSend() {
+  return String(process.env.SMTP_VERIFY_BEFORE_SEND || "false").toLowerCase() === "true";
+}
+
+async function maybeVerifyTransport(transporter, to) {
+  if (!shouldVerifyBeforeSend()) {
+    return { ok: true };
+  }
+  return verifyTransport(transporter, to);
 }
 
   async function verifyTransport(transporter, to) {
@@ -122,8 +149,8 @@ async function sendPasswordResetEmail({ to, resetToken }) {
   }
 
   try {
-    const transporter = createTransport();
-    const verified = await verifyTransport(transporter, to);
+    const transporter = getTransporter();
+    const verified = await maybeVerifyTransport(transporter, to);
     if (!verified.ok) {
       return { delivered: false, reason: verified.reason, resetLink };
     }
@@ -152,6 +179,7 @@ async function sendPasswordResetEmail({ to, resetToken }) {
     logNonProduction(`[EMAIL] Password reset sent to ${to}, messageId: ${response.messageId}`);
     return { delivered: true, resetLink };
   } catch (error) {
+    resetTransporter();
     console.error(`[EMAIL] Password reset send failed for ${to}:`, error.message);
     return { delivered: false, reason: error.message, resetLink };
   }
@@ -166,8 +194,8 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
   }
 
   try {
-    const transporter = createTransport();
-    const verified = await verifyTransport(transporter, to);
+    const transporter = getTransporter();
+    const verified = await maybeVerifyTransport(transporter, to);
     if (!verified.ok) {
       return { delivered: false, reason: verified.reason, verificationLink };
     }
@@ -198,6 +226,7 @@ async function sendVerificationEmail({ to, name, verificationToken }) {
     logNonProduction(`[EMAIL] Verification sent to ${to}, messageId: ${response.messageId}`);
     return { delivered: true, verificationLink };
   } catch (error) {
+    resetTransporter();
     console.error(`[EMAIL] Verification send failed for ${to}:`, {
       message: error.message,
       code: error.code,
@@ -221,8 +250,8 @@ async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas
       ? topFocusAreas.slice(0, 3).map((item) => `<li style="margin-bottom:8px;"><strong>${item.role}</strong>: ${item.focus}</li>`).join('')
       : '<li style="margin-bottom:8px;">Review your last interview and repeat the hardest 3 questions.</li>';
 
-    const transporter = createTransport();
-    const verified = await verifyTransport(transporter, to);
+    const transporter = getTransporter();
+    const verified = await maybeVerifyTransport(transporter, to);
     if (!verified.ok) {
       return { delivered: false, reason: verified.reason, reminderLink: link };
     }
@@ -254,6 +283,7 @@ async function sendPracticeReminderEmail({ to, name, guideSummary, topFocusAreas
     logNonProduction(`[EMAIL] Practice reminder sent to ${to}, messageId: ${response.messageId}`);
     return { delivered: true, reminderLink: link };
   } catch (error) {
+    resetTransporter();
     console.error(`[EMAIL] Practice reminder send failed for ${to}:`, error.message);
     return { delivered: false, reason: error.message, reminderLink: link };
   }

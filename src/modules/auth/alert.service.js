@@ -4,8 +4,8 @@ const {
   sendVerificationEmail,
 } = require("./email.service");
 
-const DEFAULT_RETRY_ATTEMPTS = 3;
-const RETRY_BASE_DELAY_MS = 1200;
+const DEFAULT_RETRY_ATTEMPTS = 2;
+const RETRY_BASE_DELAY_MS = 350;
 
 const alertStats = {
   sent: 0,
