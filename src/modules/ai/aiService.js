@@ -450,7 +450,7 @@ function buildStructuredDoubtDetails(topic) {
       code: [
         `// Node.js service flow: API -> cache -> DB -> response`,
         `app.get('/v1/items/:id', async (req, res) => {`,
-        `  const key = \`item:${req.params.id}\`;`,
+        `  const key = \`item:\${req.params.id}\`;`,
         `  const cached = await redis.get(key);`,
         `  if (cached) return res.json({ source: 'cache', data: JSON.parse(cached) });`,
         ``,
